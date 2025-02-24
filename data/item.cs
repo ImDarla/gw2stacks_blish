@@ -47,7 +47,7 @@ namespace data
         }
 
         //TODO fix item types
-		public List<Source> get_advice_stacks<Source>(Dictionary<string, int> material_storage_size)
+		public List<Source> get_advice_stacks(Dictionary<string, int> material_storage_size)
         {
             if (this.account_bound ==false)
             {
