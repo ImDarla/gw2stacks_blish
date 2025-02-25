@@ -16,11 +16,11 @@ namespace data
 			{ "$shared_slot", "Shared Inventory Slot" }
 		};
 
-		public int count;
+		public UInt64 count;
 		public string place;
 		public string account;
 
-		public Source(int count, string place, string account)
+		public Source(UInt64 count, string place, string account)
 		{
 			this.count = count;
 			this.place = place;

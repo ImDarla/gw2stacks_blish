@@ -64,7 +64,7 @@ namespace reader
 			return response;
 		}
 
-		public async Task<IApiV2ObjectList<AccountMaterial>> materials()
+		public async Task<IApiV2ObjectList<AccountMaterial>> material_storage()
 		{
 			var client = new Gw2Sharp.Gw2Client(this.connection);
 			
@@ -92,7 +92,7 @@ namespace reader
 		public async Task<Itemstat> item_information(int id)
 		{
 			var client = new Gw2Sharp.Gw2Client(this.connection);
-			var response = await client.WebApi.V2.Itemstats.GetAsync(id);//stats of specific ID
+			var response = await client.WebApi.V2.Itemstats.GetAsync((int)id);//stats of specific ID
 			client.Dispose();
 			return response;
 		}

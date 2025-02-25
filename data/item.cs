@@ -47,13 +47,13 @@ namespace data
         }
 
         //TODO fix item types
-		public List<Source> get_advice_stacks(Dictionary<string, int> material_storage_size)
+		public List<Source> get_advice_stacks(Dictionary<string, UInt64> material_storage_size)
         {
             if (this.account_bound ==false)
             {
                 List<Source> stackable_Source = this.get_partial_stacks(material_storage_size);
-                int number_of_partial_stacks = stackable_Source.Count();
-                int number_of_stacks_consolidated = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(this.total_count() / 250)));
+                UInt64 number_of_partial_stacks = Convert.ToUInt64(stackable_Source.Count());
+                UInt64 number_of_stacks_consolidated = Convert.ToUInt64(Math.Ceiling(Convert.ToDouble(this.total_count() / 250)));
                 if(this.stackable &&((number_of_partial_stacks>1)&&(number_of_partial_stacks >number_of_stacks_consolidated)))
                 {
                     return stackable_Source;
@@ -69,9 +69,9 @@ namespace data
                 List<Source> stackable_Sources = new List<Source>();
                 foreach(string account in material_storage_size.Keys)
                 {
-					List<Source> stackable_Source = this.get_partial_stacks(new Dictionary<string, int> { { account, material_storage_size.GetValueOrDefault(account) } });
-					int number_of_partial_stacks = stackable_Source.Count();
-					int number_of_stacks_consolidated = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(this.total_count() / 250)));
+					List<Source> stackable_Source = this.get_partial_stacks(new Dictionary<string, UInt64> { { account, material_storage_size.GetValueOrDefault(account) } });
+					UInt64 number_of_partial_stacks = Convert.ToUInt64(stackable_Source.Count()); 
+					UInt64 number_of_stacks_consolidated = Convert.ToUInt64(Math.Ceiling(Convert.ToDouble(this.total_count() / 250)));
 					if (this.stackable && ((number_of_partial_stacks > 1) && (number_of_partial_stacks > number_of_stacks_consolidated)))
 					{
                         stackable_Sources.AddRange(stackable_Source);
@@ -82,7 +82,7 @@ namespace data
 			}
         }
 
-        public List<Source> get_partial_stacks(Dictionary<string, int> material_storage_size)
+        public List<Source> get_partial_stacks(Dictionary<string, UInt64> material_storage_size)
         {
             List<Source> partial_stacks = new List<Source>();
 			foreach (Source current_Source in this.Sources)
@@ -98,9 +98,9 @@ namespace data
             return partial_stacks;
 		}
 
-        public int total_count(string account="")
+        public UInt64 total_count(string account="")
         {
-            int total = 0;
+            UInt64 total = 0;
 			foreach (Source current_Source in this.Sources)
 			{
 				if(account == ""||current_Source.account==account)

@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="data\item.cs" />
+    <Compile Include="data\model.cs" />
     <Compile Include="data\source.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="reader\gw2api.cs" />
