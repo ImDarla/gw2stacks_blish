@@ -19,14 +19,18 @@ namespace reader
     {
        
 
-        string api_key;
+        public string api_key;
 		Gw2Sharp.Connection connection;
+		public string name;
         
 
         public gw2api(string api_key)
         {
             this.api_key = api_key;
 			this.connection= new Gw2Sharp.Connection(this.api_key);
+			var task = account_name();
+			task.Wait();
+			this.name = task.Result.Name;
 		}
 
         public void validate()
@@ -34,7 +38,15 @@ namespace reader
             
         }
 
-		public async Task<IApiV2ObjectList<AccountItem>> shared_inventory(string name)
+		public async Task<Account> account_name()
+		{
+			var client = new Gw2Sharp.Gw2Client(this.connection);
+			var response = await client.WebApi.V2.Account.GetAsync();//shared inventory
+			client.Dispose();
+			return response;
+		}
+
+		public async Task<IApiV2ObjectList<AccountItem>> shared_inventory()
 		{
 			var client = new Gw2Sharp.Gw2Client(this.connection);
 			var response = await client.WebApi.V2.Account.Inventory.GetAsync();//shared inventory

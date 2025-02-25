@@ -9,12 +9,7 @@ namespace data
    
     class Source
     {
-		static Dictionary<string, string> sourceNames = new Dictionary<string, string>
-		{
-			{ "$bank", "Account Bank" },
-			{ "$storage", "Material Storage" },
-			{ "$shared_slot", "Shared Inventory Slot" }
-		};
+		
 
 		public UInt64 count;
 		public string place;
@@ -27,11 +22,7 @@ namespace data
 			this.account = account;
 		}
 
-		public string place_repr()
-		{
-			//TODO fix this
-			return "source_names.get";
-		}
+		
 
 		public override string ToString() 
 		{
