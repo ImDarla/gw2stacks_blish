@@ -52,6 +52,7 @@
     <Prefer32Bit>true</Prefer32Bit>
     <DocumentationFile>
     </DocumentationFile>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -155,10 +156,10 @@
   <ItemGroup>
     <Compile Include="data\item.cs" />
     <Compile Include="data\Magic.cs" />
-    <Compile Include="data\model.cs" />
+    <Compile Include="data\Model.cs" />
     <Compile Include="data\source.cs" />
     <Compile Include="Module.cs" />
-    <Compile Include="reader\gw2api.cs" />
+    <Compile Include="reader\Gw2Api.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AsyncClipboardService, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL">

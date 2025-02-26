@@ -8,6 +8,7 @@ using Blish_HUD.Modules.Managers;
 using Blish_HUD.Settings;
 using Microsoft.Xna.Framework;
 using Blish_HUD.GameServices;
+using Blish_HUD.Gw2WebApi;
 
 namespace gw2stacks_blish {
 

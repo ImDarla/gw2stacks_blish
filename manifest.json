@@ -5,14 +5,29 @@
   "package": "gw2stacks_blish.dll",
   "manifest_version": 1,
 
-  "description": "Description of your module. Visit https://github.com/blish-hud/manifest.json/blob/master/manifest-v1.md for details about the manifest format.",
+  "api_permissions": {
+    "account": {
+      "optional": false,
+      "details": "Needed for core functionality"
+    },
+    "inventories": {
+      "optional": false,
+      "details": "Needed for core functionality"
+    },
+    "characters": {
+      "optional": false,
+      "details": "Needed for core functionality"
+    }
+  },
+
+  "description": "C#/Blishhud port of gw2stacks with blessings from zweistein",
   "dependencies": {
     "bh.blishhud": ">=0.5.2"
   },
-  "url": "https://github.com/shakr/gw2stacks_blish",
+  "url": "https://github.com/ImDarla/gw2stacks_blish",
   "contributors": [
     {
-      "name": "shakr"
+      "name": "ImDarla"
     }
   ]
 }

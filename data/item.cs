@@ -14,52 +14,52 @@ namespace data
     class Item
     {
 
-        public int item_id;
-        public List<Source> Sources;
+        public int itemId;
+        public List<Source> sources;
 
-		public bool account_bound;
+		public bool isAccountBound;
 		public string name;
 		public string description;
         public RenderUrl? icon;
         public ItemRarity? rarity;
-		public bool stackable;
-		public bool deletable;
-		public bool rare_for_salvage;
-        public string wiki_link;
+		public bool isStackable;
+		public bool isDeletable;
+		public bool isRareForSalvage;
+        public string wikiLink;
         public int? price;
 
-        public Item(int ID)
+        public Item(int id_)
         {
-            this.item_id = ID;
-            this.Sources = new List<Source>();
+            this.itemId = id_;
+            this.sources = new List<Source>();
 
-			account_bound= false;
+			isAccountBound= false;
 		    name= null;
 		    description= null;
             icon = null;
             rarity = null;
-			stackable =false;
-		    deletable = false;
-		    rare_for_salvage = false;
+			isStackable =false;
+		    isDeletable = false;
+		    isRareForSalvage = false;
             price = null;
         }
 
-        public void add(Source Source)
+        public void add(Source source_)
         {
-            this.Sources.Add(Source);
+            this.sources.Add(source_);
         }
 
         //TODO fix item types
-		public List<Source> get_advice_stacks(Dictionary<string, int> material_storage_size)
+		public List<Source> get_advice_stacks(int materialStorageSize_)
         {
-            if (this.account_bound ==false)
+            if (this.isAccountBound ==false)
             {
-                List<Source> stackable_Source = this.get_partial_stacks(material_storage_size);
-                UInt64 number_of_partial_stacks = Convert.ToUInt64(stackable_Source.Count());
-                UInt64 number_of_stacks_consolidated = Convert.ToUInt64(Math.Ceiling(Convert.ToDouble(this.total_count() / 250)));
-                if(this.stackable &&((number_of_partial_stacks>1)&&(number_of_partial_stacks >number_of_stacks_consolidated)))
+                List<Source> stackableSource = this.get_partial_stacks(materialStorageSize_);
+                UInt64 numberOfPartialStacks = Convert.ToUInt64(stackableSource.Count());
+                UInt64 numberOfConsolidatedStacks = Convert.ToUInt64(Math.Ceiling(Convert.ToDouble(this.total_count() / 250)));
+                if(this.isStackable &&((numberOfPartialStacks>1)&&(numberOfPartialStacks >numberOfConsolidatedStacks)))
                 {
-                    return stackable_Source;
+                    return stackableSource;
                 }
                 else
                 {
@@ -69,68 +69,47 @@ namespace data
 			}
             else
             {
-                List<Source> stackable_Sources = new List<Source>();
-                foreach(string account in material_storage_size.Keys)
-                {
-					List<Source> stackable_Source = this.get_partial_stacks(new Dictionary<string, int> { { account, material_storage_size.GetValueOrDefault(account) } });
-					UInt64 number_of_partial_stacks = Convert.ToUInt64(stackable_Source.Count()); 
-					UInt64 number_of_stacks_consolidated = Convert.ToUInt64(Math.Ceiling(Convert.ToDouble(this.total_count() / 250)));
-					if (this.stackable && ((number_of_partial_stacks > 1) && (number_of_partial_stacks > number_of_stacks_consolidated)))
-					{
-                        stackable_Sources.AddRange(stackable_Source);
-					}
+                List<Source> stackableSources = new List<Source>();
+				List<Source> stackableSource = this.get_partial_stacks(materialStorageSize_);
+				UInt64 numberOfPartialStacks = Convert.ToUInt64(stackableSource.Count());
+				UInt64 numberOfConsolidatedStacks = Convert.ToUInt64(Math.Ceiling(Convert.ToDouble(this.total_count() / 250)));
+				if (this.isStackable && ((numberOfPartialStacks > 1) && (numberOfPartialStacks > numberOfConsolidatedStacks)))
+				{
+					stackableSources.AddRange(stackableSource);
 				}
-                return stackable_Sources;
+				return stackableSources;
 
 			}
         }
 
-        public List<Source> get_partial_stacks(Dictionary<string, int> material_storage_size)
+        public List<Source> get_partial_stacks(int materialStorageSize_)
         {
-            List<Source> partial_stacks = new List<Source>();
-			foreach (Source current_Source in this.Sources)
+            List<Source> partialStacks = new List<Source>();
+			foreach (Source currentSource in this.sources)
 			{
-				if(material_storage_size.ContainsKey(current_Source.account))
-                {
-                    if((current_Source.count!=0) &&((current_Source.count<250)||((current_Source.place=="$storage")&&(current_Source.count<Convert.ToUInt64(material_storage_size[current_Source.account])))))
-                    {
-                        partial_stacks.Add(current_Source);
-                    }
-                }
+				if ((currentSource.count != 0) && ((currentSource.count < 250) || ((currentSource.place == "$storage") && (currentSource.count < Convert.ToUInt64(materialStorageSize_)))))
+				{
+					partialStacks.Add(currentSource);
+				}
 			}
-            return partial_stacks;
+            return partialStacks;
 		}
 
-        public UInt64 total_count(string account=null)
+        public UInt64 total_count()
         {
             UInt64 total = 0;
-			foreach (Source current_Source in this.Sources)
+			foreach (Source current_Source in this.sources)
 			{
-				if(account == null||current_Source.account==account)
-                {
-                    total += current_Source.count;
-                }
+				total += current_Source.count;
 			}
 
 			return total;
         }
 
-        public List<Source> get_Sources_for_account(string account)
-        {
-            List<Source> Sources_for_account = new List<Source>();
-			foreach (Source current_Source in this.Sources)
-			{
-				if(current_Source.account==account)
-                {
-                    Sources_for_account.Add(current_Source);
-                }
-			}
-            return Sources_for_account;
-		}
-
+    
 		public override string ToString()
         {
-            return this.item_id.ToString() + " " + this.name + " " + string.Join(", ", this.Sources);
+            return this.itemId.ToString() + " " + this.name + " " + string.Join(", ", this.sources);
         }
 
 	}
@@ -138,25 +117,25 @@ namespace data
     class ItemForDisplay
     {
         public Item item;
-        public List<Source> Sources;
+        public List<Source> sources;
         public string advice;
 
-        public ItemForDisplay(Item item, List<Source> sources=null, string advice = null)
+        public ItemForDisplay(Item item_, List<Source> sources_=null, string advice_ = null)
         {
-            if(!sources.Any())
+            if(!sources_.Any())
             {
-                this.Sources = item.Sources;
+                this.sources = item_.sources;
             }
             else
             {
-                this.Sources = sources;
+                this.sources = sources_;
             }
-            this.advice = advice;
+            this.advice = advice_;
         }
 
 		public override string ToString()
 		{
-            return this.item.ToString() + " " + this.advice + " " + string.Join(", ", this.Sources); 
+            return this.item.ToString() + " " + this.advice + " " + string.Join(", ", this.sources); 
         }
     }
 
@@ -166,21 +145,28 @@ namespace data
         public int count;
 		public List<int> food;
 
-        public Gobbler(int id, List<int> food, int count)
+        public Gobbler(int id_, List<int> food_, int count_)
         {
-            this.itemId = id;
-			this.food = food;
-			this.count = count;
+            this.itemId = id_;
+			this.food = food_;
+			this.count = count_;
             
         }
 
-        public Gobbler(int id, int food, int count)
+        public Gobbler(int id_, int food_, int count_)
         {
-			this.itemId = id;
-			this.food = new List<int> { food };
-			this.count = count;
+			this.itemId = id_;
+			this.food = new List<int> { food_ };
+			this.count = count_;
 		}
-    }
+
+		public Gobbler()
+		{
+			this.itemId = 0;
+			this.food = null;
+			this.count = 0;
+		}
+	}
 
     class MiscAdvice
     {
@@ -188,11 +174,18 @@ namespace data
 		public int minCount;
         public string advice;
 
-        public MiscAdvice(int itemId, int count, string advice)
+        public MiscAdvice(int itemId_, int count_, string advice_)
 		{
-			this.itemId = itemId;
-			this.minCount = count;
-			this.advice = advice;
+			this.itemId = itemId_;
+			this.minCount = count_;
+			this.advice = advice_;
+		}
+
+		public MiscAdvice()
+		{
+			this.itemId = 0;
+			this.minCount = 0;
+			this.advice = null;
 		}
 	}
 }

@@ -7,13 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace shakr.gw2stacks_blish.data
+namespace data
 {
     class Magic
     {
         public List<int> luckIds = new List<int> { 45175, 45176, 45177 };
         public int ectoId = 19721;
-        public double salvagePrice = 0.10496;
+        public double salvagePrice = 0.10496; //seemingly from mystic salvage kit??
 		public double ectoChance = 0.875;
 		public double tax = 0.85;
         public List<ItemType> nonStackableTypes = new List<ItemType> { ItemType.Armor, ItemType.Back, ItemType.Gathering, ItemType.Tool, ItemType.Trinket, ItemType.Weapon, ItemType.Bag, ItemType.Container };
@@ -91,7 +91,11 @@ namespace shakr.gw2stacks_blish.data
 		public List<int> ibsId = new List<int>
 		{
 			92272
-		}; 
+		};
+		public Magic()
+		{
+		}
+
 
 		public Magic(string path)
 		{

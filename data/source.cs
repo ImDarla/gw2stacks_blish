@@ -15,11 +15,11 @@ namespace data
 		public string place;
 		public string account;
 
-		public Source(UInt64 count, string place, string account)
+		public Source(UInt64 count_, string place_, string account_)
 		{
-			this.count = count;
-			this.place = place;
-			this.account = account;
+			this.count = count_;
+			this.place = place_;
+			this.account = account_;
 		}
 
 		

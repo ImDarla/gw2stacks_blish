@@ -1,7 +1,7 @@
 ﻿//using Blish_HUD.PersistentStore;
 using Gw2Sharp.WebApi.V2.Models;
 using reader;
-using shakr.gw2stacks_blish.data;
+using data;
 using SharpDX.Direct3D11;
 using SharpDX.Direct3D9;
 using System;
@@ -15,97 +15,91 @@ using System.Threading.Tasks;
 
 namespace data
 {
-    class model
+    class Model
     {
         Dictionary<int, Item> items;
-        Dictionary<string, int> material_storage_size;
+        int materialStorageSize;
         List<Recipe> recipes;
-        Dictionary<int, Item> recipe_results;
-        public bool include_consumables;
-        int ecto_salvage_price;
-        List<string> accounts;
+        Dictionary<int, Item> recipeResults;
+        public bool includeConsumables;
+        int ectoSalvagePrice;
+        
         Magic magicValues;
 
-		public model (string path)
+		public Model (string path_)
 		{
 			this.items = new Dictionary<int, Item>();
-			this.material_storage_size = new Dictionary<string, int>();
+			this.materialStorageSize = 0;
 			this.recipes = new List<Recipe>();
-			this.recipe_results = new Dictionary<int, Item>();
-			this.include_consumables = false;
-			this.ecto_salvage_price = 0;
-			this.accounts = new List<string>();
-			this.magicValues = new Magic(path);
+			this.recipeResults = new Dictionary<int, Item>();
+			this.includeConsumables = false;
+			this.ectoSalvagePrice = 0;
+			this.magicValues = new Magic(path_);
 		}
 
-        public void add_item(int id, bool account_bound, Source source)
+        public void add_item(int id_, bool isAccountBound_, Source source_)
         {
-            if(this.items.ContainsKey(id)==false)
+            if(this.items.ContainsKey(id_)==false)
             {
-                this.items.Add(id, new Item(id));
-				this.items[id].add(source);
-				this.items[id].account_bound = account_bound;
+                this.items.Add(id_, new Item(id_));
 			}
             else//item already in collection
             {
-                foreach(Source current in this.items[id].Sources)//condense sources
+                foreach(Source current in this.items[id_].sources)//condense sources
                 {
                     //check if sources are on the same character and can be stacked (account bound and non account bound are not stackable
-                    if(current.place==source.place&&current.account==source.account&&account_bound==this.items[id].account_bound)
+                    if(current.place==source_.place&&isAccountBound_==this.items[id_].isAccountBound)
                     {
-                        current.count += source.count;
-                        return;
+                        current.count += source_.count;
                     }
-					
 				}
-				this.items[id].add(source);
-				this.items[id].account_bound = account_bound;
 			}
-            
-        }
+			this.items[id_].add(source_);
+			this.items[id_].isAccountBound = isAccountBound_;
+		}
 
-        public bool has_item(int id)
+        public bool has_item(int id_)
         {
-            if(this.items.ContainsKey(id)&&this.items[id]?.total_count()>0)
+            if(this.items.ContainsKey(id_)&&this.items[id_]?.total_count()>0)
             {
                 return true;
             }
             return false;
         }
 
-        public bool has_item(List<int> ids)
+        public bool has_item(List<int> ids_)
         {
             bool result = false;
-			foreach (var item in ids)
+			foreach (var item in ids_)
 			{
                 result |= this.has_item(item);
 			}
             return result;
 		}
 
-        public void build_material_storage_size(gw2api api)
+        public void build_material_storage_size(Gw2Api api_)
         {
-            var task = api.material_storage();
+            var task = api_.material_storage();
             task.Wait();
-            UInt64 max_count = 0;
+            UInt64 maxCount = 0;
 			foreach (var item in task.Result)
 			{
-                max_count = Math.Max(max_count, (UInt64)item.Count);
+                maxCount = Math.Max(maxCount, (UInt64)item.Count);
 			}
 
-            this.material_storage_size[api.name] = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(max_count / 250)) * 250);
+            this.materialStorageSize = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(maxCount / 250)) * 250);
 		}
 
-        public void  build_inventory(gw2api api)
+        public void  build_inventory(Gw2Api api_)
         {
-            UInt64 empty_slots = 0;
+            UInt64 emptySlots = 0;
             //Message loading characters @name
-            var task_characters = api.characters();
-            var task_materials = api.material_storage();
-            var task_bank = api.bank();
-            var task_shared = api.shared_inventory();
-			task_characters.Wait();
-            foreach(var character in task_characters.Result)
+            var taskCharacters = api_.characters();
+            var taskMaterials = api_.material_storage();
+            var taskBank = api_.bank();
+            var taskShared = api_.shared_inventory();
+			taskCharacters.Wait();
+            foreach(var character in taskCharacters.Result)
             {
                 //Message loading character @name inventory 
                 
@@ -117,11 +111,11 @@ namespace data
 						{
 							if (item==null)
 							{
-                                empty_slots++;
+                                emptySlots++;
 							}
                             else
                             {
-                                this.add_item(item.Id, item.Binding.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), character.Name, api.name));
+                                this.add_item(item.Id, item.Binding.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), character.Name, api_.name));
                             }
 						}
 					}
@@ -129,57 +123,57 @@ namespace data
                 }
             }
 
-            task_materials.Wait();
-			foreach(var item in task_materials.Result)
+            taskMaterials.Wait();
+			foreach(var item in taskMaterials.Result)
             {
-				this.add_item(item.Id, item.Binding.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), "Material Storage", api.name));
+				this.add_item(item.Id, item.Binding.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), "Material Storage", api_.name));
 			}
 
-            task_bank.Wait();
-            foreach(var item in task_bank.Result)
+            taskBank.Wait();
+            foreach(var item in taskBank.Result)
             {
                 if(item==null)
                 {
-                    empty_slots++;
+                    emptySlots++;
                 }
                 else
                 {
-					this.add_item(item.Id, item.Binding.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), "Bank Storage", api.name));
+					this.add_item(item.Id, item.Binding.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), "Bank Storage", api_.name));
 				}
             }
 
-            task_shared.Wait();
-			foreach (var item in task_shared.Result)
+            taskShared.Wait();
+			foreach (var item in taskShared.Result)
 			{
 				if (item == null)
 				{
-					empty_slots++;
+					emptySlots++;
 				}
 				else
 				{
-					this.add_item(item.Id, item.Binding.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), "Shared Storage", api.name));
+					this.add_item(item.Id, item.Binding.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), "Shared Storage", api_.name));
 				}
 			}
 		}
 
         
 
-		public void build_basic_item_info(Item item, Gw2Sharp.WebApi.V2.Models.Item info)
+		public void build_basic_item_info(Item item_, Gw2Sharp.WebApi.V2.Models.Item info_)
 		{
-            item.name = info.Name;
-            item.icon = info.Icon;
-            item.rarity = info.Rarity;
-            item.description = info.Description;
+            item_.name = info_.Name;
+            item_.icon = info_.Icon;
+            item_.rarity = info_.Rarity;
+            item_.description = info_.Description;
             //Details can not be gotten from GW2sharp api
-            var urlName = item.name.Replace(" ", "_");
-            item.wiki_link = $"wiki.guildwars2.com/wiki/{urlName}";
+            var urlName = item_.name.Replace(" ", "_");
+            item_.wikiLink = $"wiki.guildwars2.com/wiki/{urlName}";
 		}
 
-		public void build_recipe_info(gw2api api)
+		public void build_recipe_info(Gw2Api api_)
         {
-            var task = api.recipes(this.items.Keys.ToList());
+            var task = api_.recipes(this.items.Keys.ToList());
             
-            List<int> output_item_ids = new List<int>();
+            List<int> outputItemIds = new List<int>();
             task.Wait();
             var result = task.Result;
 			foreach (var recipe in result)
@@ -199,21 +193,21 @@ namespace data
                     if(valid==true)
                     {
                         this.recipes.Add(recipe);
-                        output_item_ids.Add(recipe.OutputItemId);
+                        outputItemIds.Add(recipe.OutputItemId);
                     }
 				}
 			}
 
-            this.recipe_results = new Dictionary<int, Item>();
+            this.recipeResults = new Dictionary<int, Item>();
 
-            var task_output = api.item_information_bulk(output_item_ids);
-            task_output.Wait();
+            var taskOutput = api_.item_information_bulk(outputItemIds);
+            taskOutput.Wait();
 
-			foreach (var itemInformation in task_output.Result)
+			foreach (var itemInformation in taskOutput.Result)
 			{
                 Item item = new Item(itemInformation.Id);
                 this.build_basic_item_info(item, itemInformation);
-                this.recipe_results.Add(item.item_id, item);
+                this.recipeResults.Add(item.itemId, item);
 			}
 
 			
@@ -221,21 +215,21 @@ namespace data
             
 		}
 
-        public void build_item_info(gw2api api)
+        public void build_item_info(Gw2Api api_)
         {
-            List<int> appraise_item_id = new List<int>();
+            List<int> appraisedItemIds = new List<int>();
             
             
-            var task = api.item_information_bulk(this.items.Keys.ToList());
+            var task = api_.item_information_bulk(this.items.Keys.ToList());
             task.Wait();
 			foreach (var itemInformation in task.Result)
 			{
                 var item = this.items[itemInformation.Id];
                 this.build_basic_item_info(item, itemInformation);
                 bool salvagable = true;
-                if(magicValues.nonStackableTypes.Contains(itemInformation.Type)==false|| (this.include_consumables && (itemInformation.Type == ItemType.Consumable)))//details can again not be querried via the GW2sharp api
+                if(magicValues.nonStackableTypes.Contains(itemInformation.Type)==false|| (this.includeConsumables && (itemInformation.Type == ItemType.Consumable)))//details can again not be querried via the GW2sharp api
                 {
-                    item.stackable = true;
+                    item.isStackable = true;
                 }
 
 				foreach (var flag in itemInformation.Flags)
@@ -246,7 +240,7 @@ namespace data
                     }
 					if(flag == ItemFlag.SoulbindOnAcquire)
                     {
-                        item.stackable = false;
+                        item.isStackable = false;
                         
                     }
 				}
@@ -255,45 +249,43 @@ namespace data
                 {
                     if(itemInformation.Description== "This item only has value as part of a collection.")
                     {
-                        item.deletable = true;
+                        item.isDeletable = true;
                     }
 
 				}
 
                 if(magicValues.salvagableEquipment.Contains(itemInformation.Type)&&itemInformation.Rarity==ItemRarity.Rare&&salvagable&&itemInformation.Level>77)
                 {
-                    item.rare_for_salvage = true;
-                    appraise_item_id.Add(itemInformation.Id);
+                    item.isRareForSalvage = true;
+                    appraisedItemIds.Add(itemInformation.Id);
                 }
 
 
 			}
             //loading market prices
-            var task_prices = api.item_prices(appraise_item_id);
-            task_prices.Wait();
-			foreach (var price in task_prices.Result)
+            var taskPrices = api_.item_prices(appraisedItemIds);
+            taskPrices.Wait();
+			foreach (var price in taskPrices.Result)
 			{
                 this.items[price.Id].price = price.Sells.UnitPrice;
 			}
 		}
 
-        public void build_ecto_price(gw2api api)
+        public void build_ecto_price(Gw2Api api_)
         {
-            var task = api.item_price(magicValues.ectoId);
+            var task = api_.item_price(magicValues.ectoId);
             task.Wait();
             int ectoPrice = task.Result.Sells.UnitPrice;
-            ;//seemingly from mystic salvage kit??
-           
-            this.ecto_salvage_price = Convert.ToInt32((ectoPrice * magicValues.tax * magicValues.ectoChance - magicValues.salvagePrice) / magicValues.tax);
+            this.ectoSalvagePrice = Convert.ToInt32((ectoPrice * magicValues.tax * magicValues.ectoChance - magicValues.salvagePrice) / magicValues.tax);
         }
 
         public List<ItemForDisplay> get_stacks_advice()
         {
             List<ItemForDisplay> result = new List<ItemForDisplay>();
-            var filter = this.items.Values.Where(list_item => list_item.get_advice_stacks(this.material_storage_size).Count > 0);
+            var filter = this.items.Values.Where(list_item => list_item.get_advice_stacks(this.materialStorageSize).Count > 0);
 			foreach (var item in filter)
 			{
-                result.Add(new ItemForDisplay(item, item.get_advice_stacks(this.material_storage_size)));
+                result.Add(new ItemForDisplay(item, item.get_advice_stacks(this.materialStorageSize)));
 			}
             return result;
 		}
@@ -312,18 +304,18 @@ namespace data
 		public List<ItemForDisplay> get_rare_salvage_advice()
 		{
 			List<ItemForDisplay> result = new List<ItemForDisplay>();
-			var filter = this.items.Values.Where(list_item => list_item.rare_for_salvage);
+			var filter = this.items.Values.Where(list_item => list_item.isRareForSalvage);
 			foreach (var item in filter)
 			{
                 if(item.price!=null)
                 {
-                    if(item.price>this.ecto_salvage_price)
+                    if(item.price>this.ectoSalvagePrice)
                     {
 						result.Add(new ItemForDisplay(item, null, "Salvage!"));
 					}
                     else
                     {
-                        if(item.account_bound!=false)
+                        if(item.isAccountBound!=false)
                         {
 							result.Add(new ItemForDisplay(item,null, "Sell!"));
 						}
@@ -342,22 +334,19 @@ namespace data
             
 			foreach (var id in magicValues.luckIds)
 			{
-				foreach(var account in this.accounts)
-                {
-                    if(this.has_item(id)&&this.items[id].total_count(account)>250)
-                    {
-                        result.Add(new ItemForDisplay(this.items[id], this.items[id].get_Sources_for_account(account)));
-                    }
-                }
+				if (this.has_item(id) && this.items[id].total_count() > 250)
+				{
+					result.Add(new ItemForDisplay(this.items[id], this.items[id].sources));
+				}
+				
 			}
-			
 			return result;
 		}
 
 		public List<ItemForDisplay> get_just_delete_advice()
 		{
 			List<ItemForDisplay> result = new List<ItemForDisplay>();
-			var filter = this.items.Values.Where(list_item => list_item.deletable);
+			var filter = this.items.Values.Where(list_item => list_item.isDeletable);
 			foreach (var item in filter)
 			{
 				result.Add(new ItemForDisplay(item));
@@ -368,7 +357,7 @@ namespace data
 		public List<ItemForDisplay> get_just_salvage_advice()
 		{
 			List<ItemForDisplay> result = new List<ItemForDisplay>();
-			var filter = this.items.Values.Where(list_item => list_item.description=="Salvage Item"&&list_item.item_id!=magicValues.ectoId);
+			var filter = this.items.Values.Where(list_item => list_item.description=="Salvage Item"&&list_item.itemId!=magicValues.ectoId);
 			foreach (var item in filter)
 			{
 				result.Add(new ItemForDisplay(item, null, "Salvage this item"));
@@ -397,18 +386,16 @@ namespace data
 			{
 				if(this.has_item(gobbler.itemId)&&this.has_item(gobbler.food))
                 {
-					foreach (var account in this.accounts)
+					foreach (var food in gobbler.food)
 					{
-						foreach (var food in gobbler.food)
+						if (this.items[food].total_count() > Convert.ToUInt64(this.materialStorageSize))
 						{
-							if (this.items[food].total_count(account)>Convert.ToUInt64(this.material_storage_size[account]))
-                            {
-                                result.Add(new ItemForDisplay(this.items[food], this.items[food].get_Sources_for_account(account)));
+							result.Add(new ItemForDisplay(this.items[food], this.items[food].sources));
 
-							}
 						}
-						
 					}
+
+					
 				}
 			}
 			return result;
@@ -446,34 +433,28 @@ namespace data
 			List<ItemForDisplay> result = new List<ItemForDisplay>();
 			foreach (var item in magicValues.lws3Id)
 			{
-				foreach (var account in this.accounts)
+				if (this.has_item(item) && this.items[item].total_count() > Convert.ToUInt64(this.materialStorageSize))
 				{
-					if(this.has_item(item)&&this.items[item].total_count(account)>Convert.ToUInt64(this.material_storage_size[account]))
-					{
-						result.Add(new ItemForDisplay(this.items[item], this.items[item].get_Sources_for_account(account), "Consume for unbound magic"));
-					}
+					result.Add(new ItemForDisplay(this.items[item], this.items[item].sources, "Consume for unbound magic"));
 				}
+				
 			}
 
 			foreach (var item in magicValues.lws4Id)
 			{
-				foreach (var account in this.accounts)
+				if (this.has_item(item) && this.items[item].total_count() > Convert.ToUInt64(this.materialStorageSize))
 				{
-					if (this.has_item(item) && this.items[item].total_count(account) > Convert.ToUInt64(this.material_storage_size[account]))
-					{
-						result.Add(new ItemForDisplay(this.items[item], this.items[item].get_Sources_for_account(account), "Consume for volatile magic"));
-					}
+					result.Add(new ItemForDisplay(this.items[item], this.items[item].sources, "Consume for volatile magic"));
 				}
+				
 			}
 
 			foreach (var item in magicValues.ibsId)
 			{
-				foreach (var account in this.accounts)
+
+				if (this.has_item(item) && this.items[item].total_count() > Convert.ToUInt64(this.materialStorageSize))
 				{
-					if (this.has_item(item) && this.items[item].total_count(account) > Convert.ToUInt64(this.material_storage_size[account]))
-					{
-						result.Add(new ItemForDisplay(this.items[item], this.items[item].get_Sources_for_account(account), "Convert to LS4 currency"));
-					}
+					result.Add(new ItemForDisplay(this.items[item], this.items[item].sources, "Convert to LS4 currency"));
 				}
 			}
 			return result;
@@ -484,69 +465,31 @@ namespace data
 			List<ItemForDisplay> result = new List<ItemForDisplay>();
 			foreach (var recipe in this.recipes)
 			{
-				if(this.recipe_results.ContainsKey(recipe.OutputItemId)==false)
+				if(this.recipeResults.ContainsKey(recipe.OutputItemId)==false)
 				{
 					continue;
 				}
-
-				bool hasAccountBoundIngredients = false;
-
+				bool canCraft = true;
+				bool hasMoreThanStackIngredient = false;
 				foreach (var ingredient in recipe.Ingredients)
 				{
-					if(this.items[ingredient.ItemId].account_bound)
+					if (this.items[ingredient.ItemId].total_count() < Convert.ToUInt64(ingredient.Count))
 					{
-						hasAccountBoundIngredients = true;
-						break;
+						canCraft = false;
 					}
-				}
 
-				if(hasAccountBoundIngredients)
+					if (this.items[ingredient.ItemId].total_count() > Convert.ToUInt64(250))
+					{
+						hasMoreThanStackIngredient = true;
+					}
+
+				}
+				if (canCraft && hasMoreThanStackIngredient)
 				{
-					foreach (var account in this.accounts)
-					{
-						bool canCraft = true;
-						bool hasMoreThanStackIngredient = false;
-						foreach (var ingredient in recipe.Ingredients)
-						{
-							if (this.items[ingredient.ItemId].total_count(account) < Convert.ToUInt64(ingredient.Count))
-							{
-								canCraft = false;
-							}
-
-							if (this.items[ingredient.ItemId].total_count(account) > Convert.ToUInt64(250))
-							{
-								hasMoreThanStackIngredient = true;
-							}
-
-						}
-						if (canCraft && hasMoreThanStackIngredient)
-						{
-							result.Add(new ItemForDisplay(this.recipe_results[recipe.OutputItemId], null, "Craft"));
-						}
-					}
+					result.Add(new ItemForDisplay(this.recipeResults[recipe.OutputItemId], null, "Craft"));
 				}
-				else
-				{
-					bool canCraft = true;
-					bool hasMoreThanStackIngredient = false;
-					foreach (var ingredient in recipe.Ingredients)
-					{
-						if (this.items[ingredient.ItemId].total_count() < Convert.ToUInt64(ingredient.Count))
-						{
-							canCraft = false;
-						}
 
-						if (this.items[ingredient.ItemId].total_count() > Convert.ToUInt64(250))
-						{
-							hasMoreThanStackIngredient = true;
-						}
-
-					}
-					if (canCraft && hasMoreThanStackIngredient)
-					{
-						result.Add(new ItemForDisplay(this.recipe_results[recipe.OutputItemId], null, "Craft"));
-					}
-				}
+				
 			}
 			return result;
 		}
