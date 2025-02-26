@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using data;
+using Gw2Sharp.WebApi;
+using Gw2Sharp.WebApi.V2.Models;
 
 namespace data
 {
@@ -18,12 +20,13 @@ namespace data
 		public bool account_bound;
 		public string name;
 		public string description;
-		//icon
-		//rarity
+        public RenderUrl? icon;
+        public ItemRarity? rarity;
 		public bool stackable;
 		public bool deletable;
 		public bool rare_for_salvage;
-        //price
+        public string wiki_link;
+        public int? price;
 
         public Item(int ID)
         {
@@ -31,14 +34,14 @@ namespace data
             this.Sources = new List<Source>();
 
 			account_bound= false;
-		    name="";
-		    description="";
-		    //icon
-		    //rarity
-		    stackable=false;
+		    name= null;
+		    description= null;
+            icon = null;
+            rarity = null;
+			stackable =false;
 		    deletable = false;
 		    rare_for_salvage = false;
-            //price
+            price = null;
         }
 
         public void add(Source Source)
@@ -47,7 +50,7 @@ namespace data
         }
 
         //TODO fix item types
-		public List<Source> get_advice_stacks(Dictionary<string, UInt64> material_storage_size)
+		public List<Source> get_advice_stacks(Dictionary<string, int> material_storage_size)
         {
             if (this.account_bound ==false)
             {
@@ -69,7 +72,7 @@ namespace data
                 List<Source> stackable_Sources = new List<Source>();
                 foreach(string account in material_storage_size.Keys)
                 {
-					List<Source> stackable_Source = this.get_partial_stacks(new Dictionary<string, UInt64> { { account, material_storage_size.GetValueOrDefault(account) } });
+					List<Source> stackable_Source = this.get_partial_stacks(new Dictionary<string, int> { { account, material_storage_size.GetValueOrDefault(account) } });
 					UInt64 number_of_partial_stacks = Convert.ToUInt64(stackable_Source.Count()); 
 					UInt64 number_of_stacks_consolidated = Convert.ToUInt64(Math.Ceiling(Convert.ToDouble(this.total_count() / 250)));
 					if (this.stackable && ((number_of_partial_stacks > 1) && (number_of_partial_stacks > number_of_stacks_consolidated)))
@@ -82,14 +85,14 @@ namespace data
 			}
         }
 
-        public List<Source> get_partial_stacks(Dictionary<string, UInt64> material_storage_size)
+        public List<Source> get_partial_stacks(Dictionary<string, int> material_storage_size)
         {
             List<Source> partial_stacks = new List<Source>();
 			foreach (Source current_Source in this.Sources)
 			{
 				if(material_storage_size.ContainsKey(current_Source.account))
                 {
-                    if((current_Source.count!=0) &&((current_Source.count<250)||((current_Source.place=="$storage")&&(current_Source.count<material_storage_size[current_Source.account]))))
+                    if((current_Source.count!=0) &&((current_Source.count<250)||((current_Source.place=="$storage")&&(current_Source.count<Convert.ToUInt64(material_storage_size[current_Source.account])))))
                     {
                         partial_stacks.Add(current_Source);
                     }
@@ -98,12 +101,12 @@ namespace data
             return partial_stacks;
 		}
 
-        public UInt64 total_count(string account="")
+        public UInt64 total_count(string account=null)
         {
             UInt64 total = 0;
 			foreach (Source current_Source in this.Sources)
 			{
-				if(account == ""||current_Source.account==account)
+				if(account == null||current_Source.account==account)
                 {
                     total += current_Source.count;
                 }
@@ -138,7 +141,7 @@ namespace data
         public List<Source> Sources;
         public string advice;
 
-        public ItemForDisplay(Item item, List<Source> sources, string advice = "")
+        public ItemForDisplay(Item item, List<Source> sources=null, string advice = null)
         {
             if(!sources.Any())
             {
@@ -156,4 +159,40 @@ namespace data
             return this.item.ToString() + " " + this.advice + " " + string.Join(", ", this.Sources); 
         }
     }
+
+    class Gobbler
+    {
+        public int itemId;
+        public int count;
+		public List<int> food;
+
+        public Gobbler(int id, List<int> food, int count)
+        {
+            this.itemId = id;
+			this.food = food;
+			this.count = count;
+            
+        }
+
+        public Gobbler(int id, int food, int count)
+        {
+			this.itemId = id;
+			this.food = new List<int> { food };
+			this.count = count;
+		}
+    }
+
+    class MiscAdvice
+    {
+		public int itemId;
+		public int minCount;
+        public string advice;
+
+        public MiscAdvice(int itemId, int count, string advice)
+		{
+			this.itemId = itemId;
+			this.minCount = count;
+			this.advice = advice;
+		}
+	}
 }

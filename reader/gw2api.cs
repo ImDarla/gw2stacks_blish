@@ -101,10 +101,26 @@ namespace reader
 			return response;
 		}
 
+		public async Task<IReadOnlyList<CommercePrices>> item_prices(List<int> ids)
+		{
+			var client = new Gw2Sharp.Gw2Client(this.connection);
+			var response = await client.WebApi.V2.Commerce.Prices.ManyAsync(ids);//price of specific ID
+			client.Dispose();
+			return response;
+		}
+
 		public async Task<Itemstat> item_information(int id)
 		{
 			var client = new Gw2Sharp.Gw2Client(this.connection);
-			var response = await client.WebApi.V2.Itemstats.GetAsync((int)id);//stats of specific ID
+			var response = await client.WebApi.V2.Itemstats.GetAsync(id);//stats of specific ID
+			client.Dispose();
+			return response;
+		}
+
+		public async Task<IReadOnlyList<Item>> item_information_bulk(List<int> ids)
+		{
+			var client = new Gw2Sharp.Gw2Client(this.connection);
+			var response = await client.WebApi.V2.Items.ManyAsync(ids);//stats of specific ID
 			client.Dispose();
 			return response;
 		}
@@ -117,7 +133,7 @@ namespace reader
 			return response;
 		}
 
-		public async Task<IReadOnlyList<Recipe>> recipes(IApiV2ObjectList<int> ids)
+		public async Task<IReadOnlyList<Recipe>> recipes(List<int> ids)
 		{
 			var client = new Gw2Sharp.Gw2Client(this.connection);
 			var response = await client.WebApi.V2.Recipes.ManyAsync(ids);
