@@ -92,12 +92,10 @@ namespace data
 		{
 			92272
 		};
+		
+
+
 		public Magic()
-		{
-		}
-
-
-		public Magic(string path)
 		{
 			//this.luckIds = luckIds;
 			//this.ectoId = ectoId;

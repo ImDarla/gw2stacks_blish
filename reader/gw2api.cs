@@ -28,9 +28,9 @@ namespace reader
         public Gw2Api(Gw2ApiManager manager_)
         {
 			this.manager = manager_;
-			var task = account_name();
-			task.Wait();
-			this.name = task.Result.Name;
+			//var task = account_name();
+			
+			this.name = "REMOVE ACCOUNT NAME"; //task.Result.Name;
 			
 		}
 
@@ -38,7 +38,7 @@ namespace reader
         {
             try
 			{
-				if(manager.HasPermissions(new List<TokenPermission>{ }))
+				if(manager.HasPermissions(new List<TokenPermission>{TokenPermission.Account, TokenPermission.Characters, TokenPermission.Inventories }))
 				{
 					
 				}
@@ -59,7 +59,13 @@ namespace reader
 
         }
 
-		public async Task<Account> account_name()
+		public async Task set_name()
+		{
+			var result = await this.get_account_name();
+			this.name = result.Name;
+		}
+
+		private async Task<Account> get_account_name()
 		{
 			var response = await this.manager.Gw2ApiClient.V2.Account.GetAsync();//shared inventory
 			return response;

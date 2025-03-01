@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace data
 {
@@ -34,10 +35,21 @@ namespace data
 			this.recipeResults = new Dictionary<int, Item>();
 			this.includeConsumables = false;
 			this.ectoSalvagePrice = 0;
-			this.magicValues = new Magic(path_);
+			this.magicValues = new Magic();
 		}
 
-        public void add_item(int id_, bool isAccountBound_, Source source_)
+		public async Task setup(Gw2Api api_)
+		{
+			
+			await this.build_material_storage_size(api_);
+			await this.build_inventory(api_);
+			await this.build_item_info(api_);
+			await this.build_ecto_price(api_);
+			await this.build_recipe_info(api_);
+
+		}
+
+		public void add_item(int id_, bool isAccountBound_, Source source_)
         {
             if(this.items.ContainsKey(id_)==false)
             {
@@ -77,30 +89,30 @@ namespace data
             return result;
 		}
 
-        public void build_material_storage_size(Gw2Api api_)
-        {
-            var task = api_.material_storage();
-            task.Wait();
-            UInt64 maxCount = 0;
-			foreach (var item in task.Result)
+		public async Task build_material_storage_size(Gw2Api api_)
+		{
+			//task.Wait();
+			UInt64 maxCount = 0;
+			foreach (var item in await api_.material_storage()) //.Result
 			{
-                maxCount = Math.Max(maxCount, (UInt64)item.Count);
+				maxCount = Math.Max(maxCount, (UInt64)item.Count);
 			}
 
-            this.materialStorageSize = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(maxCount / 250)) * 250);
+			this.materialStorageSize = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(maxCount / 250)) * 250);
 		}
 
-        public void  build_inventory(Gw2Api api_)
-        {
-            UInt64 emptySlots = 0;
-            //Message loading characters @name
-            var taskCharacters = api_.characters();
-            var taskMaterials = api_.material_storage();
-            var taskBank = api_.bank();
-            var taskShared = api_.shared_inventory();
-			taskCharacters.Wait();
-            foreach(var character in taskCharacters.Result)
-            {
+		public async Task build_inventory(Gw2Api api_)
+		{
+			UInt64 emptySlots = 0;
+			//Message loading characters @name
+			//var taskCharacters = await api_.manager.WebApi.V2.Characters.AllAsync();
+			//var taskMaterials = api_.material_storage();
+			//var taskBank = api_.bank();
+			//var taskShared = api_.shared_inventory();
+			//taskCharacters.Wait();
+			Console.WriteLine("started building inventory");
+			foreach (var character in await api_.characters())//.Result
+			{
                 //Message loading character @name inventory 
                 
                 foreach(var bag in character.Bags)
@@ -115,7 +127,7 @@ namespace data
 							}
                             else
                             {
-                                this.add_item(item.Id, item.Binding.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), character.Name, api_.name));
+                                this.add_item(item.Id, item.Binding?.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), character.Name));
                             }
 						}
 					}
@@ -123,27 +135,27 @@ namespace data
                 }
             }
 
-            taskMaterials.Wait();
-			foreach(var item in taskMaterials.Result)
-            {
-				this.add_item(item.Id, item.Binding.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), "Material Storage", api_.name));
+			//taskMaterials.Wait();
+			foreach (var item in await api_.material_storage())
+			{
+				this.add_item(item.Id, item.Binding?.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), "Material Storage"));
 			}
 
-            taskBank.Wait();
-            foreach(var item in taskBank.Result)
-            {
+            //taskBank.Wait();
+			foreach (var item in await api_.bank())
+			{
                 if(item==null)
                 {
                     emptySlots++;
                 }
                 else
                 {
-					this.add_item(item.Id, item.Binding.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), "Bank Storage", api_.name));
+					this.add_item(item.Id, item.Binding?.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), "Bank Storage"));
 				}
             }
 
-            taskShared.Wait();
-			foreach (var item in taskShared.Result)
+			//taskShared.Wait();
+			foreach (var item in await api_.shared_inventory())
 			{
 				if (item == null)
 				{
@@ -151,7 +163,7 @@ namespace data
 				}
 				else
 				{
-					this.add_item(item.Id, item.Binding.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), "Shared Storage", api_.name));
+					this.add_item(item.Id, item.Binding?.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), "Shared Storage"));
 				}
 			}
 		}
@@ -169,14 +181,16 @@ namespace data
             item_.wikiLink = $"wiki.guildwars2.com/wiki/{urlName}";
 		}
 
-		public void build_recipe_info(Gw2Api api_)
-        {
-            var task = api_.recipes(this.items.Keys.ToList());
+		public async Task build_recipe_info(Gw2Api api_)
+		{
+			var taskIds = await api_.recipe_ids();
+			//taskIds.Wait();
+
+           
             
             List<int> outputItemIds = new List<int>();
-            task.Wait();
-            var result = task.Result;
-			foreach (var recipe in result)
+            
+			foreach (var recipe in await api_.recipes(taskIds.ToList()))
 			{
 				if(magicValues.pertinentRecipeTypes.Contains(recipe.Type))
                 {
@@ -200,10 +214,8 @@ namespace data
 
             this.recipeResults = new Dictionary<int, Item>();
 
-            var taskOutput = api_.item_information_bulk(outputItemIds);
-            taskOutput.Wait();
 
-			foreach (var itemInformation in taskOutput.Result)
+			foreach (var itemInformation in await api_.item_information_bulk(outputItemIds))
 			{
                 Item item = new Item(itemInformation.Id);
                 this.build_basic_item_info(item, itemInformation);
@@ -215,14 +227,13 @@ namespace data
             
 		}
 
-        public void build_item_info(Gw2Api api_)
-        {
+		public async Task build_item_info(Gw2Api api_)
+		{
             List<int> appraisedItemIds = new List<int>();
-            
-            
-            var task = api_.item_information_bulk(this.items.Keys.ToList());
-            task.Wait();
-			foreach (var itemInformation in task.Result)
+
+
+
+			foreach (var itemInformation in await api_.item_information_bulk(this.items.Keys.ToList()))
 			{
                 var item = this.items[itemInformation.Id];
                 this.build_basic_item_info(item, itemInformation);
@@ -262,21 +273,19 @@ namespace data
 
 
 			}
-            //loading market prices
-            var taskPrices = api_.item_prices(appraisedItemIds);
-            taskPrices.Wait();
-			foreach (var price in taskPrices.Result)
+			//loading market prices
+			foreach (var price in await api_.item_prices(appraisedItemIds))
 			{
                 this.items[price.Id].price = price.Sells.UnitPrice;
 			}
 		}
 
-        public void build_ecto_price(Gw2Api api_)
-        {
-            var task = api_.item_price(magicValues.ectoId);
-            task.Wait();
-            int ectoPrice = task.Result.Sells.UnitPrice;
-            this.ectoSalvagePrice = Convert.ToInt32((ectoPrice * magicValues.tax * magicValues.ectoChance - magicValues.salvagePrice) / magicValues.tax);
+		public async Task build_ecto_price(Gw2Api api_)
+		{
+			var task = await api_.item_price(magicValues.ectoId);
+
+			int ectoPrice = task.Sells.UnitPrice;
+			this.ectoSalvagePrice = Convert.ToInt32((ectoPrice * magicValues.tax * magicValues.ectoChance - magicValues.salvagePrice) / magicValues.tax);
         }
 
         public List<ItemForDisplay> get_stacks_advice()

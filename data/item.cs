@@ -122,7 +122,8 @@ namespace data
 
         public ItemForDisplay(Item item_, List<Source> sources_=null, string advice_ = null)
         {
-            if(!sources_.Any())
+            this.item = item_;
+            if(sources_==null)
             {
                 this.sources = item_.sources;
             }
@@ -135,8 +136,8 @@ namespace data
 
 		public override string ToString()
 		{
-            return this.item.ToString() + " " + this.advice + " " + string.Join(", ", this.sources); 
-        }
+            return (this.item?.ToString() ?? " ") + " " + (this.advice?.ToString() ?? " ") + " " + string.Join(", ", this.sources);
+		}
     }
 
     class Gobbler
