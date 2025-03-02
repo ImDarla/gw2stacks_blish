@@ -18,35 +18,36 @@ namespace data
 {
     class Model
     {
-        Dictionary<int, Item> items;
+        public Dictionary<int, Item> items;
         int materialStorageSize;
         List<Recipe> recipes;
         Dictionary<int, Item> recipeResults;
         public bool includeConsumables;
         int ectoSalvagePrice;
-        
+		public bool validData;
         Magic magicValues;
 
-		public Model (string path_)
+		public Model ()
 		{
 			this.items = new Dictionary<int, Item>();
 			this.materialStorageSize = 0;
 			this.recipes = new List<Recipe>();
 			this.recipeResults = new Dictionary<int, Item>();
-			this.includeConsumables = false;
+			this.includeConsumables = true;
 			this.ectoSalvagePrice = 0;
 			this.magicValues = new Magic();
+			this.validData = false;
 		}
 
 		public async Task setup(Gw2Api api_)
 		{
-			
+			this.validData = false;
 			await this.build_material_storage_size(api_);
 			await this.build_inventory(api_);
 			await this.build_item_info(api_);
 			await this.build_ecto_price(api_);
 			await this.build_recipe_info(api_);
-
+			this.validData = true;
 		}
 
 		public void add_item(int id_, bool isAccountBound_, Source source_)
@@ -176,8 +177,16 @@ namespace data
             item_.icon = info_.Icon;
             item_.rarity = info_.Rarity;
             item_.description = info_.Description;
-            //Details can not be gotten from GW2sharp api
-            var urlName = item_.name.Replace(" ", "_");
+			if (info_.Type == ItemType.Consumable)
+			{
+				var temp = ((ItemConsumable)info_);
+				if ((temp.Details.Type == ItemConsumableType.Food) || (temp.Details.Type == ItemConsumableType.Utility))
+				{
+					item_.isFoodOrUtility = true;
+				}
+			}
+			//Details can not be gotten from GW2sharp api
+			var urlName = item_.name.Replace(" ", "_");
             item_.wikiLink = $"wiki.guildwars2.com/wiki/{urlName}";
 		}
 
@@ -294,7 +303,18 @@ namespace data
             var filter = this.items.Values.Where(list_item => list_item.get_advice_stacks(this.materialStorageSize).Count > 0);
 			foreach (var item in filter)
 			{
-                result.Add(new ItemForDisplay(item, item.get_advice_stacks(this.materialStorageSize)));
+				if (this.includeConsumables)
+				{
+					result.Add(new ItemForDisplay(item, item.get_advice_stacks(this.materialStorageSize)));
+				}
+				else
+				{
+					if (item.isFoodOrUtility == false)
+					{
+						result.Add(new ItemForDisplay(item, item.get_advice_stacks(this.materialStorageSize)));
+					}
+				}
+				
 			}
             return result;
 		}

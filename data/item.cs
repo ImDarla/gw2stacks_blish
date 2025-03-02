@@ -27,13 +27,14 @@ namespace data
 		public bool isRareForSalvage;
         public string wikiLink;
         public int? price;
+        public bool isFoodOrUtility;
 
-        public Item(int id_)
+		public Item(int id_)
         {
             this.itemId = id_;
             this.sources = new List<Source>();
-
-			isAccountBound= false;
+            this.isFoodOrUtility = false;
+			isAccountBound = false;
 		    name= null;
 		    description= null;
             icon = null;

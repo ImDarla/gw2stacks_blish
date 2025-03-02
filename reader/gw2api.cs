@@ -116,6 +116,7 @@ namespace reader
 		public async Task<Itemstat> item_information(int id_)
 		{
 			var response = await this.manager.Gw2ApiClient.V2.Itemstats.GetAsync(id_);//stats of specific ID
+			
 			return response;
 		}
 

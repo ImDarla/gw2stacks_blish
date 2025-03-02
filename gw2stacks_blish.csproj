@@ -160,6 +160,7 @@
     <Compile Include="data\source.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="reader\Gw2Api.cs" />
+    <Compile Include="view\views.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AsyncClipboardService, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL">

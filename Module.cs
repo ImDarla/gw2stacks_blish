@@ -16,6 +16,7 @@ using reader;
 using System.Collections.Generic;
 using Blish_HUD.Input;
 using Blish_HUD.Content;
+using views;
 
 namespace gw2stacks_blish {
 
@@ -36,11 +37,12 @@ namespace gw2stacks_blish {
 
         private TabbedWindow2 gw2stacks_root;
 
-        private StandardWindow ui;
-
 		private CornerIcon icon;
 
-		private Task<List<ItemForDisplay>> result;
+		private double loadingIntervalTicks = 0;
+
+
+		private bool validData = false;
 
 		SettingEntry<bool> showStackAdvice;
 		SettingEntry<bool> showVendorAdvice;
@@ -69,13 +71,14 @@ namespace gw2stacks_blish {
 		Tab showMiscAdviceTab;
 
 		Dictionary<SettingEntry<bool>, Tab> settingTabMapping;
-
+		Dictionary<string, AdviceTab> stringAdviceTabMapping;
+		Dictionary<int, AsyncTexture2D> itemTextures;
 		Model model;
 		Gw2Api api;
 		Dictionary<string, List<ItemForDisplay>> adviceDictionary;
-		Task task;
+		Task task = null;
 		
-		private Dictionary<SettingEntry<bool>,Tab> createMapping()
+		private Dictionary<SettingEntry<bool>,Tab> createTabMapping()
 		{
 			var result = new Dictionary<SettingEntry<bool>, Tab>();
 			result.Add(showStackAdvice, showStackAdviceTab);
@@ -93,9 +96,13 @@ namespace gw2stacks_blish {
 			return result;
 		}
 
+
+
+		AdviceTab stackView = new AdviceTab();
+
 		private void createTabs()
 		{
-			this.showStackAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => new OverlaySettingsView(), "stack advice");
+			this.showStackAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.stackView, "stack advice");
 			this.showVendorAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => new OverlaySettingsView(), "vendor advice");
 			this.showRareSalvageAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => new OverlaySettingsView(), "rare salvage advice");
 			this.showCraftLuckAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => new OverlaySettingsView(), "craftable luck advice");
@@ -114,14 +121,18 @@ namespace gw2stacks_blish {
 		{
 			if(this.settingTabMapping==null)
 			{
-				this.settingTabMapping = this.createMapping();
+				this.settingTabMapping = this.createTabMapping();
 			}
 			foreach (var item in this.settingTabMapping.Keys)
 			{
 				if(item.Value)
 				{
-					this.gw2stacks_root.Tabs.Add(this.settingTabMapping[item]);
-					//change to add and remove?
+					if(this.gw2stacks_root.Tabs.Contains(this.settingTabMapping[item])==false)
+					{
+						this.gw2stacks_root.Tabs.Add(this.settingTabMapping[item]);
+					}
+					
+					
 				}
 				else
 				{
@@ -157,6 +168,10 @@ namespace gw2stacks_blish {
 			
 		}
 
+		
+
+		
+
         protected override async Task LoadAsync() {
 			
 		}
@@ -165,33 +180,45 @@ namespace gw2stacks_blish {
 
 		private void onClick(object sender_, MouseEventArgs event_)
 		{
-			this.gw2stacks_root.ToggleWindow();
+			if(this.gw2stacks_root.Visible==false)
+			{
+				this.selectTabs();
+			}
+			else
+			{
+				this.gw2stacks_root.Hide();
+				this.selectTabs();
+			}
+			this.gw2stacks_root.Show();
+			
+
 		}
 
-		private async void onClick2(object sender_, MouseEventArgs event_)
+		private void onClick2(object sender_, MouseEventArgs event_)
 		{
-			await this.model?.setup(this.api);
+			this.validData = false;
+			this.gw2stacks_root.Hide();
+			
+			Logger.Warn("starting setup");
+			task=Task.Run(()=>this.model?.setup(this.api));
 			//Logger.Warn(result[0].Name);
 		}
 
-		private async Task getAdvice()
-		{
-			
-		}
-
+		
 		protected override void OnModuleLoaded(EventArgs e) {
 			
 			// Base handler must be called
 			base.OnModuleLoaded(e);
-			
+			this.itemTextures = new Dictionary<int, AsyncTexture2D>();
+
 			this.gw2stacks_root = new TabbedWindow2(
-				GameService.Content.GetTexture("controls/window/502049"), // The background texture of the window.155997 1909316
+				AsyncTexture2D.FromAssetId(155997), // The background texture of the window.155997 1909316 GameService.Content.GetTexture("controls/window/502049")
 				new Rectangle(24, 30, 545, 630),              // The windowRegion
 				new Rectangle(82, 30, 467, 600)               // The contentRegion
 			);
 
 			this.createTabs();
-			this.settingTabMapping=this.createMapping();
+			this.settingTabMapping=this.createTabMapping();
 			
 			
 			
@@ -200,16 +227,18 @@ namespace gw2stacks_blish {
 			gw2stacks_root.Parent = GameService.Graphics.SpriteScreen;
 			
 			
-			gw2stacks_root.Show();
+			//gw2stacks_root.Show();
 			this.selectTabs();
 			icon = new CornerIcon(AsyncTexture2D.FromAssetId(155052), "gw2stacks");
 			GameService.Graphics.SpriteScreen.AddChild(icon);
 			icon.Show();
 			icon.Parent = GameService.Graphics.SpriteScreen;
 			icon.Click += onClick2;
+			
+			
 
 
-			//this.model = new Model("path");
+			this.model = new Model();
 			this.api = new Gw2Api(Gw2ApiManager);
 			//this.task = Task.Run(() => model.setup(api));
 
@@ -217,7 +246,19 @@ namespace gw2stacks_blish {
 
         protected override void Update(GameTime gameTime) {
 
-			
+			this.loadingIntervalTicks += gameTime.ElapsedGameTime.Milliseconds;
+			if(this.loadingIntervalTicks>300&&task!=null&&this.validData==false)
+			{
+				if(task.IsCompleted)
+				{
+					Logger.Warn("task finished");
+					this.validData = true;
+					
+					this.stackView.update(this.model.get_stacks_advice(), this.itemTextures);
+					this.gw2stacks_root.Show();
+				}
+				this.loadingIntervalTicks = 0;
+			}
 			
 		}
 

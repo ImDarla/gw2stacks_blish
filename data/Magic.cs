@@ -3,6 +3,7 @@ using data;
 using Gw2Sharp.WebApi.V2.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -93,7 +94,14 @@ namespace data
 			92272
 		};
 		
+		public static int id_from_Render_URI(string uri_)
+		{
+			var initialSplit = uri_.Split('/');
+			var file = initialSplit.Last();
+			return Convert.ToInt32(file.Split('.')[0]);
+		}
 
+		
 
 		public Magic()
 		{
