@@ -15,6 +15,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Blish_HUD.GameServices;
 using Blish_HUD.Settings.UI.Views;
 using data;
+using Blish_HUD.Input;
 
 namespace views
 {
@@ -84,62 +85,60 @@ namespace views
 
 	}
 
-    class AdviceTab : View
+    class AdviceTabView : View
     {
-		//shamelessly taken from OverlaySettings
-		private ViewContainer GetStandardPanel(Panel rootPanel, string title,  int id_)
+		private void on_click(object sender_, MouseEventArgs event_)
+		{
+			var containerSender = (ViewContainer)sender_;
+			this.sourceWindow.Title = containerSender.Title;
+			this.sourceWindow.Show();
+		}
+
+		private ViewContainer GetStandardPanel(Panel rootPanel, string title, int id_)
 		{
 			return new ViewContainer()
 			{
 				Icon = this.itemTextures[id_],
 				WidthSizingMode = SizingMode.Fill,
 				HeightSizingMode = SizingMode.AutoSize,
-				Title = title+" click to see sources",
+				Title = title,
 				ShowBorder = true,
 				Parent = rootPanel
 				
+
 			};
 		}
 
 		List<ItemForDisplay> adviceList = new List<ItemForDisplay>();
 		FlowPanel panel;
 		Dictionary<int, AsyncTexture2D> itemTextures;
+		StandardWindow sourceWindow;
 
 		private void BuildOverlaySettings(Panel rootPanel)
 		{
 			foreach (var item in this.adviceList)
 			{
-				if(this.itemTextures.ContainsKey(item.item.itemId)==false)
+				if (this.itemTextures.ContainsKey(item.item.itemId) == false)
 				{
 					this.itemTextures.Add(item.item.itemId, AsyncTexture2D.FromAssetId(Magic.id_from_Render_URI(item.item.icon)));
 				}
 				var container = GetStandardPanel(rootPanel, item.item.name, item.item.itemId);
-				/*var icon = new Image(AsyncTexture2D.FromAssetId(item.item.itemId))
-				{
-					Height = container.Height,
-					Parent = container
-				};
-				var exampleButton = new StandardButton()
-				{
-					Text = "Details",
-					Width = 50,
-					Height = container.Height,
-					Left = container.Right,
-					Parent = container,
-				};*/
+				container.Click += this.on_click;
 				container.Show();
 			}
-			
-			
-			
+
+
+
 		}
 
-		public void update(List<ItemForDisplay> items_, Dictionary<int, AsyncTexture2D> itemTextures_)
+		public void update(List<ItemForDisplay> items_, string title_, Dictionary<int, AsyncTexture2D> itemTextures_, StandardWindow sourceWindow_)
 		{
 			this.panel.ClearChildren();
 			this.adviceList = items_;
 			this.itemTextures = itemTextures_;
 			this.BuildOverlaySettings(panel);
+			this.panel.Title = title_;
+			this.sourceWindow = sourceWindow_;
 		}
 
 		protected override void Build(Container buildPanel)
@@ -155,6 +154,7 @@ namespace views
 
 			BuildOverlaySettings(this.panel);
 		}
+
 
 	}
 }

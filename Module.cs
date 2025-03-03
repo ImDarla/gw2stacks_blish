@@ -37,6 +37,8 @@ namespace gw2stacks_blish {
 
         private TabbedWindow2 gw2stacks_root;
 
+		private StandardWindow sourceWindow;
+
 		private CornerIcon icon;
 
 		private double loadingIntervalTicks = 0;
@@ -71,7 +73,6 @@ namespace gw2stacks_blish {
 		Tab showMiscAdviceTab;
 
 		Dictionary<SettingEntry<bool>, Tab> settingTabMapping;
-		Dictionary<string, AdviceTab> stringAdviceTabMapping;
 		Dictionary<int, AsyncTexture2D> itemTextures;
 		Model model;
 		Gw2Api api;
@@ -98,59 +99,67 @@ namespace gw2stacks_blish {
 
 
 
-		AdviceTab stackView = new AdviceTab();
+		AdviceTabView adviceView;
+
+		
+
+		
+		
 
 		private void createTabs()
 		{
-			this.showStackAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.stackView, "stack advice");
-			this.showVendorAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => new OverlaySettingsView(), "vendor advice");
-			this.showRareSalvageAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => new OverlaySettingsView(), "rare salvage advice");
-			this.showCraftLuckAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => new OverlaySettingsView(), "craftable luck advice");
-			this.showDeletableAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => new OverlaySettingsView(), "deletable advice");
-			this.showSalvageAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => new OverlaySettingsView(), "salvagable  advice");
-			this.showConsumableAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => new OverlaySettingsView(), "consumable  advice");
-			this.showGobblerAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => new OverlaySettingsView(), "gobbler  advice");
-			this.showKarmaAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => new OverlaySettingsView(), "karma consumable  advice");
-			this.showCraftAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => new OverlaySettingsView(), "crafting advice");
-			this.showLwsAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => new OverlaySettingsView(), "living world advice");
-			this.showMiscAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => new OverlaySettingsView(), "miscellaneous  advice");
+			this.showStackAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "stack advice");
+			this.showVendorAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "vendor advice");
+			this.showRareSalvageAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "rare salvage advice");
+			this.showCraftLuckAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "craftable luck advice");
+			this.showDeletableAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "deletable advice");
+			this.showSalvageAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "salvagable  advice");
+			this.showConsumableAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "consumable  advice");
+			this.showGobblerAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "gobbler  advice");
+			this.showKarmaAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "karma consumable  advice");
+			this.showCraftAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "crafting advice");
+			this.showLwsAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "living world advice");
+			this.showMiscAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "miscellaneous  advice");
 			
 		}
 
-		private void selectTabs()
+		private void update_advice()
 		{
-			if(this.settingTabMapping==null)
+			if (this.adviceDictionary == null)
 			{
-				this.settingTabMapping = this.createTabMapping();
+				this.adviceDictionary = new Dictionary<string, List<ItemForDisplay>>();
 			}
-			foreach (var item in this.settingTabMapping.Keys)
-			{
-				if(item.Value)
-				{
-					if(this.gw2stacks_root.Tabs.Contains(this.settingTabMapping[item])==false)
-					{
-						this.gw2stacks_root.Tabs.Add(this.settingTabMapping[item]);
-					}
-					
-					
-				}
-				else
-				{
-					if(this.gw2stacks_root.Tabs.Contains(this.settingTabMapping[item]))
-					{
-						this.gw2stacks_root.Tabs.Remove(this.settingTabMapping[item]);
-						}
-					
-				}
-				
-			}
+			this.adviceDictionary.Clear();
+			this.adviceDictionary.Add("stack advice", model.get_stacks_advice());
+			this.adviceDictionary.Add("vendor advice", model.get_vendor_advice());
+			this.adviceDictionary.Add("rare salvage advice", model.get_rare_salvage_advice());
+			this.adviceDictionary.Add("craftable luck advice", model.get_craft_luck_advice());
+			this.adviceDictionary.Add("deletable advice", model.get_just_delete_advice());
+			this.adviceDictionary.Add("salvagable  advice", model.get_just_salvage_advice());
+			this.adviceDictionary.Add("consumable  advice", model.get_play_to_consume_advice());
+			this.adviceDictionary.Add("gobbler  advice", model.get_gobbler_advice());
+			this.adviceDictionary.Add("karma consumable  advice", model.get_karma_consumables_advice());
+			this.adviceDictionary.Add("crafting advice", model.get_crafting_advice());
+			this.adviceDictionary.Add("living world advice", model.get_living_world_advice());
+			this.adviceDictionary.Add("miscellaneous  advice", model.get_misc_advice());
 		}
+
+
+
+
+
+		
+
+		
+		
+
+		
 
 		
 
 		protected override void DefineSettings(SettingCollection settings) {
 			showStackAdvice=settings.DefineSetting("showStackAdvice", true, () => " show stack advice", () => "toggle advice for partial stacks");
-			showVendorAdvice=settings.DefineSetting("showVendorAdvice", false, () => " show vendor advice", () => "toggle advice for vendor sellable items");
+			showVendorAdvice=settings.DefineSetting("showVendorAdvice", true, () => " show vendor advice", () => "toggle advice for vendor sellable items");
 			showRareSalvageAdvice=settings.DefineSetting("showRareSalvageAdvice", false, () => " show rare salvage advice", () => "toggle advice for salvagable, rare items");
 			showCraftLuckAdvice=settings.DefineSetting("showCraftLuckAdvice", false, () => " show craftable luck advice", () => "toggle advice for craftable luck items");
 			showDeletableAdvice=settings.DefineSetting("showDeletableAdvice", false, () => " show deletable advice", () => "toggle advice for deletable items");
@@ -162,6 +171,50 @@ namespace gw2stacks_blish {
 			showLwsAdvice=settings.DefineSetting("showLwsAdvice", false, () => " show living world advice", () => "toggle advice for living world items");
 			showMiscAdvice=settings.DefineSetting("showMiscAdvice", false, () => " show miscellaneous  advice", () => "");
 
+		}
+
+		private void create_values()
+		{
+			this.itemTextures = new Dictionary<int, AsyncTexture2D>();
+			this.adviceDictionary = new Dictionary<string, List<ItemForDisplay>>();
+			this.gw2stacks_root = new TabbedWindow2(
+				AsyncTexture2D.FromAssetId(155997), // The background texture of the window.155997 1909316 GameService.Content.GetTexture("controls/window/502049")
+				new Rectangle(24, 30, 545, 630),              // The windowRegion
+				new Rectangle(82, 30, 467, 600)               // The contentRegion
+			);
+
+			this.sourceWindow= new StandardWindow(
+				AsyncTexture2D.FromAssetId(155997), // The background texture of the window.155997 1909316 GameService.Content.GetTexture("controls/window/502049")
+				new Rectangle(24, 30, 545, 630),              // The windowRegion
+				new Rectangle(82, 30, 467, 600)               // The contentRegion
+			);
+
+			sourceWindow.Parent = GameService.Graphics.SpriteScreen;
+
+			this.adviceView = new AdviceTabView();
+			this.createTabs();
+			this.settingTabMapping = this.createTabMapping();
+			
+			foreach (var tab in this.settingTabMapping.Values)
+			{
+				this.gw2stacks_root.Tabs.Add(tab);
+			}
+			
+			GameService.Graphics.SpriteScreen.AddChild(gw2stacks_root);
+			gw2stacks_root.Parent = GameService.Graphics.SpriteScreen;
+
+			icon = new CornerIcon(AsyncTexture2D.FromAssetId(155052), "gw2stacks");
+			GameService.Graphics.SpriteScreen.AddChild(icon);
+			
+			icon.Parent = GameService.Graphics.SpriteScreen;
+			icon.Click += onClick2;
+
+
+
+
+			this.model = new Model();
+			this.api = new Gw2Api(Gw2ApiManager);
+			icon.Show();
 		}
 
         protected override void Initialize() {
@@ -180,16 +233,7 @@ namespace gw2stacks_blish {
 
 		private void onClick(object sender_, MouseEventArgs event_)
 		{
-			if(this.gw2stacks_root.Visible==false)
-			{
-				this.selectTabs();
-			}
-			else
-			{
-				this.gw2stacks_root.Hide();
-				this.selectTabs();
-			}
-			this.gw2stacks_root.Show();
+			
 			
 
 		}
@@ -205,41 +249,51 @@ namespace gw2stacks_blish {
 		}
 
 		
+		
+
+		private void update_views(string tabName_)
+		{
+			this.gw2stacks_root.Title = tabName_;
+			this.adviceView.update(this.adviceDictionary[tabName_],tabName_,  this.itemTextures, this.sourceWindow);
+		}
+
+		private void on_tab_change(object sender_, ValueChangedEventArgs<Tab> event_)
+		{
+			if(validData==true)
+			{
+				var tabName = event_.NewValue.Name;
+				this.update_views(tabName);
+			}
+			
+			
+			//continue
+			
+			
+			
+		}
+
+
 		protected override void OnModuleLoaded(EventArgs e) {
 			
 			// Base handler must be called
 			base.OnModuleLoaded(e);
-			this.itemTextures = new Dictionary<int, AsyncTexture2D>();
 
-			this.gw2stacks_root = new TabbedWindow2(
-				AsyncTexture2D.FromAssetId(155997), // The background texture of the window.155997 1909316 GameService.Content.GetTexture("controls/window/502049")
-				new Rectangle(24, 30, 545, 630),              // The windowRegion
-				new Rectangle(82, 30, 467, 600)               // The contentRegion
-			);
+			this.create_values();
+			
+			
+			
+			this.gw2stacks_root.TabChanged += on_tab_change;
 
-			this.createTabs();
-			this.settingTabMapping=this.createTabMapping();
 			
 			
+
 			
 			
-			GameService.Graphics.SpriteScreen.AddChild(gw2stacks_root);
-			gw2stacks_root.Parent = GameService.Graphics.SpriteScreen;
 			
 			
 			//gw2stacks_root.Show();
-			this.selectTabs();
-			icon = new CornerIcon(AsyncTexture2D.FromAssetId(155052), "gw2stacks");
-			GameService.Graphics.SpriteScreen.AddChild(icon);
-			icon.Show();
-			icon.Parent = GameService.Graphics.SpriteScreen;
-			icon.Click += onClick2;
 			
 			
-
-
-			this.model = new Model();
-			this.api = new Gw2Api(Gw2ApiManager);
 			//this.task = Task.Run(() => model.setup(api));
 
 		}
@@ -247,14 +301,17 @@ namespace gw2stacks_blish {
         protected override void Update(GameTime gameTime) {
 
 			this.loadingIntervalTicks += gameTime.ElapsedGameTime.Milliseconds;
-			if(this.loadingIntervalTicks>300&&task!=null&&this.validData==false)
+			if(this.loadingIntervalTicks>100&&task!=null&&this.validData==false)
 			{
 				if(task.IsCompleted)
 				{
 					Logger.Warn("task finished");
-					this.validData = true;
 					
-					this.stackView.update(this.model.get_stacks_advice(), this.itemTextures);
+					this.update_advice();
+					this.validData = true;
+					this.update_views(this.gw2stacks_root.SelectedTab.Name);
+					//this.vendorView.update(this.model.get_vendor_advice(), this.itemTextures);
+					
 					this.gw2stacks_root.Show();
 				}
 				this.loadingIntervalTicks = 0;
@@ -267,6 +324,7 @@ namespace gw2stacks_blish {
 			// Unload here
 			//gw2stacks_root.ClearChildren();
 			gw2stacks_root?.Dispose();
+			this.sourceWindow?.Dispose();
 			icon?.Dispose();
             // All static members must be manually unset
         }
