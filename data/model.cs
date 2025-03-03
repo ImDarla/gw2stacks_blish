@@ -42,7 +42,7 @@ namespace data
 		public async Task setup(Gw2Api api_)
 		{
 			this.validData = false;
-			await this.build_material_storage_size(api_);
+			//await this.build_material_storage_size(api_);
 			await this.build_inventory(api_);
 			await this.build_item_info(api_);
 			await this.build_ecto_price(api_);
@@ -105,13 +105,7 @@ namespace data
 		public async Task build_inventory(Gw2Api api_)
 		{
 			UInt64 emptySlots = 0;
-			//Message loading characters @name
-			//var taskCharacters = await api_.manager.WebApi.V2.Characters.AllAsync();
-			//var taskMaterials = api_.material_storage();
-			//var taskBank = api_.bank();
-			//var taskShared = api_.shared_inventory();
-			//taskCharacters.Wait();
-			Console.WriteLine("started building inventory");
+			
 			foreach (var character in await api_.characters())//.Result
 			{
                 //Message loading character @name inventory 
@@ -136,13 +130,16 @@ namespace data
                 }
             }
 
+			UInt64 maxCount = 0;
+			
 			//taskMaterials.Wait();
 			foreach (var item in await api_.material_storage())
 			{
 				this.add_item(item.Id, item.Binding?.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), "Material Storage"));
+				maxCount = Math.Max(maxCount, (UInt64)item.Count);
 			}
-
-            //taskBank.Wait();
+			this.materialStorageSize = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(maxCount / 250)) * 250);
+			//taskBank.Wait();
 			foreach (var item in await api_.bank())
 			{
                 if(item==null)
@@ -185,7 +182,7 @@ namespace data
 					item_.isFoodOrUtility = true;
 				}
 			}
-			//Details can not be gotten from GW2sharp api
+			
 			var urlName = item_.name.Replace(" ", "_");
             item_.wikiLink = $"wiki.guildwars2.com/wiki/{urlName}";
 		}

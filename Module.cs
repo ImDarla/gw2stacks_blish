@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using Blish_HUD.Input;
 using Blish_HUD.Content;
 using views;
+using System.Diagnostics;
 
 namespace gw2stacks_blish {
 
@@ -41,10 +42,14 @@ namespace gw2stacks_blish {
 
 		private CornerIcon icon;
 
+		private LoadingSpinner loadingSpinner;
+
 		private double loadingIntervalTicks = 0;
 
 
 		private bool validData = false;
+
+		private bool running = false;
 
 		SettingEntry<bool> showStackAdvice;
 		SettingEntry<bool> showVendorAdvice;
@@ -184,9 +189,9 @@ namespace gw2stacks_blish {
 			);
 
 			this.sourceWindow= new StandardWindow(
-				AsyncTexture2D.FromAssetId(155997), // The background texture of the window.155997 1909316 GameService.Content.GetTexture("controls/window/502049")
-				new Rectangle(24, 30, 545, 630),              // The windowRegion
-				new Rectangle(82, 30, 467, 600)               // The contentRegion
+				AsyncTexture2D.FromAssetId(155985), // The background texture of the window.155997 1909316 GameService.Content.GetTexture("controls/window/502049")
+				new Rectangle(40, 26, 913, 691),              // The windowRegion
+				new Rectangle(70, 71, 839, 605)               // The contentRegion
 			);
 
 			sourceWindow.Parent = GameService.Graphics.SpriteScreen;
@@ -205,11 +210,13 @@ namespace gw2stacks_blish {
 
 			icon = new CornerIcon(AsyncTexture2D.FromAssetId(155052), "gw2stacks");
 			GameService.Graphics.SpriteScreen.AddChild(icon);
-			
 			icon.Parent = GameService.Graphics.SpriteScreen;
 			icon.Click += onClick2;
 
-
+			loadingSpinner = new LoadingSpinner();
+			loadingSpinner.Parent = GameService.Graphics.SpriteScreen;
+			loadingSpinner.Location = icon.Location;
+			loadingSpinner.Hide();
 
 
 			this.model = new Model();
@@ -229,23 +236,27 @@ namespace gw2stacks_blish {
 			
 		}
 
-		
-
-		private void onClick(object sender_, MouseEventArgs event_)
+		private void start_api_update()
 		{
-			
-			
+			if(this.running==false)
+			{
+				this.validData = false;
+				this.gw2stacks_root.Hide();
 
+				Logger.Warn("starting setup");
+				task = Task.Run(() => this.model?.setup(this.api));
+				this.running = true;
+				this.loadingSpinner.Show();
+				this.icon.Enabled = false;
+			}
+			
 		}
+
 
 		private void onClick2(object sender_, MouseEventArgs event_)
 		{
-			this.validData = false;
-			this.gw2stacks_root.Hide();
+			this.start_api_update();
 			
-			Logger.Warn("starting setup");
-			task=Task.Run(()=>this.model?.setup(this.api));
-			//Logger.Warn(result[0].Name);
 		}
 
 		
@@ -264,12 +275,6 @@ namespace gw2stacks_blish {
 				var tabName = event_.NewValue.Name;
 				this.update_views(tabName);
 			}
-			
-			
-			//continue
-			
-			
-			
 		}
 
 
@@ -280,38 +285,25 @@ namespace gw2stacks_blish {
 
 			this.create_values();
 			
-			
-			
 			this.gw2stacks_root.TabChanged += on_tab_change;
-
 			
-			
-
-			
-			
-			
-			
-			//gw2stacks_root.Show();
-			
-			
-			//this.task = Task.Run(() => model.setup(api));
-
 		}
 
         protected override void Update(GameTime gameTime) {
 
 			this.loadingIntervalTicks += gameTime.ElapsedGameTime.Milliseconds;
-			if(this.loadingIntervalTicks>100&&task!=null&&this.validData==false)
+			if(this.loadingIntervalTicks>100&&task!=null&&this.validData==false&&this.running==true)
 			{
 				if(task.IsCompleted)
 				{
 					Logger.Warn("task finished");
-					
+					this.running = false;
+
 					this.update_advice();
 					this.validData = true;
 					this.update_views(this.gw2stacks_root.SelectedTab.Name);
-					//this.vendorView.update(this.model.get_vendor_advice(), this.itemTextures);
-					
+					this.loadingSpinner.Hide();
+					this.icon.Enabled = true;
 					this.gw2stacks_root.Show();
 				}
 				this.loadingIntervalTicks = 0;
@@ -322,10 +314,10 @@ namespace gw2stacks_blish {
         /// <inheritdoc />
         protected override void Unload() {
 			// Unload here
-			//gw2stacks_root.ClearChildren();
 			gw2stacks_root?.Dispose();
 			this.sourceWindow?.Dispose();
 			icon?.Dispose();
+			loadingSpinner?.Dispose();
             // All static members must be manually unset
         }
 

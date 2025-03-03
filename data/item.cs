@@ -47,7 +47,15 @@ namespace data
 
         public void add(Source source_)
         {
-            this.sources.Add(source_);
+			foreach (var source in this.sources)
+			{
+				if(source.place==source_.place)
+                {
+                    source.count += source_.count;
+                    return;
+                }
+			}
+			this.sources.Add(source_);
         }
 
         //TODO fix item types

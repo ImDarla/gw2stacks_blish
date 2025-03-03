@@ -40,9 +40,9 @@ namespace reader
 			{
 				if(manager.HasPermissions(new List<TokenPermission>{TokenPermission.Account, TokenPermission.Characters, TokenPermission.Inventories }))
 				{
-					
+					return true;
 				}
-				return true;
+				return false;
 			}
 			catch(Gw2Sharp.WebApi.Exceptions.InvalidAccessTokenException e)
 			{
