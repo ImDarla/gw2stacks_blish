@@ -90,8 +90,16 @@ namespace views
 		private void on_click(object sender_, MouseEventArgs event_)
 		{
 			var containerSender = (ViewContainer)sender_;
-			this.sourceWindow.Title = containerSender.Title;
-			this.sourceWindow.Show();
+			if(this.sourceWindow.Title==containerSender.Title)
+			{
+				this.sourceWindow.Hide();	
+			}
+			else
+			{
+				this.sourceWindow.Title = containerSender.Title;
+				this.update_source_window();
+			}
+				
 		}
 
 		private ViewContainer GetStandardPanel(Panel rootPanel, string title, int id_)
@@ -111,10 +119,11 @@ namespace views
 
 		List<ItemForDisplay> adviceList = new List<ItemForDisplay>();
 		FlowPanel panel;
+		FlowPanel sourcePanel;
 		Dictionary<int, AsyncTexture2D> itemTextures;
 		StandardWindow sourceWindow;
 
-		private void BuildOverlaySettings(Panel rootPanel)
+		private void build_item_panels(Panel rootPanel)
 		{
 			foreach (var item in this.adviceList)
 			{
@@ -126,9 +135,53 @@ namespace views
 				container.Click += this.on_click;
 				container.Show();
 			}
+		}
 
+		private void build_source_panels(Panel rootPanel_, string name_)
+		{
+			ItemForDisplay item = null;
+			foreach (var entry in  this.adviceList)
+			{
+				if(name_==entry.item.name)
+				{
+					item = entry;
+					break;
+				}
+			}
 
+			if(item == null)
+			{
+				//freak niche case TODO error handling
+			}
 
+			var advice = GetStandardPanel(rootPanel_, item.advice, item.item.itemId);
+			advice.Show();
+
+			foreach (var source in item.sources)
+			{
+				var container = GetStandardPanel(rootPanel_, source.ToString(), item.item.itemId);
+				container.Show();
+			}
+			
+		}
+
+		private void update_source_window()
+		{
+			//this.sourceWindow.Hide();
+			if(this.sourcePanel==null)
+			{
+				this.sourcePanel = new FlowPanel()
+				{
+					WidthSizingMode = SizingMode.Fill,
+					HeightSizingMode = SizingMode.Fill,
+					FlowDirection = ControlFlowDirection.SingleTopToBottom,
+					CanScroll = true,
+					Parent = this.sourceWindow
+				};
+			}
+			this.sourcePanel.ClearChildren();
+			this.build_source_panels(this.sourcePanel, this.sourceWindow.Title);
+			this.sourceWindow.Show();
 		}
 
 		public void update(List<ItemForDisplay> items_, string title_, Dictionary<int, AsyncTexture2D> itemTextures_, StandardWindow sourceWindow_)
@@ -136,9 +189,10 @@ namespace views
 			this.panel.ClearChildren();
 			this.adviceList = items_;
 			this.itemTextures = itemTextures_;
-			this.BuildOverlaySettings(panel);
+			this.build_item_panels(panel);
 			this.panel.Title = title_;
 			this.sourceWindow = sourceWindow_;
+			this.sourceWindow.Hide();
 		}
 
 		protected override void Build(Container buildPanel)
@@ -152,7 +206,7 @@ namespace views
 				Parent = buildPanel
 			};
 
-			BuildOverlaySettings(this.panel);
+			build_item_panels(this.panel);
 		}
 
 
