@@ -12,7 +12,9 @@ namespace data
 {
     class Magic
     {
+		//ids of craftable luck items
         public List<int> luckIds = new List<int> { 45175, 45176, 45177 };
+		//id-name mapping of all luck essence items as they are called the same in api calls with differing rarity
 		public Dictionary<int, string> luckNameMapping = new Dictionary<int, string>
 		{
 			{45175, "Essence of Luck (fine)" },
@@ -28,7 +30,9 @@ namespace data
 		public double tax = 0.85;
         public List<ItemType> nonStackableTypes = new List<ItemType> { ItemType.Armor, ItemType.Back, ItemType.Gathering, ItemType.Tool, ItemType.Trinket, ItemType.Weapon, ItemType.Bag, ItemType.Container };
 		public List<ItemType> salvagableEquipment = new List<ItemType> { ItemType.Armor, ItemType.Back, ItemType.Trinket, ItemType.Weapon };
+		//recipe types pertinent to reducing inventory clutter
         public List<ApiEnum<RecipeType>> pertinentRecipeTypes = new List<ApiEnum<RecipeType>> { RecipeType.Refinement, RecipeType.RefinementEctoplasm, RecipeType.RefinementObsidian, RecipeType.IngredientCooking };
+		//advice map for items that are consumed in gameplay
 		public Dictionary<int, string> gameplayConsumables = new Dictionary<int, string>{
 			{ 78758, "Trade to get bounty for bandit leader."},
 			{ 78886, "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner"},

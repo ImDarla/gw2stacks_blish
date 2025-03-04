@@ -90,6 +90,8 @@ namespace data
             return result;
 		}
 
+
+		//deprecated method, part of build_inventory
 		public async Task build_material_storage_size(Gw2Api api_)
 		{
 			//task.Wait();
@@ -106,9 +108,9 @@ namespace data
 		{
 			UInt64 emptySlots = 0;
 			
-			foreach (var character in await api_.characters())//.Result
+			foreach (var character in await api_.characters())
 			{
-                //Message loading character @name inventory 
+                
                 
                 foreach(var bag in character.Bags)
                 {
@@ -132,14 +134,15 @@ namespace data
 
 			UInt64 maxCount = 0;
 			
-			//taskMaterials.Wait();
+			//get items from material storage and set material storage max size
 			foreach (var item in await api_.material_storage())
 			{
 				this.add_item(item.Id, item.Binding?.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), "Material Storage"));
 				maxCount = Math.Max(maxCount, (UInt64)item.Count);
 			}
 			this.materialStorageSize = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(maxCount / 250)) * 250);
-			//taskBank.Wait();
+			
+
 			foreach (var item in await api_.bank())
 			{
                 if(item==null)
@@ -152,7 +155,7 @@ namespace data
 				}
             }
 
-			//taskShared.Wait();
+			
 			foreach (var item in await api_.shared_inventory())
 			{
 				if (item == null)
@@ -170,6 +173,7 @@ namespace data
 
 		public void build_basic_item_info(Item item_, Gw2Sharp.WebApi.V2.Models.Item info_)
 		{
+			//adjust name of Essence of luck items to include the rarity
 			if(magicValues.luckNameMapping.ContainsKey(item_.itemId))
 			{
 				item_.name = magicValues.luckNameMapping[item_.itemId];
@@ -198,12 +202,9 @@ namespace data
 		public async Task build_recipe_info(Gw2Api api_)
 		{
 			var taskIds = await api_.recipe_ids();
-			//taskIds.Wait();
-
-           
-            
             List<int> outputItemIds = new List<int>();
-            
+			
+			//filter recipes depending on if all inputs are available and then add recipes and output ids to a list
 			foreach (var recipe in await api_.recipes(taskIds.ToList()))
 			{
 				if(magicValues.pertinentRecipeTypes.Contains(recipe.Type))
@@ -304,6 +305,7 @@ namespace data
 			var task = await api_.item_price(magicValues.ectoId);
 
 			int ectoPrice = task.Sells.UnitPrice;
+			//create ecto salvage price based on cost and taxes
 			this.ectoSalvagePrice = Convert.ToInt32((ectoPrice * magicValues.tax * magicValues.ectoChance - magicValues.salvagePrice) / magicValues.tax);
         }
 

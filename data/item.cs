@@ -45,6 +45,7 @@ namespace data
             price = null;
         }
 
+        //condense sources 
         public void add(Source source_)
         {
 			foreach (var source in this.sources)
@@ -58,7 +59,7 @@ namespace data
 			this.sources.Add(source_);
         }
 
-        //TODO fix item types
+       
 		public List<Source> get_advice_stacks(int materialStorageSize_)
         {
             if (this.isAccountBound ==false)

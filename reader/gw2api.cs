@@ -26,6 +26,7 @@ namespace reader
 			this.manager = manager_;
 		}
 
+		//depracted function for the multi account feature
 		private async Task<Account> get_account_name()
 		{
 			var response = await this.manager.Gw2ApiClient.V2.Account.GetAsync();
@@ -38,6 +39,7 @@ namespace reader
 			return response;
 		}
 
+		//depracted function for the multi account feature
 		public async Task<CharactersInventory> character_inventory(string name_)
 		{
 			var response = await this.manager.Gw2ApiClient.V2.Characters[name_].Inventory.GetAsync();
@@ -70,7 +72,7 @@ namespace reader
 
 		public async Task<IReadOnlyList<CommercePrices>> item_prices(List<int> ids_)
 		{
-			var response = await this.manager.Gw2ApiClient.V2.Commerce.Prices.ManyAsync(ids_);//price of specific ID
+			var response = await this.manager.Gw2ApiClient.V2.Commerce.Prices.ManyAsync(ids_);//prices of specific IDs
 			return response;
 		}
 
@@ -83,7 +85,7 @@ namespace reader
 
 		public async Task<IReadOnlyList<Item>> item_information_bulk(List<int> ids_)
 		{
-			var response = await this.manager.Gw2ApiClient.V2.Items.ManyAsync(ids_);//stats of specific ID
+			var response = await this.manager.Gw2ApiClient.V2.Items.ManyAsync(ids_);//stats of specific IDs
 			return response;
 		}
 

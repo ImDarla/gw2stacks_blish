@@ -23,6 +23,14 @@ namespace views
 
     class AdviceTabView : View
     {
+		List<ItemForDisplay> adviceList = new List<ItemForDisplay>();
+		FlowPanel panel;
+		FlowPanel sourcePanel;
+		Dictionary<int, AsyncTexture2D> itemTextures;
+		StandardWindow sourceWindow;
+
+
+		//even handler for subpanels in the main window
 		private void on_click(object sender_, MouseEventArgs event_)
 		{
 			var containerSender = (ViewContainer)sender_;
@@ -53,12 +61,7 @@ namespace views
 			};
 		}
 
-		List<ItemForDisplay> adviceList = new List<ItemForDisplay>();
-		FlowPanel panel;
-		FlowPanel sourcePanel;
-		Dictionary<int, AsyncTexture2D> itemTextures;
-		StandardWindow sourceWindow;
-
+		//build the sub panels for the main window
 		private void build_item_panels(Panel rootPanel)
 		{
 			foreach (var item in this.adviceList)
@@ -73,6 +76,7 @@ namespace views
 			}
 		}
 
+		//build the sub panels for the source window
 		private void build_source_panels(Panel rootPanel_, string name_)
 		{
 			ItemForDisplay item = null;
@@ -102,6 +106,7 @@ namespace views
 			
 		}
 
+		//update the panel and sub panels for the source window
 		private void update_source_window()
 		{
 			//this.sourceWindow.Hide();
@@ -121,6 +126,7 @@ namespace views
 			this.sourceWindow.Show();
 		}
 
+		//update the panel and sub panels for the main window
 		public void update(List<ItemForDisplay> items_, string title_, Dictionary<int, AsyncTexture2D> itemTextures_, StandardWindow sourceWindow_)
 		{
 			this.panel.ClearChildren();
@@ -132,6 +138,7 @@ namespace views
 			this.sourceWindow.Hide();
 		}
 
+		//create the panel and sub panels for the main window
 		protected override void Build(Container buildPanel)
 		{
 			this.panel = new FlowPanel()

@@ -214,11 +214,11 @@ namespace gw2stacks_blish {
 				this.gw2stacks_root.Tabs.Add(tab);
 			}
 			
-			//GameService.Graphics.SpriteScreen.AddChild(gw2stacks_root);
+			
 			gw2stacks_root.Parent = GameService.Graphics.SpriteScreen;
 
 			icon = new CornerIcon(AsyncTexture2D.FromAssetId(155052), "gw2stacks");
-			//GameService.Graphics.SpriteScreen.AddChild(icon);
+			
 			icon.Parent = GameService.Graphics.SpriteScreen;
 			icon.Click += onClick2;
 
@@ -233,21 +233,9 @@ namespace gw2stacks_blish {
 			icon.Show();
 		}
 
-        protected override void Initialize() {
-			
-		}
-
-		
-
-		
-
-        protected override async Task LoadAsync() {
-			
-		}
-
 		private void start_api_update()
 		{
-			if(this.running==false)
+			if (this.running == false)
 			{
 				this.validData = false;
 				this.gw2stacks_root.Hide();
@@ -259,46 +247,60 @@ namespace gw2stacks_blish {
 				this.loadingSpinner.Show();
 				this.icon.Enabled = false;
 			}
-			
+
 		}
 
 
 		private void onClick2(object sender_, MouseEventArgs event_)
 		{
 			this.validate_api();
-			if (fatalError==false)
+			if (fatalError == false)
 			{
 				try
 				{
 					this.start_api_update();
 				}
-				catch(Exception e_)
+				catch (Exception e_)
 				{
 					this.fatalError = true;
 					Logger.Fatal("Unexpected exception: " + e_.Message);
 				}
 			}
-			
-			
+
+
 		}
 
-		
-		
+
+
 
 		private void update_views(string tabName_)
 		{
 			this.gw2stacks_root.Title = tabName_;
-			this.adviceView.update(this.adviceDictionary[tabName_],tabName_,  this.itemTextures, this.sourceWindow);
+			this.adviceView.update(this.adviceDictionary[tabName_], tabName_, this.itemTextures, this.sourceWindow);
 		}
 
 		private void on_tab_change(object sender_, ValueChangedEventArgs<Tab> event_)
 		{
-			if(validData==true)
+			if (validData == true)
 			{
 				var tabName = event_.NewValue.Name;
 				this.update_views(tabName);
 			}
 		}
+
+		protected override void Initialize() {
+			
+		}
+
+		
+
+		
+
+        protected override async Task LoadAsync() {
+			
+		}
+
+		
 
 
 		protected override void OnModuleLoaded(EventArgs e) {
@@ -352,7 +354,7 @@ namespace gw2stacks_blish {
 						
 					}
 				}
-				if (this.fatalError == true)
+				if (this.fatalError == true)//hide UI elements until fatalError is set to false by validate_ai() upon subtoken change
 				{
 					gw2stacks_root?.Hide();
 					this.sourceWindow?.Hide();
