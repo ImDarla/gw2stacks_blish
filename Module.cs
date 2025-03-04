@@ -18,6 +18,7 @@ using Blish_HUD.Input;
 using Blish_HUD.Content;
 using views;
 using System.Diagnostics;
+using Gw2Sharp.WebApi.V2.Models;
 
 namespace gw2stacks_blish {
 
@@ -178,20 +179,57 @@ namespace gw2stacks_blish {
 
 		}
 
+		private void validate_api()
+		{
+			try
+			{
+				if(Gw2ApiManager.HasSubtoken)
+				{
+					if (Gw2ApiManager.HasPermissions(new List<TokenPermission> { TokenPermission.Account, TokenPermission.Characters, TokenPermission.Inventories }))
+					{
+
+					}
+					else
+					{
+
+					}
+				}
+				else
+				{
+				
+				}
+				
+				
+			}
+			catch (Gw2Sharp.WebApi.Exceptions.InvalidAccessTokenException e_)
+			{
+				
+			}
+			catch (Gw2Sharp.WebApi.Exceptions.MissingScopesException e_)
+			{
+				
+			}
+			catch (Gw2Sharp.WebApi.Exceptions.RequestException e_)
+			{
+				
+			}
+		}
+
+
 		private void create_values()
 		{
 			this.itemTextures = new Dictionary<int, AsyncTexture2D>();
 			this.adviceDictionary = new Dictionary<string, List<ItemForDisplay>>();
 			this.gw2stacks_root = new TabbedWindow2(
 				AsyncTexture2D.FromAssetId(155997), // The background texture of the window.155997 1909316 GameService.Content.GetTexture("controls/window/502049")
-				new Rectangle(24, 30, 545, 630),              // The windowRegion
-				new Rectangle(82, 30, 467, 600)               // The contentRegion
+				new Microsoft.Xna.Framework.Rectangle(24, 30, 545, 630),              // The windowRegion
+				new Microsoft.Xna.Framework.Rectangle(82, 30, 467, 600)               // The contentRegion
 			);
 
 			this.sourceWindow= new StandardWindow(
 				AsyncTexture2D.FromAssetId(155985), // The background texture of the window.155997 1909316 GameService.Content.GetTexture("controls/window/502049")
-				new Rectangle(40, 26, 913, 691),              // The windowRegion
-				new Rectangle(70, 71, 839, 605)               // The contentRegion
+				new Microsoft.Xna.Framework.Rectangle(40, 26, 913, 691),              // The windowRegion
+				new Microsoft.Xna.Framework.Rectangle(70, 71, 839, 605)               // The contentRegion
 			);
 
 			sourceWindow.Parent = GameService.Graphics.SpriteScreen;
@@ -215,10 +253,10 @@ namespace gw2stacks_blish {
 
 			loadingSpinner = new LoadingSpinner();
 			loadingSpinner.Parent = GameService.Graphics.SpriteScreen;
-			loadingSpinner.Location = icon.Location;
+			
 			loadingSpinner.Hide();
-
-
+			loadingSpinner.Enabled = false;
+			
 			this.model = new Model();
 			this.api = new Gw2Api(Gw2ApiManager);
 			icon.Show();
@@ -242,7 +280,7 @@ namespace gw2stacks_blish {
 			{
 				this.validData = false;
 				this.gw2stacks_root.Hide();
-
+				loadingSpinner.Location = icon.Location;
 				Logger.Warn("starting setup");
 				task = Task.Run(() => this.model?.setup(this.api));
 				this.running = true;
@@ -284,7 +322,6 @@ namespace gw2stacks_blish {
 			base.OnModuleLoaded(e);
 
 			this.create_values();
-			
 			this.gw2stacks_root.TabChanged += on_tab_change;
 			
 		}

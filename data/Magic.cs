@@ -13,6 +13,15 @@ namespace data
     class Magic
     {
         public List<int> luckIds = new List<int> { 45175, 45176, 45177 };
+		public Dictionary<int, string> luckNameMapping = new Dictionary<int, string>
+		{
+			{45175, "Essence of Luck (fine)" },
+			{45176, "Essence of Luck (masterwork)" },
+			{45177, "Essence of Luck (rare)" },
+			{45178, "Essence of Luck (exotic)" },
+			{45179, "Essence of Luck (legendary)" }
+			
+		};
         public int ectoId = 19721;
         public double salvagePrice = 0.10496; //seemingly from mystic salvage kit??
 		public double ectoChance = 0.875;

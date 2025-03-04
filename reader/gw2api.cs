@@ -18,56 +18,17 @@ namespace reader
     
 	class Gw2Api
     {
-       
-
-        
-		
-		public string name;
+     
 		Gw2ApiManager manager;
 
         public Gw2Api(Gw2ApiManager manager_)
         {
 			this.manager = manager_;
-			//var task = account_name();
-			
-			this.name = "REMOVE ACCOUNT NAME"; //task.Result.Name;
-			
-		}
-
-        public bool validate() 
-        {
-            try
-			{
-				if(manager.HasPermissions(new List<TokenPermission>{TokenPermission.Account, TokenPermission.Characters, TokenPermission.Inventories }))
-				{
-					return true;
-				}
-				return false;
-			}
-			catch(Gw2Sharp.WebApi.Exceptions.InvalidAccessTokenException e)
-			{
-				return false;
-			}
-			catch(Gw2Sharp.WebApi.Exceptions.MissingScopesException e)
-			{
-				return false;
-			}
-			catch(Gw2Sharp.WebApi.Exceptions.RequestException e)
-			{
-				return false;
-			}
-
-        }
-
-		public async Task set_name()
-		{
-			var result = await this.get_account_name();
-			this.name = result.Name;
 		}
 
 		private async Task<Account> get_account_name()
 		{
-			var response = await this.manager.Gw2ApiClient.V2.Account.GetAsync();//shared inventory
+			var response = await this.manager.Gw2ApiClient.V2.Account.GetAsync();
 			return response;
 		}
 

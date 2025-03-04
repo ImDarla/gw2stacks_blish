@@ -28,7 +28,7 @@ namespace views
 			var containerSender = (ViewContainer)sender_;
 			if(this.sourceWindow.Title==containerSender.Title)
 			{
-				this.sourceWindow.Hide();	
+				this.sourceWindow.ToggleWindow();
 			}
 			else
 			{
@@ -87,7 +87,8 @@ namespace views
 
 			if(item == null)
 			{
-				//freak niche case TODO error handling
+				//freak niche case TODO error handlin
+				//throw new Exception("source panel fatal error: invalid item name supplied");
 			}
 
 			var advice = GetStandardPanel(rootPanel_, item.advice, item.item.itemId);

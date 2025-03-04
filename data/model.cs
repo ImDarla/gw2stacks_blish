@@ -170,7 +170,15 @@ namespace data
 
 		public void build_basic_item_info(Item item_, Gw2Sharp.WebApi.V2.Models.Item info_)
 		{
-            item_.name = info_.Name;
+			if(magicValues.luckNameMapping.ContainsKey(item_.itemId))
+			{
+				item_.name = magicValues.luckNameMapping[item_.itemId];
+			}
+			else
+			{
+				item_.name = info_.Name;
+			}
+				
             item_.icon = info_.Icon;
             item_.rarity = info_.Rarity;
             item_.description = info_.Description;
