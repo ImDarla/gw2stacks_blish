@@ -19,6 +19,7 @@ using Blish_HUD.Content;
 using views;
 using System.Diagnostics;
 using Gw2Sharp.WebApi.V2.Models;
+using System.Collections;
 
 namespace gw2stacks_blish {
 
@@ -54,82 +55,50 @@ namespace gw2stacks_blish {
 
 		private bool fatalError = false;
 
-		SettingEntry<bool> showStackAdvice;
-		SettingEntry<bool> showVendorAdvice;
-		SettingEntry<bool> showRareSalvageAdvice;
-		SettingEntry<bool> showCraftLuckAdvice;
-		SettingEntry<bool> showDeletableAdvice;
-		SettingEntry<bool> showSalvageAdvice;
-		SettingEntry<bool> showConsumableAdvice;
-		SettingEntry<bool> showGobblerAdvice;
-		SettingEntry<bool> showKarmaAdvice;
-		SettingEntry<bool> showCraftAdvice;
-		SettingEntry<bool> showLwsAdvice;
-		SettingEntry<bool> showMiscAdvice;
 
-		Tab showStackAdviceTab;
-		Tab showVendorAdviceTab;
-		Tab showRareSalvageAdviceTab;
-		Tab showCraftLuckAdviceTab;
-		Tab showDeletableAdviceTab;
-		Tab showSalvageAdviceTab;
-		Tab showConsumableAdviceTab;
-		Tab showGobblerAdviceTab;
-		Tab showKarmaAdviceTab;
-		Tab showCraftAdviceTab;
-		Tab showLwsAdviceTab;
-		Tab showMiscAdviceTab;
 
-		Dictionary<SettingEntry<bool>, Tab> settingTabMapping;
+		SettingEntry<bool> includeConsumableSetting;
+
+		
 		Dictionary<int, AsyncTexture2D> itemTextures;
 		Model model;
 		Gw2Api api;
 		Dictionary<string, List<ItemForDisplay>> adviceDictionary;
 		Task task = null;
 		
-		private Dictionary<SettingEntry<bool>,Tab> createTabMapping()
-		{
-			var result = new Dictionary<SettingEntry<bool>, Tab>();
-			result.Add(showStackAdvice, showStackAdviceTab);
-			result.Add(showVendorAdvice, showVendorAdviceTab);
-			result.Add(showRareSalvageAdvice, showRareSalvageAdviceTab);
-			result.Add(showCraftLuckAdvice, showCraftLuckAdviceTab);
-			result.Add(showDeletableAdvice, showDeletableAdviceTab);
-			result.Add(showSalvageAdvice, showSalvageAdviceTab);
-			result.Add(showConsumableAdvice, showConsumableAdviceTab);
-			result.Add(showGobblerAdvice, showGobblerAdviceTab);
-			result.Add(showKarmaAdvice, showKarmaAdviceTab);
-			result.Add(showCraftAdvice, showCraftAdviceTab);
-			result.Add(showLwsAdvice, showLwsAdviceTab);
-			result.Add(showMiscAdvice, showMiscAdviceTab);
-			return result;
-		}
+		
 
 
 
 		AdviceTabView adviceView;
 
+		private Dictionary<string, Tab> nameTabMapping;
 		
-
-		
-		
-
-		private void createTabs()
+		private void create_name_tab_mapping()
 		{
-			this.showStackAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "stack advice");
-			this.showVendorAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "vendor advice");
-			this.showRareSalvageAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "rare salvage advice");
-			this.showCraftLuckAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "craftable luck advice");
-			this.showDeletableAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "deletable advice");
-			this.showSalvageAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "salvagable  advice");
-			this.showConsumableAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "consumable  advice");
-			this.showGobblerAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "gobbler  advice");
-			this.showKarmaAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "karma consumable  advice");
-			this.showCraftAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "crafting advice");
-			this.showLwsAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "living world advice");
-			this.showMiscAdviceTab=new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "miscellaneous  advice");
-			
+			this.nameTabMapping = new Dictionary<string, Tab>
+			{
+				{"stack advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "stack advice") },
+				{"vendor advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "vendor advice") },
+				{"rare salvage advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "rare salvage advice") },
+				{"craftable luck advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "craftable luck advice") },
+				{"deletable advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "deletable advice") },
+				{"salvagable  advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "salvagable  advice") },
+				{"consumable  advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "consumable  advice") },
+				{"gobbler  advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "gobbler  advice") },
+				{"karma consumable  advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "karma consumable  advice") },
+				{"crafting advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "crafting advice") },
+				{"living world advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "living world advice") },
+				{"miscellaneous  advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "miscellaneous  advice") }
+			};
 		}
+
+		
+
+		
+		
+
+		
 
 		private void update_advice()
 		{
@@ -165,20 +134,9 @@ namespace gw2stacks_blish {
 
 		
 
-		protected override void DefineSettings(SettingCollection settings) {
-			showStackAdvice=settings.DefineSetting("showStackAdvice", true, () => " show stack advice", () => "toggle advice for partial stacks");
-			showVendorAdvice=settings.DefineSetting("showVendorAdvice", true, () => " show vendor advice", () => "toggle advice for vendor sellable items");
-			showRareSalvageAdvice=settings.DefineSetting("showRareSalvageAdvice", false, () => " show rare salvage advice", () => "toggle advice for salvagable, rare items");
-			showCraftLuckAdvice=settings.DefineSetting("showCraftLuckAdvice", false, () => " show craftable luck advice", () => "toggle advice for craftable luck items");
-			showDeletableAdvice=settings.DefineSetting("showDeletableAdvice", false, () => " show deletable advice", () => "toggle advice for deletable items");
-			showSalvageAdvice=settings.DefineSetting("showSalvageAdvice", false, () => " show salvagable  advice", () => "toggle advice for salvagable items");
-			showConsumableAdvice=settings.DefineSetting("showConsumableAdvice", false, () => " show consumable  advice", () => "toggle advice for consumable items");
-			showGobblerAdvice=settings.DefineSetting("showGobblerAdvice", false, () => " show gobbler  advice", () => "toggle advice for gobbler items");
-			showKarmaAdvice=settings.DefineSetting("showKarmaAdvice", false, () => " show karma consumable  advice", () => "toggle advice for karma items");
-			showCraftAdvice=settings.DefineSetting("showCraftAdvice", false, () => " show crafting advice", () => "toggle advice for crafting");
-			showLwsAdvice=settings.DefineSetting("showLwsAdvice", false, () => " show living world advice", () => "toggle advice for living world items");
-			showMiscAdvice=settings.DefineSetting("showMiscAdvice", false, () => " show miscellaneous  advice", () => "");
-
+		protected override void DefineSettings(SettingCollection settings) 
+		{
+			this.includeConsumableSetting = settings.DefineSetting("includeConsumables", true, () => " include consumables", () => "toggle to include food and utility");
 		}
 
 		private void validate_api()
@@ -191,6 +149,7 @@ namespace gw2stacks_blish {
 					{
 						this.fatalError = false;
 						Logger.Info("Api validated successfully");
+						this.icon.Show();
 					}
 					else
 					{
@@ -248,19 +207,18 @@ namespace gw2stacks_blish {
 			sourceWindow.Parent = GameService.Graphics.SpriteScreen;
 
 			this.adviceView = new AdviceTabView();
-			this.createTabs();
-			this.settingTabMapping = this.createTabMapping();
+			this.create_name_tab_mapping();
 			
-			foreach (var tab in this.settingTabMapping.Values)
+			foreach (var tab in this.nameTabMapping.Values)
 			{
 				this.gw2stacks_root.Tabs.Add(tab);
 			}
 			
-			GameService.Graphics.SpriteScreen.AddChild(gw2stacks_root);
+			//GameService.Graphics.SpriteScreen.AddChild(gw2stacks_root);
 			gw2stacks_root.Parent = GameService.Graphics.SpriteScreen;
 
 			icon = new CornerIcon(AsyncTexture2D.FromAssetId(155052), "gw2stacks");
-			GameService.Graphics.SpriteScreen.AddChild(icon);
+			//GameService.Graphics.SpriteScreen.AddChild(icon);
 			icon.Parent = GameService.Graphics.SpriteScreen;
 			icon.Click += onClick2;
 
@@ -295,6 +253,7 @@ namespace gw2stacks_blish {
 				this.gw2stacks_root.Hide();
 				loadingSpinner.Location = icon.Location;
 				Logger.Warn("starting setup");
+				model.includeConsumables = this.includeConsumableSetting.Value;
 				task = Task.Run(() => this.model?.setup(this.api));
 				this.running = true;
 				this.loadingSpinner.Show();
@@ -306,7 +265,8 @@ namespace gw2stacks_blish {
 
 		private void onClick2(object sender_, MouseEventArgs event_)
 		{
-			if(fatalError==false)
+			this.validate_api();
+			if (fatalError==false)
 			{
 				try
 				{
@@ -376,6 +336,7 @@ namespace gw2stacks_blish {
 						this.running = false;
 						try
 						{
+							model.includeConsumables = this.includeConsumableSetting.Value;
 							this.update_advice();
 							this.validData = true;
 							this.update_views(this.gw2stacks_root.SelectedTab.Name);
@@ -391,7 +352,13 @@ namespace gw2stacks_blish {
 						
 					}
 				}
-				
+				if (this.fatalError == true)
+				{
+					gw2stacks_root?.Hide();
+					this.sourceWindow?.Hide();
+					icon?.Hide();
+					loadingSpinner?.Hide();
+				}
 				this.loadingIntervalTicks = 0;
 			}
 			

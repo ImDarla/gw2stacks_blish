@@ -252,10 +252,15 @@ namespace data
                 var item = this.items[itemInformation.Id];
                 this.build_basic_item_info(item, itemInformation);
                 bool salvagable = true;
-                if(magicValues.nonStackableTypes.Contains(itemInformation.Type)==false|| (this.includeConsumables && (itemInformation.Type == ItemType.Consumable)))//details can again not be querried via the GW2sharp api
+                if(magicValues.nonStackableTypes.Contains(itemInformation.Type)==false)//details can again not be querried via the GW2sharp api
                 {
                     item.isStackable = true;
                 }
+
+				if(item.isFoodOrUtility)
+				{
+					item.isStackable = true;
+				}
 
 				foreach (var flag in itemInformation.Flags)
 				{
