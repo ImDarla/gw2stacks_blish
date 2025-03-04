@@ -30,7 +30,7 @@ namespace views
 		StandardWindow sourceWindow;
 
 
-		//even handler for subpanels in the main window
+		//event handler for subpanels in the main window
 		private void on_click(object sender_, MouseEventArgs event_)
 		{
 			var containerSender = (ViewContainer)sender_;
@@ -91,8 +91,8 @@ namespace views
 
 			if(item == null)
 			{
-				//freak niche case TODO error handlin
-				//throw new Exception("source panel fatal error: invalid item name supplied");
+				
+				throw new Exception("source panel fatal error: invalid item name supplied");
 			}
 
 			var advice = GetStandardPanel(rootPanel_, item.advice, item.item.itemId);
