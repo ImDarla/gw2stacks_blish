@@ -52,6 +52,8 @@ namespace gw2stacks_blish {
 
 		private bool running = false;
 
+		private bool fatalError = false;
+
 		SettingEntry<bool> showStackAdvice;
 		SettingEntry<bool> showVendorAdvice;
 		SettingEntry<bool> showRareSalvageAdvice;
@@ -187,31 +189,42 @@ namespace gw2stacks_blish {
 				{
 					if (Gw2ApiManager.HasPermissions(new List<TokenPermission> { TokenPermission.Account, TokenPermission.Characters, TokenPermission.Inventories }))
 					{
-
+						this.fatalError = false;
+						Logger.Info("Api validated successfully");
 					}
 					else
 					{
-
+						this.fatalError = true;
+						Logger.Fatal("Missing Permissions");
 					}
 				}
 				else
 				{
-				
+					this.fatalError = true;
+					Logger.Fatal("No subtoken supplied");
 				}
 				
 				
 			}
 			catch (Gw2Sharp.WebApi.Exceptions.InvalidAccessTokenException e_)
 			{
-				
+				this.fatalError = true;
+				Logger.Fatal("Invalid access token: " + e_.Message);
 			}
 			catch (Gw2Sharp.WebApi.Exceptions.MissingScopesException e_)
 			{
-				
+				this.fatalError = true;
+				Logger.Fatal("Missing scopes: " + e_.Message);
 			}
 			catch (Gw2Sharp.WebApi.Exceptions.RequestException e_)
 			{
-				
+				this.fatalError = true;
+				Logger.Fatal("Request exception: " + e_.Message);
+			}
+			catch(Exception e_)
+			{
+				this.fatalError = true;
+				Logger.Fatal("Unexpected exception: " + e_.Message);
 			}
 		}
 
@@ -293,7 +306,19 @@ namespace gw2stacks_blish {
 
 		private void onClick2(object sender_, MouseEventArgs event_)
 		{
-			this.start_api_update();
+			if(fatalError==false)
+			{
+				try
+				{
+					this.start_api_update();
+				}
+				catch(Exception e_)
+				{
+					this.fatalError = true;
+					Logger.Fatal("Unexpected exception: " + e_.Message);
+				}
+			}
+			
 			
 		}
 
@@ -321,28 +346,52 @@ namespace gw2stacks_blish {
 			// Base handler must be called
 			base.OnModuleLoaded(e);
 
-			this.create_values();
-			this.gw2stacks_root.TabChanged += on_tab_change;
+			try
+			{
+				this.create_values();
+				this.gw2stacks_root.TabChanged += on_tab_change;
+			}
+			catch (Exception e_)
+			{
+				this.fatalError = true;
+				Logger.Fatal("Unexpected exception: " + e_.Message);
+			}
+			
+
+			this.validate_api();
+			this.Gw2ApiManager.SubtokenUpdated += (s_, e_) => { this.validate_api(); };
 			
 		}
 
         protected override void Update(GameTime gameTime) {
 
 			this.loadingIntervalTicks += gameTime.ElapsedGameTime.Milliseconds;
-			if(this.loadingIntervalTicks>100&&task!=null&&this.validData==false&&this.running==true)
+			if(this.loadingIntervalTicks>100)
 			{
-				if(task.IsCompleted)
+				if(task != null && this.validData == false && this.running == true&&this.fatalError==false)
 				{
-					Logger.Warn("task finished");
-					this.running = false;
-
-					this.update_advice();
-					this.validData = true;
-					this.update_views(this.gw2stacks_root.SelectedTab.Name);
-					this.loadingSpinner.Hide();
-					this.icon.Enabled = true;
-					this.gw2stacks_root.Show();
+					if (task.IsCompleted)
+					{
+						Logger.Warn("task finished");
+						this.running = false;
+						try
+						{
+							this.update_advice();
+							this.validData = true;
+							this.update_views(this.gw2stacks_root.SelectedTab.Name);
+							this.loadingSpinner.Hide();
+							this.icon.Enabled = true;
+							this.gw2stacks_root.Show();
+						}
+						catch(Exception e_)
+						{
+							this.fatalError = true;
+							Logger.Fatal("Unexpected exception: " + e_.Message);
+						}
+						
+					}
 				}
+				
 				this.loadingIntervalTicks = 0;
 			}
 			
