@@ -310,13 +310,13 @@ namespace data
 			{
 				if (this.includeConsumables)
 				{
-					result.Add(new ItemForDisplay(item, item.get_advice_stacks(this.materialStorageSize)));
+					result.Add(new ItemForDisplay(item, item.get_advice_stacks(this.materialStorageSize), "Combine these items into stacks"));
 				}
 				else
 				{
 					if (item.isFoodOrUtility == false)
 					{
-						result.Add(new ItemForDisplay(item, item.get_advice_stacks(this.materialStorageSize)));
+						result.Add(new ItemForDisplay(item, item.get_advice_stacks(this.materialStorageSize), "Combine these items into stacks"));
 					}
 				}
 				
@@ -330,7 +330,7 @@ namespace data
 			var filter = this.items.Values.Where(list_item => list_item.rarity==ItemRarity.Junk);
 			foreach (var item in filter)
 			{
-				result.Add(new ItemForDisplay(item, null));
+				result.Add(new ItemForDisplay(item, null, "Sell these items to a vendor"));
 			}
 			return result;
 		}
@@ -345,13 +345,13 @@ namespace data
                 {
                     if(item.price>this.ectoSalvagePrice)
                     {
-						result.Add(new ItemForDisplay(item, null, "Salvage!"));
+						result.Add(new ItemForDisplay(item, null, "Salvage these items"));
 					}
                     else
                     {
                         if(item.isAccountBound!=false)
                         {
-							result.Add(new ItemForDisplay(item,null, "Sell!"));
+							result.Add(new ItemForDisplay(item,null, "Sell these items on the TP"));
 						}
                     }
                 
@@ -370,7 +370,7 @@ namespace data
 			{
 				if (this.has_item(id) && this.items[id].total_count() > 250)
 				{
-					result.Add(new ItemForDisplay(this.items[id], this.items[id].sources));
+					result.Add(new ItemForDisplay(this.items[id], this.items[id].sources, "Craft these items into higher luck tiers"));
 				}
 				
 			}
@@ -383,7 +383,7 @@ namespace data
 			var filter = this.items.Values.Where(list_item => list_item.isDeletable);
 			foreach (var item in filter)
 			{
-				result.Add(new ItemForDisplay(item));
+				result.Add(new ItemForDisplay(item, null, "Delete these items"));
 			}
 			return result;
 		}
@@ -394,7 +394,7 @@ namespace data
 			var filter = this.items.Values.Where(list_item => list_item.description=="Salvage Item"&&list_item.itemId!=magicValues.ectoId);
 			foreach (var item in filter)
 			{
-				result.Add(new ItemForDisplay(item, null, "Salvage this item"));
+				result.Add(new ItemForDisplay(item, null, "Salvage these items"));
 			}
 			return result;
 		}
@@ -424,7 +424,7 @@ namespace data
 					{
 						if (this.items[food].total_count() > Convert.ToUInt64(this.materialStorageSize))
 						{
-							result.Add(new ItemForDisplay(this.items[food], this.items[food].sources));
+							result.Add(new ItemForDisplay(this.items[food], this.items[food].sources, "Feed these items to gobblers"));
 
 						}
 					}
@@ -456,7 +456,7 @@ namespace data
 			{
 				if(this.has_item(item)&&this.items[item].total_count()>0)
                 {
-					result.Add(new ItemForDisplay(this.items[item], null, "Consume for karma"));
+					result.Add(new ItemForDisplay(this.items[item], null, "Consume these items for karma"));
 				}
 			}
 			return result;
@@ -469,7 +469,7 @@ namespace data
 			{
 				if (this.has_item(item) && this.items[item].total_count() > Convert.ToUInt64(this.materialStorageSize))
 				{
-					result.Add(new ItemForDisplay(this.items[item], this.items[item].sources, "Consume for unbound magic"));
+					result.Add(new ItemForDisplay(this.items[item], this.items[item].sources, "Consume these items for unbound magic"));
 				}
 				
 			}
@@ -478,7 +478,7 @@ namespace data
 			{
 				if (this.has_item(item) && this.items[item].total_count() > Convert.ToUInt64(this.materialStorageSize))
 				{
-					result.Add(new ItemForDisplay(this.items[item], this.items[item].sources, "Consume for volatile magic"));
+					result.Add(new ItemForDisplay(this.items[item], this.items[item].sources, "Consume these items for volatile magic"));
 				}
 				
 			}
@@ -488,7 +488,7 @@ namespace data
 
 				if (this.has_item(item) && this.items[item].total_count() > Convert.ToUInt64(this.materialStorageSize))
 				{
-					result.Add(new ItemForDisplay(this.items[item], this.items[item].sources, "Convert to LS4 currency"));
+					result.Add(new ItemForDisplay(this.items[item], this.items[item].sources, "Convert these items to LWS4 currency"));
 				}
 			}
 			return result;
@@ -520,7 +520,7 @@ namespace data
 				}
 				if (canCraft && hasMoreThanStackIngredient)
 				{
-					result.Add(new ItemForDisplay(this.recipeResults[recipe.OutputItemId], null, "Craft"));
+					result.Add(new ItemForDisplay(this.recipeResults[recipe.OutputItemId], null, "Craft these items"));
 				}
 
 				
