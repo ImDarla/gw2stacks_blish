@@ -194,13 +194,13 @@ namespace gw2stacks_blish {
 			this.adviceDictionary = new Dictionary<string, List<ItemForDisplay>>();
 			this.gw2stacks_root = new TabbedWindow2(
 				AsyncTexture2D.FromAssetId(155997), // The background texture of the window.155997 1909316 GameService.Content.GetTexture("controls/window/502049")
-				new Microsoft.Xna.Framework.Rectangle(24, 30, 545, 630),              // The windowRegion
+				new Microsoft.Xna.Framework.Rectangle(24, 30, 565, 630),              // The windowRegion
 				new Microsoft.Xna.Framework.Rectangle(82, 30, 467, 600)               // The contentRegion
 			);
 
 			this.sourceWindow= new StandardWindow(
 				AsyncTexture2D.FromAssetId(155985), // The background texture of the window.155997 1909316 GameService.Content.GetTexture("controls/window/502049")
-				new Microsoft.Xna.Framework.Rectangle(40, 26, 913, 691),              // The windowRegion
+				new Microsoft.Xna.Framework.Rectangle(40, 26, 933, 691),              // The windowRegion
 				new Microsoft.Xna.Framework.Rectangle(70, 71, 839, 605)               // The contentRegion
 			);
 

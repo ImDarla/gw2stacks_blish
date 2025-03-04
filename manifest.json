@@ -1,5 +1,5 @@
 {
-  "name": "gw2stacks_blish",
+  "name": "gw2stacks",
   "version": "0.1.0",
   "namespace": "gw2stacks_blish",
   "package": "gw2stacks_blish.dll",
@@ -20,7 +20,7 @@
     }
   },
 
-  "description": "C#/Blishhud port of gw2stacks with blessings from zweistein",
+  "description": "Blishhud port of gw2stacks with blessings from zweistein",
   "dependencies": {
     "bh.blishhud": ">=0.5.2"
   },
