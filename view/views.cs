@@ -14,7 +14,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Blish_HUD.GameServices;
 using Blish_HUD.Settings.UI.Views;
-using data;
+using gw2stacks_blish.data;
 using Blish_HUD.Input;
 
 namespace views

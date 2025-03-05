@@ -1,7 +1,6 @@
 ﻿//using Blish_HUD.PersistentStore;
 using Gw2Sharp.WebApi.V2.Models;
-using reader;
-using data;
+using gw2stacks_blish.reader;
 using SharpDX.Direct3D11;
 using SharpDX.Direct3D9;
 using System;
@@ -14,7 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace data
+namespace gw2stacks_blish.data
 {
     class Model
     {
@@ -512,6 +511,8 @@ namespace data
 				}
 				bool canCraft = true;
 				bool hasMoreThanStackIngredient = false;
+				List<Source> parsedIngredients = new List<Source>();
+				List<string> parsedDisciplines = new List<string>();
 				foreach (var ingredient in recipe.Ingredients)
 				{
 					if (this.items[ingredient.ItemId].total_count() < Convert.ToUInt64(ingredient.Count))
@@ -523,13 +524,18 @@ namespace data
 					{
 						hasMoreThanStackIngredient = true;
 					}
-
+					parsedIngredients.Add(new Source(Convert.ToUInt64(ingredient.Count), this.items[ingredient.ItemId].name));
 				}
+				foreach (var discipline in recipe.Disciplines.List)
+				{
+					parsedDisciplines.Add(magicValues.diciplineNameMapping[discipline]);
+				}
+
 				if (canCraft && hasMoreThanStackIngredient)
 				{
-					result.Add(new ItemForDisplay(this.recipeResults[recipe.OutputItemId], null, "Craft these items"));
+					result.Add(new ItemForDisplay(this.recipeResults[recipe.OutputItemId], new List<Source>{ new RecipeSource(parsedIngredients, parsedDisciplines) },  "Craft these items"));
 				}
-
+				
 				
 			}
 			return result;

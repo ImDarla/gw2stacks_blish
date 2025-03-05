@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 
 
-namespace reader
+namespace gw2stacks_blish.reader
 {
     
 

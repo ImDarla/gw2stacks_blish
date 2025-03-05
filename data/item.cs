@@ -4,12 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-using data;
 using Gw2Sharp.WebApi;
 using Gw2Sharp.WebApi.V2.Models;
 
-namespace data
+namespace gw2stacks_blish.data
 {
     class Item
     {

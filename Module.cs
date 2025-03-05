@@ -11,8 +11,6 @@ using Blish_HUD.GameServices;
 using Blish_HUD.Gw2WebApi;
 using Blish_HUD.Overlay.UI.Views;
 using System.Runtime.Remoting.Lifetime;
-using data;
-using reader;
 using System.Collections.Generic;
 using Blish_HUD.Input;
 using Blish_HUD.Content;
@@ -20,6 +18,8 @@ using views;
 using System.Diagnostics;
 using Gw2Sharp.WebApi.V2.Models;
 using System.Collections;
+using gw2stacks_blish.data;
+using gw2stacks_blish.reader;
 
 namespace gw2stacks_blish {
 

@@ -1,5 +1,5 @@
 ﻿using Blish_HUD.GameServices.ArcDps.V2.Models;
-using data;
+
 using Gw2Sharp.WebApi.V2.Models;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace data
+namespace gw2stacks_blish.data
 {
     class Magic
     {
@@ -105,6 +105,21 @@ namespace data
 		public List<int> ibsId = new List<int>
 		{
 			92272
+		};
+
+		public Dictionary<CraftingDisciplineType, string> diciplineNameMapping = new Dictionary<CraftingDisciplineType, string>
+		{
+			{CraftingDisciplineType.Scribe, "Scribe" },
+			{CraftingDisciplineType.Tailor, "Tailor" },
+			{CraftingDisciplineType.Leatherworker, "Leatherworker" },
+			{CraftingDisciplineType.Weaponsmith, "Weaponsmith" },
+			{CraftingDisciplineType.Armorsmith, "Armorsmith" },
+			{CraftingDisciplineType.Artificer, "Artificer" },
+			{CraftingDisciplineType.Chef, "Chef" },
+			{CraftingDisciplineType.Jeweler, "Jeweler" },
+			{CraftingDisciplineType.Huntsman, "Huntsman" },
+			{CraftingDisciplineType.Unknown,  "Unknown"}
+
 		};
 		
 		public static int id_from_Render_URI(string uri_)
