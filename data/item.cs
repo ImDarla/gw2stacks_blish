@@ -57,7 +57,7 @@ namespace gw2stacks_blish.data
 			this.sources.Add(source_);
         }
 
-       
+       //TODO fix advice stacks functions
 		public List<Source> get_advice_stacks(int materialStorageSize_)
         {
             if (this.isAccountBound ==false)
@@ -95,7 +95,7 @@ namespace gw2stacks_blish.data
             List<Source> partialStacks = new List<Source>();
 			foreach (Source currentSource in this.sources)
 			{
-				if ((currentSource.count != 0) && ((currentSource.count < 250) || ((currentSource.place == "$storage") && (currentSource.count < Convert.ToUInt64(materialStorageSize_)))))
+				if ((currentSource.count != 0) && ((currentSource.count < 250) || ((currentSource.place == "Material Storage") && (currentSource.count < Convert.ToUInt64(materialStorageSize_)))))
 				{
 					partialStacks.Add(currentSource);
 				}

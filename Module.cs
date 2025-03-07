@@ -20,6 +20,7 @@ using Gw2Sharp.WebApi.V2.Models;
 using System.Collections;
 using gw2stacks_blish.data;
 using gw2stacks_blish.reader;
+using Gw2Sharp.WebApi.V2.Clients;
 
 namespace gw2stacks_blish {
 
@@ -78,18 +79,18 @@ namespace gw2stacks_blish {
 		{
 			this.nameTabMapping = new Dictionary<string, Tab>
 			{
-				{"stack advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "stack advice") },
-				{"vendor advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "vendor advice") },
-				{"rare salvage advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "rare salvage advice") },
-				{"craftable luck advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "craftable luck advice") },
-				{"deletable advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "deletable advice") },
-				{"salvagable  advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "salvagable  advice") },
-				{"consumable  advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "consumable  advice") },
-				{"gobbler  advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "gobbler  advice") },
-				{"karma consumable  advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "karma consumable  advice") },
-				{"crafting advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "crafting advice") },
-				{"living world advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "living world advice") },
-				{"miscellaneous  advice", new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, "miscellaneous  advice") }
+				{Magic.get_string(Magic.AdviceType.stackAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.stackAdvice)) },
+				{Magic.get_string(Magic.AdviceType.vendorAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.vendorAdvice)) },
+				{Magic.get_string(Magic.AdviceType.rareSalvageAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.rareSalvageAdvice)) },
+				{Magic.get_string(Magic.AdviceType.craftLuckAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.craftLuckAdvice)) },
+				{Magic.get_string(Magic.AdviceType.deletableAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.deletableAdvice)) },
+				{Magic.get_string(Magic.AdviceType.salvageAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.salvageAdvice)) },
+				{Magic.get_string(Magic.AdviceType.consumableAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.consumableAdvice)) },
+				{Magic.get_string(Magic.AdviceType.gobblerAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.gobblerAdvice)) },
+				{Magic.get_string(Magic.AdviceType.karmaAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.karmaAdvice)) },
+				{Magic.get_string(Magic.AdviceType.craftingAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.craftingAdvice)) },
+				{Magic.get_string(Magic.AdviceType.lwsAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.lwsAdvice)) },
+				{Magic.get_string(Magic.AdviceType.miscAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.miscAdvice)) }
 			};
 		}
 
@@ -107,18 +108,18 @@ namespace gw2stacks_blish {
 				this.adviceDictionary = new Dictionary<string, List<ItemForDisplay>>();
 			}
 			this.adviceDictionary.Clear();
-			this.adviceDictionary.Add("stack advice", model.get_stacks_advice());
-			this.adviceDictionary.Add("vendor advice", model.get_vendor_advice());
-			this.adviceDictionary.Add("rare salvage advice", model.get_rare_salvage_advice());
-			this.adviceDictionary.Add("craftable luck advice", model.get_craft_luck_advice());
-			this.adviceDictionary.Add("deletable advice", model.get_just_delete_advice());
-			this.adviceDictionary.Add("salvagable  advice", model.get_just_salvage_advice());
-			this.adviceDictionary.Add("consumable  advice", model.get_play_to_consume_advice());
-			this.adviceDictionary.Add("gobbler  advice", model.get_gobbler_advice());
-			this.adviceDictionary.Add("karma consumable  advice", model.get_karma_consumables_advice());
-			this.adviceDictionary.Add("crafting advice", model.get_crafting_advice());
-			this.adviceDictionary.Add("living world advice", model.get_living_world_advice());
-			this.adviceDictionary.Add("miscellaneous  advice", model.get_misc_advice());
+			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.stackAdvice), model.get_stacks_advice());
+			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.vendorAdvice), model.get_vendor_advice());
+			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.rareSalvageAdvice), model.get_rare_salvage_advice());
+			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.craftLuckAdvice), model.get_craft_luck_advice());
+			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.deletableAdvice), model.get_just_delete_advice());
+			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.salvageAdvice), model.get_just_salvage_advice());
+			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.consumableAdvice), model.get_play_to_consume_advice());
+			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.gobblerAdvice), model.get_gobbler_advice());
+			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.karmaAdvice), model.get_karma_consumables_advice());
+			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.craftingAdvice), model.get_crafting_advice());
+			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.lwsAdvice), model.get_living_world_advice());
+			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.miscAdvice), model.get_misc_advice());
 		}
 
 
@@ -240,7 +241,7 @@ namespace gw2stacks_blish {
 				this.validData = false;
 				this.gw2stacks_root.Hide();
 				loadingSpinner.Location = icon.Location;
-				Logger.Warn("starting setup");
+				Logger.Info("starting setup");
 				model.includeConsumables = this.includeConsumableSetting.Value;
 				task = Task.Run(() => this.model?.setup(this.api));
 				this.running = true;
@@ -286,6 +287,14 @@ namespace gw2stacks_blish {
 				var tabName = event_.NewValue.Name;
 				this.update_views(tabName);
 			}
+		}
+
+		private void on_locale_change(object sender_, ValueEventArgs<System.Globalization.CultureInfo> event_)
+		{
+			//TODO implement
+			//var newLocale = GameService.Overlay.UserLocale;
+			//update locale in magic
+			//update all written text
 		}
 
 		protected override void Initialize() {
@@ -334,7 +343,7 @@ namespace gw2stacks_blish {
 				{
 					if (task.IsCompleted)
 					{
-						Logger.Warn("task finished");
+						Logger.Info("task finished");
 						this.running = false;
 						try
 						{
