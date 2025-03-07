@@ -14,7 +14,7 @@ namespace gw2stacks_blish.data
 
         public int itemId;
         public List<Source> sources;
-
+        public bool isCharacterBound;
 		public bool isAccountBound;
 		public string name;
 		public string description;
@@ -32,6 +32,7 @@ namespace gw2stacks_blish.data
             this.itemId = id_;
             this.sources = new List<Source>();
             this.isFoodOrUtility = false;
+            this.isCharacterBound = false;
 			isAccountBound = false;
 		    name= null;
 		    description= null;
@@ -44,7 +45,7 @@ namespace gw2stacks_blish.data
         }
 
         //condense sources 
-        public void add(Source source_)
+        public void add_source(Source source_)
         {
 			foreach (var source in this.sources)
 			{
@@ -57,27 +58,16 @@ namespace gw2stacks_blish.data
 			this.sources.Add(source_);
         }
 
-       //TODO fix advice stacks functions
+       
 		public List<Source> get_advice_stacks(int materialStorageSize_)
         {
-            if (this.isAccountBound ==false)
+            if(this.isCharacterBound==true)
             {
-                List<Source> stackableSource = this.get_partial_stacks(materialStorageSize_);
-                UInt64 numberOfPartialStacks = Convert.ToUInt64(stackableSource.Count());
-                UInt64 numberOfConsolidatedStacks = Convert.ToUInt64(Math.Ceiling(Convert.ToDouble(this.total_count() / 250)));
-                if(this.isStackable &&((numberOfPartialStacks>1)&&(numberOfPartialStacks >numberOfConsolidatedStacks)))
-                {
-                    return stackableSource;
-                }
-                else
-                {
-                    return new List<Source>();
-                }
-
-			}
+                return new List<Source>();
+            }
             else
             {
-                List<Source> stackableSources = new List<Source>();
+				List<Source> stackableSources = new List<Source>();
 				List<Source> stackableSource = this.get_partial_stacks(materialStorageSize_);
 				UInt64 numberOfPartialStacks = Convert.ToUInt64(stackableSource.Count());
 				UInt64 numberOfConsolidatedStacks = Convert.ToUInt64(Math.Ceiling(Convert.ToDouble(this.total_count() / 250)));
@@ -86,8 +76,8 @@ namespace gw2stacks_blish.data
 					stackableSources.AddRange(stackableSource);
 				}
 				return stackableSources;
-
 			}
+            
         }
 
         public List<Source> get_partial_stacks(int materialStorageSize_)
@@ -95,7 +85,7 @@ namespace gw2stacks_blish.data
             List<Source> partialStacks = new List<Source>();
 			foreach (Source currentSource in this.sources)
 			{
-				if ((currentSource.count != 0) && ((currentSource.count < 250) || ((currentSource.place == "Material Storage") && (currentSource.count < Convert.ToUInt64(materialStorageSize_)))))
+				if ((currentSource.count%250 !=0) || ((currentSource.place == "Material Storage") && (currentSource.count < Convert.ToUInt64(materialStorageSize_))))
 				{
 					partialStacks.Add(currentSource);
 				}

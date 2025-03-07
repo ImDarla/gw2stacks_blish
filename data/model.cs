@@ -56,26 +56,18 @@ namespace gw2stacks_blish.data
             {
                 this.items.Add(id_, new Item(id_));
 			}
-            else//item already in collection
-            {
-                foreach(Source current in this.items[id_].sources)//condense sources
-                {
-                    //check if sources are on the same character and can be stacked (account bound and non account bound are not stackable
-                    if(current.place==source_.place&&isAccountBound_==this.items[id_].isAccountBound)
-                    {
-                        current.count += source_.count;
-                    }
-				}
-			}
-			this.items[id_].add(source_);
+			this.items[id_].add_source(source_);
 			this.items[id_].isAccountBound = isAccountBound_;
 		}
 
         public bool has_item(int id_)
         {
-            if(this.items.ContainsKey(id_)&&this.items[id_]?.total_count()>0)
+            if(this.items.ContainsKey(id_))
             {
-                return true;
+				if(this.items[id_]?.total_count() > 0)
+				{
+					return true;
+				}
             }
             return false;
         }
@@ -107,11 +99,11 @@ namespace gw2stacks_blish.data
 		public async Task build_inventory(Gw2Api api_)
 		{
 			UInt64 emptySlots = 0;
-			
+			this.items = new Dictionary<int, Item>();
+
+
 			foreach (var character in await api_.characters())
 			{
-                
-                
                 foreach(var bag in character.Bags)
                 {
                     if(bag!=null)
@@ -124,6 +116,7 @@ namespace gw2stacks_blish.data
 							}
                             else
                             {
+								
                                 this.add_item(item.Id, item.Binding?.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), character.Name));
                             }
 						}
@@ -182,7 +175,7 @@ namespace gw2stacks_blish.data
 			{
 				item_.name = info_.Name;
 			}
-				
+			
             item_.icon = info_.Icon;
             item_.rarity = info_.Rarity;
             item_.description = info_.Description;
@@ -203,6 +196,7 @@ namespace gw2stacks_blish.data
 		{
 			var taskIds = await api_.recipe_ids();
             List<int> outputItemIds = new List<int>();
+			this.recipes = new List<Recipe>();
 			
 			//filter recipes depending on if all inputs are available and then add recipes and output ids to a list
 			foreach (var recipe in await api_.recipes(taskIds.ToList()))
@@ -245,14 +239,12 @@ namespace gw2stacks_blish.data
 		public async Task build_item_info(Gw2Api api_)
 		{
             List<int> appraisedItemIds = new List<int>();
-
-
-
 			foreach (var itemInformation in await api_.item_information_bulk(this.items.Keys.ToList()))
 			{
                 var item = this.items[itemInformation.Id];
                 this.build_basic_item_info(item, itemInformation);
                 bool salvagable = true;
+				
                 if(Magic.is_non_stackable_type(itemInformation.Type)==false)
                 {
                     item.isStackable = true;
@@ -272,8 +264,11 @@ namespace gw2stacks_blish.data
 					if(flag == ItemFlag.SoulbindOnAcquire)
                     {
                         item.isStackable = false;
+						item.isCharacterBound = true;
                         
                     }
+					
+					
 				}
 
 				if(itemInformation.Description!=null)
