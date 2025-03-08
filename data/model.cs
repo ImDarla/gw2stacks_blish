@@ -263,11 +263,10 @@ namespace gw2stacks_blish.data
                     }
 					if(flag == ItemFlag.SoulbindOnAcquire)
                     {
-                        item.isStackable = false;
+						item.isAccountBound = true;
 						item.isCharacterBound = true;
                         
                     }
-					
 					
 				}
 

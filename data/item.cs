@@ -61,7 +61,7 @@ namespace gw2stacks_blish.data
        
 		public List<Source> get_advice_stacks(int materialStorageSize_)
         {
-            if(this.isCharacterBound==true)
+            if(this.isCharacterBound==true||this.isStackable==false)
             {
                 return new List<Source>();
             }
