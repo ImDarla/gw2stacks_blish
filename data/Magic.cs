@@ -869,11 +869,15 @@ namespace gw2stacks_blish.data
 				return get_current_translated_string(gameplayConsumables[id_]);
 			}
 
-			return "";
+			return "Unknown Name of id:"+id_;
 		}
 
 		public static  int id_from_Render_URI(string uri_)
 		{
+			if(uri_==null)
+			{
+				return 69469;//when in doubt then cabbage
+			}
 			var initialSplit = uri_.Split('/');
 			var file = initialSplit.Last();
 			return Convert.ToInt32(file.Split('.')[0]);

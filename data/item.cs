@@ -19,6 +19,7 @@ namespace gw2stacks_blish.data
 		public string name;
 		public string description;
         public RenderUrl? icon;
+        public int iconId;
         public ItemRarity? rarity;
 		public bool isStackable;
 		public bool isDeletable;
@@ -26,6 +27,8 @@ namespace gw2stacks_blish.data
         public string wikiLink;
         public int? price;
         public bool isFoodOrUtility;
+        public bool hasInformation;
+
 
 		public Item(int id_)
         {
@@ -42,6 +45,7 @@ namespace gw2stacks_blish.data
 		    isDeletable = false;
 		    isRareForSalvage = false;
             price = null;
+            this.hasInformation = false;
         }
 
         //condense sources 

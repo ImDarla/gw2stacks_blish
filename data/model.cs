@@ -12,6 +12,8 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
+using Blish_HUD;
+using System.IdentityModel;
 
 namespace gw2stacks_blish.data
 {
@@ -19,18 +21,24 @@ namespace gw2stacks_blish.data
     {
         public Dictionary<int, Item> items;
         int materialStorageSize;
-        List<Recipe> recipes;
+        List<Recipe> craftableRecipes;
         Dictionary<int, Item> recipeResults;
+		Dictionary<int, Recipe> storedRecipes;
         public bool includeConsumables;
         int ectoSalvagePrice;
 		public bool validData;
+		private Logger log;
         //Magic magicValues;
 
-		public Model ()
+		public void reset_state()
 		{
-			this.items = new Dictionary<int, Item>();
+			foreach (var item in this.items)
+			{
+				item.Value.sources.Clear();
+			}
+			
 			this.materialStorageSize = 0;
-			this.recipes = new List<Recipe>();
+			this.craftableRecipes = new List<Recipe>();
 			this.recipeResults = new Dictionary<int, Item>();
 			this.includeConsumables = true;
 			this.ectoSalvagePrice = 0;
@@ -38,19 +46,27 @@ namespace gw2stacks_blish.data
 			this.validData = false;
 		}
 
+		public Model (Logger log_)
+		{
+			this.log = log_;
+			this.items = new Dictionary<int, Item>();
+			this.storedRecipes = new Dictionary<int, Recipe>();
+			this.reset_state();
+		}
+
 		public async Task setup(Gw2Api api_)
 		{
 			this.validData = false;
 			//await this.build_material_storage_size(api_);
 			await this.build_inventory(api_);
-			await this.build_item_info(api_);
 			await this.build_ecto_price(api_);
 			await this.build_recipe_info(api_);
+			await this.build_item_info(api_);
 			this.validData = true;
 		}
 
 		#region build backend
-		public void add_item(int id_, bool isAccountBound_, Source source_)
+		public void add_item(int id_, bool isAccountBound_, bool isCharacterBound_, Source source_)
         {
             if(this.items.ContainsKey(id_)==false)
             {
@@ -58,6 +74,7 @@ namespace gw2stacks_blish.data
 			}
 			this.items[id_].add_source(source_);
 			this.items[id_].isAccountBound = isAccountBound_;
+			this.items[id_].isCharacterBound = isCharacterBound_;
 		}
 
         public bool has_item(int id_)
@@ -99,7 +116,6 @@ namespace gw2stacks_blish.data
 		public async Task build_inventory(Gw2Api api_)
 		{
 			UInt64 emptySlots = 0;
-			this.items = new Dictionary<int, Item>();
 
 
 			foreach (var character in await api_.characters())
@@ -116,8 +132,22 @@ namespace gw2stacks_blish.data
 							}
                             else
                             {
-								
-                                this.add_item(item.Id, item.Binding?.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), character.Name));
+								bool accountBound = false;
+								bool characterBound = false;
+								if(item.Binding!=null)
+								{
+									if(item.Binding==ItemBinding.Account)
+									{
+										accountBound = true;
+									}
+									if(item.Binding==ItemBinding.Character)
+									{
+										accountBound = true;
+										characterBound = true;
+									}
+								}
+
+                                this.add_item(item.Id, accountBound, characterBound, new Source(Convert.ToUInt64(item.Count), character.Name));
                             }
 						}
 					}
@@ -130,7 +160,21 @@ namespace gw2stacks_blish.data
 			//get items from material storage and set material storage max size
 			foreach (var item in await api_.material_storage())
 			{
-				this.add_item(item.Id, item.Binding?.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), Magic.get_current_translated_string("Material Storage")));
+				bool accountBound = false;
+				bool characterBound = false;
+				if (item.Binding != null)
+				{
+					if (item.Binding == ItemBinding.Account)
+					{
+						accountBound = true;
+					}
+					if (item.Binding == ItemBinding.Character)
+					{
+						accountBound = true;
+						characterBound = true;
+					}
+				}
+				this.add_item(item.Id, accountBound, characterBound, new Source(Convert.ToUInt64(item.Count), ("Material Storage")));
 				maxCount = Math.Max(maxCount, (UInt64)item.Count);
 			}
 			this.materialStorageSize = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(maxCount / 250)) * 250);
@@ -144,7 +188,21 @@ namespace gw2stacks_blish.data
                 }
                 else
                 {
-					this.add_item(item.Id, item.Binding?.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), Magic.get_current_translated_string("Bank Storage")));
+					bool accountBound = false;
+					bool characterBound = false;
+					if (item.Binding != null)
+					{
+						if (item.Binding == ItemBinding.Account)
+						{
+							accountBound = true;
+						}
+						if (item.Binding == ItemBinding.Character)
+						{
+							accountBound = true;
+							characterBound = true;
+						}
+					}
+					this.add_item(item.Id, accountBound, characterBound, new Source(Convert.ToUInt64(item.Count), ("Bank Storage")));
 				}
             }
 
@@ -157,7 +215,21 @@ namespace gw2stacks_blish.data
 				}
 				else
 				{
-					this.add_item(item.Id, item.Binding?.Value == ItemBinding.Account, new Source(Convert.ToUInt64(item.Count), Magic.get_current_translated_string("Shared Storage")));
+					bool accountBound = false;
+					bool characterBound = false;
+					if (item.Binding != null)
+					{
+						if (item.Binding == ItemBinding.Account)
+						{
+							accountBound = true;
+						}
+						if (item.Binding == ItemBinding.Character)
+						{
+							accountBound = true;
+							characterBound = true;
+						}
+					}
+					this.add_item(item.Id, accountBound, characterBound, new Source(Convert.ToUInt64(item.Count), ("Shared Storage")));
 				}
 			}
 		}
@@ -175,8 +247,10 @@ namespace gw2stacks_blish.data
 			{
 				item_.name = info_.Name;
 			}
-			
+			//this.log.Warn(item_.name);
+
             item_.icon = info_.Icon;
+			item_.iconId = Magic.id_from_Render_URI(item_.icon);
             item_.rarity = info_.Rarity;
             item_.description = info_.Description;
 			if (info_.Type == ItemType.Consumable)
@@ -190,108 +264,92 @@ namespace gw2stacks_blish.data
 			
 			var urlName = item_.name.Replace(" ", "_");
             item_.wikiLink = $"wiki.guildwars2.com/wiki/{urlName}";
-		}
 
-		public async Task build_recipe_info(Gw2Api api_)
-		{
-			var taskIds = await api_.recipe_ids();
-            List<int> outputItemIds = new List<int>();
-			this.recipes = new List<Recipe>();
-			
-			//filter recipes depending on if all inputs are available and then add recipes and output ids to a list
-			foreach (var recipe in await api_.recipes(taskIds.ToList()))
+			bool salvagable = true;
+			//this.log.Warn("itemId:" + itemInformation?.Id ?? "NaN");
+			//this.log.Warn("URI:" + itemInformation?.Icon ?? "NaN");
+			//this.log.Warn("Name:" + itemInformation?.Name ?? "NaN");
+
+			if (Magic.is_non_stackable_type(info_.Type) == false)
 			{
-				if(Magic.is_pertinent_recipe(recipe.Type))
-                {
-                    bool valid = true;
-					foreach (var ingredient in recipe.Ingredients)
-					{
-                        int id = ingredient.ItemId;
-						if (this.has_item(id)==false || (this.has_item(id)&&this.items?[id].total_count()<Convert.ToUInt64(ingredient.Count)))
-                        {
-                            valid = false;
-                            break;
-                        }
-					}
-                    if(valid==true)
-                    {
-                        this.recipes.Add(recipe);
-                        outputItemIds.Add(recipe.OutputItemId);
-                    }
+				item_.isStackable = true;
+			}
+
+			if (item_.isFoodOrUtility)
+			{
+				item_.isStackable = true;
+			}
+
+			foreach (var flag in info_.Flags)
+			{
+				if (flag == ItemFlag.NoSalvage)
+				{
+					salvagable = false;
 				}
+				if (flag == ItemFlag.SoulbindOnAcquire)
+				{
+					item_.isAccountBound = true;
+					item_.isCharacterBound = true;
+					item_.isStackable = false;
+
+				}
+
 			}
 
-            this.recipeResults = new Dictionary<int, Item>();
 
-
-			foreach (var itemInformation in await api_.item_information_bulk(outputItemIds))
+			if (Magic.collectionOnlyIds.Contains(info_.Id))
 			{
-                Item item = new Item(itemInformation.Id);
-                this.build_basic_item_info(item, itemInformation);
-                this.recipeResults.Add(item.itemId, item);
+				item_.isDeletable = true;
 			}
 
-			
+			if (Magic.is_salvagable_equipment(info_.Type) && info_.Rarity == ItemRarity.Rare && salvagable && info_.Level > 77)
+			{
+				item_.isRareForSalvage = true;
+				
+			}
 
-            
+			item_.hasInformation = true;
 		}
+
+		
 
 		public async Task build_item_info(Gw2Api api_)
 		{
             List<int> appraisedItemIds = new List<int>();
-			foreach (var itemInformation in await api_.item_information_bulk(this.items.Keys.ToList()))
+			var filter = this.items.Keys.Where(id => this.items[id].hasInformation == false);
+			var ids = this.recipeResults.Keys.Where(id => this.recipeResults[id].hasInformation == false);
+			var idList = filter.Concat((ids));
+			if(true)
 			{
-                var item = this.items[itemInformation.Id];
-                this.build_basic_item_info(item, itemInformation);
-                bool salvagable = true;
+				foreach (var itemInformation in await api_.item_information_bulk(filter.ToList()))
+				{
+					var item = this.items[itemInformation.Id];
+					this.build_basic_item_info(item, itemInformation);
+					if(item.isRareForSalvage==true)
+					{
+						appraisedItemIds.Add(itemInformation.Id);
+					}
+					else
+					{
+						if(itemInformation.Type==ItemType.CraftingMaterial&&item.isAccountBound==false&&item.isCharacterBound==false)
+						{
+							appraisedItemIds.Add(itemInformation.Id);
+						}
+					}
+
+
+				}
+				//loading market prices
+				if(appraisedItemIds.Count()>0)
+				{
+					foreach (var price in await api_.item_prices(appraisedItemIds))
+					{
+						this.items[price.Id].price = price.Sells.UnitPrice;
+					}
+				}
 				
-                if(Magic.is_non_stackable_type(itemInformation.Type)==false)
-                {
-                    item.isStackable = true;
-                }
-
-				if(item.isFoodOrUtility)
-				{
-					item.isStackable = true;
-				}
-
-				foreach (var flag in itemInformation.Flags)
-				{
-                    if(flag ==ItemFlag.NoSalvage)
-                    {
-                        salvagable = false;
-                    }
-					if(flag == ItemFlag.SoulbindOnAcquire)
-                    {
-						item.isAccountBound = true;
-						item.isCharacterBound = true;
-                        
-                    }
-					
-				}
-
-				if(itemInformation.Description!=null)
-                {
-                    if(itemInformation.Description== Magic.get_current_translated_string("This item only has value as part of a collection."))
-                    {
-                        item.isDeletable = true;
-                    }
-
-				}
-
-                if(Magic.is_salvagable_equipment(itemInformation.Type)&&itemInformation.Rarity==ItemRarity.Rare&&salvagable&&itemInformation.Level>77)
-                {
-                    item.isRareForSalvage = true;
-                    appraisedItemIds.Add(itemInformation.Id);
-                }
-
-
 			}
-			//loading market prices
-			foreach (var price in await api_.item_prices(appraisedItemIds))
-			{
-                this.items[price.Id].price = price.Sells.UnitPrice;
-			}
+			
 		}
 
 		public async Task build_ecto_price(Gw2Api api_)
@@ -302,6 +360,57 @@ namespace gw2stacks_blish.data
 			//create ecto salvage price based on cost and taxes
 			this.ectoSalvagePrice = Convert.ToInt32((ectoPrice * Magic.tax * Magic.ectoChance - Magic.salvagePrice) / Magic.tax);
         }
+
+		public async Task build_recipe_info(Gw2Api api_)
+		{
+			/*
+			if(this.storedRecipes.Count>0)
+			{
+				var taskIds = await api_.recipe_ids();
+				
+				foreach (var recipe in await api_.recipes(taskIds.ToList()))
+				{
+					this.storedRecipes.Add(recipe.Id, recipe);
+				}
+			}*/
+			var taskIds = await api_.recipe_ids();
+			List<int> outputItemIds = new List<int>();
+			this.craftableRecipes = new List<Recipe>();
+
+			//filter recipes depending on if all inputs are available and then add recipes and output ids to a list
+			foreach (var recipe in await api_.recipes(taskIds.ToList()))
+			{
+				if (Magic.is_pertinent_recipe(recipe.Type))
+				{
+					
+					bool valid = true;
+					foreach (var ingredient in recipe.Ingredients)
+					{
+						int id = ingredient.ItemId;
+						if (this.has_item(id) == false || (this.has_item(id) && this.items?[id].total_count() < Convert.ToUInt64(ingredient.Count)))
+						{
+							valid = false;
+							break;
+						}
+					}
+					if (valid == true)
+					{
+						this.craftableRecipes.Add(recipe);
+						outputItemIds.Add(recipe.OutputItemId);
+					}
+				}
+			}
+
+			this.recipeResults = new Dictionary<int, Item>();
+
+
+			foreach (var itemInformation in await api_.item_information_bulk(outputItemIds))
+			{
+				Item item = new Item(itemInformation.Id);
+				this.build_basic_item_info(item, itemInformation);
+				this.recipeResults.Add(item.itemId, item);
+			}
+		}
 		#endregion
 
 		#region advice
@@ -313,13 +422,13 @@ namespace gw2stacks_blish.data
 			{
 				if (this.includeConsumables)
 				{
-					result.Add(new ItemForDisplay(item, item.get_advice_stacks(this.materialStorageSize), Magic.get_current_translated_string("Combine these items into stacks")));
+					result.Add(new ItemForDisplay(item, item.get_advice_stacks(this.materialStorageSize), ("Combine these items into stacks")));
 				}
 				else
 				{
 					if (item.isFoodOrUtility == false)
 					{
-						result.Add(new ItemForDisplay(item, item.get_advice_stacks(this.materialStorageSize), Magic.get_current_translated_string("Combine these items into stacks")));
+						result.Add(new ItemForDisplay(item, item.get_advice_stacks(this.materialStorageSize), ("Combine these items into stacks")));
 					}
 				}
 				
@@ -333,7 +442,7 @@ namespace gw2stacks_blish.data
 			var filter = this.items.Values.Where(list_item => list_item.rarity==ItemRarity.Junk);
 			foreach (var item in filter)
 			{
-				result.Add(new ItemForDisplay(item, null, Magic.get_current_translated_string("Sell these items to a vendor")));
+				result.Add(new ItemForDisplay(item, null, ("Sell these items to a vendor")));
 			}
 			return result;
 		}
@@ -348,13 +457,13 @@ namespace gw2stacks_blish.data
                 {
                     if(item.price>this.ectoSalvagePrice)
                     {
-						result.Add(new ItemForDisplay(item, null, Magic.get_current_translated_string("Salvage these items")));
+						result.Add(new ItemForDisplay(item, null, ("Salvage these items")));
 					}
                     else
                     {
                         if(item.isAccountBound!=false)
                         {
-							result.Add(new ItemForDisplay(item,null, Magic.get_current_translated_string("Sell these items on the TP")));
+							result.Add(new ItemForDisplay(item,null, ("Sell these items on the TP")));
 						}
                     }
                 
@@ -373,7 +482,7 @@ namespace gw2stacks_blish.data
 			{
 				if (this.has_item(id) && this.items[id].total_count() > 250)
 				{
-					result.Add(new ItemForDisplay(this.items[id], this.items[id].sources, Magic.get_current_translated_string("Craft these items into higher luck tiers")));
+					result.Add(new ItemForDisplay(this.items[id], this.items[id].sources, ("Craft these items into higher luck tiers")));
 				}
 				
 			}
@@ -386,7 +495,7 @@ namespace gw2stacks_blish.data
 			var filter = this.items.Values.Where(list_item => list_item.isDeletable);
 			foreach (var item in filter)
 			{
-				result.Add(new ItemForDisplay(item, null, Magic.get_current_translated_string("Delete these items")));
+				result.Add(new ItemForDisplay(item, null, ("Delete these items")));
 			}
 			return result;
 		}
@@ -394,10 +503,10 @@ namespace gw2stacks_blish.data
 		public List<ItemForDisplay> get_just_salvage_advice()
 		{
 			List<ItemForDisplay> result = new List<ItemForDisplay>();
-			var filter = this.items.Values.Where(list_item => list_item.description=="Salvage Item"&&list_item.itemId!=Magic.ectoId);
+			var filter = this.items.Values.Where(list_item => Magic.salvageIds.Contains(list_item.itemId)&&list_item.itemId!=Magic.ectoId);
 			foreach (var item in filter)
 			{
-				result.Add(new ItemForDisplay(item, null, Magic.get_current_translated_string("Salvage these items")));
+				result.Add(new ItemForDisplay(item, null, ("Salvage these items")));
 			}
 			return result;
 		}
@@ -427,7 +536,7 @@ namespace gw2stacks_blish.data
 					{
 						if (this.items[food].total_count() > Convert.ToUInt64(this.materialStorageSize))
 						{
-							result.Add(new ItemForDisplay(this.items[food], this.items[food].sources, Magic.get_current_translated_string("Feed these items to gobblers")));
+							result.Add(new ItemForDisplay(this.items[food], this.items[food].sources, ("Feed these items to gobblers")));
 
 						}
 					}
@@ -445,7 +554,7 @@ namespace gw2stacks_blish.data
 			{
 				if (this.has_item(advice.itemId)&&this.items[advice.itemId].total_count()>=Convert.ToUInt64(advice.minCount))
 				{
-					result.Add(new ItemForDisplay(this.items[advice.itemId], null, Magic.get_current_translated_string(advice.advice)));
+					result.Add(new ItemForDisplay(this.items[advice.itemId], null, (advice.advice)));
 
 				}
 			}
@@ -459,7 +568,7 @@ namespace gw2stacks_blish.data
 			{
 				if(this.has_item(item)&&this.items[item].total_count()>0)
                 {
-					result.Add(new ItemForDisplay(this.items[item], null, Magic.get_current_translated_string("Consume these items for karma")));
+					result.Add(new ItemForDisplay(this.items[item], null, ("Consume these items for karma")));
 				}
 			}
 			return result;
@@ -472,7 +581,7 @@ namespace gw2stacks_blish.data
 			{
 				if (this.has_item(item) && this.items[item].total_count() > Convert.ToUInt64(this.materialStorageSize))
 				{
-					result.Add(new ItemForDisplay(this.items[item], this.items[item].sources, Magic.get_current_translated_string("Consume these items for unbound magic")));
+					result.Add(new ItemForDisplay(this.items[item], this.items[item].sources, ("Consume these items for unbound magic")));
 				}
 				
 			}
@@ -481,7 +590,7 @@ namespace gw2stacks_blish.data
 			{
 				if (this.has_item(item) && this.items[item].total_count() > Convert.ToUInt64(this.materialStorageSize))
 				{
-					result.Add(new ItemForDisplay(this.items[item], this.items[item].sources, Magic.get_current_translated_string("Consume these items for volatile magic")));
+					result.Add(new ItemForDisplay(this.items[item], this.items[item].sources, ("Consume these items for volatile magic")));
 				}
 				
 			}
@@ -491,7 +600,7 @@ namespace gw2stacks_blish.data
 
 				if (this.has_item(item) && this.items[item].total_count() > Convert.ToUInt64(this.materialStorageSize))
 				{
-					result.Add(new ItemForDisplay(this.items[item], this.items[item].sources, Magic.get_current_translated_string("Convert these items to LWS4 currency")));
+					result.Add(new ItemForDisplay(this.items[item], this.items[item].sources, ("Convert these items to LWS4 currency")));
 				}
 			}
 			return result;
@@ -500,7 +609,7 @@ namespace gw2stacks_blish.data
 		public List<ItemForDisplay> get_crafting_advice()
 		{
 			List<ItemForDisplay> result = new List<ItemForDisplay>();
-			foreach (var recipe in this.recipes)
+			foreach (var recipe in this.craftableRecipes)
 			{
 				if(this.recipeResults.ContainsKey(recipe.OutputItemId)==false)
 				{
@@ -530,7 +639,7 @@ namespace gw2stacks_blish.data
 
 				if (canCraft && hasMoreThanStackIngredient)
 				{
-					result.Add(new ItemForDisplay(this.recipeResults[recipe.OutputItemId], new List<Source>{ new RecipeSource(parsedIngredients, parsedDisciplines) },  Magic.get_current_translated_string("Craft these items")));
+					result.Add(new ItemForDisplay(this.recipeResults[recipe.OutputItemId], new List<Source>{ new RecipeSource(parsedIngredients, parsedDisciplines) },  ("Craft these items")));
 				}
 				
 				

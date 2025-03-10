@@ -68,7 +68,7 @@ namespace views
 			{
 				if (this.itemTextures.ContainsKey(item.item.itemId) == false)
 				{
-					this.itemTextures.Add(item.item.itemId, AsyncTexture2D.FromAssetId(Magic.id_from_Render_URI(item.item.icon)));
+					this.itemTextures.Add(item.item.itemId, AsyncTexture2D.FromAssetId(item.item.iconId));
 				}
 				var container = GetStandardPanel(rootPanel, item.item.name, item.item.itemId);
 				container.Click += this.on_click;

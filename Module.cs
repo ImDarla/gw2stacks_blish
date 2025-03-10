@@ -49,7 +49,11 @@ namespace gw2stacks_blish {
 
 		private double loadingIntervalTicks = 0;
 
+		private double cooldownIntervalTicks = 0;
 
+		private bool isOnCooldown = false;
+
+		private bool ready = true;
 		private bool validData = false;
 
 		private bool running = false;
@@ -103,11 +107,7 @@ namespace gw2stacks_blish {
 
 		private void update_advice()
 		{
-			if (this.adviceDictionary == null)
-			{
-				this.adviceDictionary = new Dictionary<string, List<ItemForDisplay>>();
-			}
-			this.adviceDictionary.Clear();
+			this.adviceDictionary = new Dictionary<string, List<ItemForDisplay>>();
 			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.stackAdvice), model.get_stacks_advice());
 			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.vendorAdvice), model.get_vendor_advice());
 			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.rareSalvageAdvice), model.get_rare_salvage_advice());
@@ -189,17 +189,21 @@ namespace gw2stacks_blish {
 		}
 
 
-		private void create_values()
+		private void dispose_window()
 		{
-			this.itemTextures = new Dictionary<int, AsyncTexture2D>();
-			this.adviceDictionary = new Dictionary<string, List<ItemForDisplay>>();
+			gw2stacks_root?.Dispose();
+			this.sourceWindow?.Dispose();
+		}
+
+		private void create_window()
+		{
 			this.gw2stacks_root = new TabbedWindow2(
 				AsyncTexture2D.FromAssetId(155997), // The background texture of the window.155997 1909316 GameService.Content.GetTexture("controls/window/502049")
 				new Microsoft.Xna.Framework.Rectangle(24, 30, 565, 630),              // The windowRegion
 				new Microsoft.Xna.Framework.Rectangle(82, 30, 467, 600)               // The contentRegion
 			);
 
-			this.sourceWindow= new StandardWindow(
+			this.sourceWindow = new StandardWindow(
 				AsyncTexture2D.FromAssetId(155985), // The background texture of the window.155997 1909316 GameService.Content.GetTexture("controls/window/502049")
 				new Microsoft.Xna.Framework.Rectangle(40, 26, 933, 691),              // The windowRegion
 				new Microsoft.Xna.Framework.Rectangle(70, 71, 839, 605)               // The contentRegion
@@ -207,17 +211,28 @@ namespace gw2stacks_blish {
 
 			sourceWindow.Parent = GameService.Graphics.SpriteScreen;
 
+
+
+
+			gw2stacks_root.Parent = GameService.Graphics.SpriteScreen;
 			this.adviceView = new AdviceTabView();
+			this.gw2stacks_root.Tabs.Clear();
 			this.create_name_tab_mapping();
-			
+
 			foreach (var tab in this.nameTabMapping.Values)
 			{
 				this.gw2stacks_root.Tabs.Add(tab);
 			}
-			
-			
-			gw2stacks_root.Parent = GameService.Graphics.SpriteScreen;
 
+			this.gw2stacks_root.TabChanged += on_tab_change;
+		}
+
+		private void create_values()
+		{
+			this.itemTextures = new Dictionary<int, AsyncTexture2D>();
+			this.adviceDictionary = new Dictionary<string, List<ItemForDisplay>>();
+			
+			
 			icon = new CornerIcon(AsyncTexture2D.FromAssetId(155052), "gw2stacks");
 			
 			icon.Parent = GameService.Graphics.SpriteScreen;
@@ -229,7 +244,7 @@ namespace gw2stacks_blish {
 			loadingSpinner.Hide();
 			loadingSpinner.Enabled = false;
 			
-			this.model = new Model();
+			this.model = new Model(Logger);
 			this.api = new Gw2Api(Gw2ApiManager);
 			icon.Show();
 		}
@@ -240,11 +255,22 @@ namespace gw2stacks_blish {
 			{
 				this.validData = false;
 				this.gw2stacks_root.Hide();
+				this.sourceWindow.Hide();
 				loadingSpinner.Location = icon.Location;
 				Logger.Info("starting setup");
 				model.includeConsumables = this.includeConsumableSetting.Value;
-				task = Task.Run(() => this.model?.setup(this.api));
-				this.running = true;
+				if(this.isOnCooldown==false)
+				{
+					this.model = new Model(Logger);
+					this.task = null;
+					task = Task.Run(() => this.model?.setup(this.api));
+				}
+				else
+				{
+					Logger.Info("on cooldown");
+				}
+
+					this.running = true;
 				this.loadingSpinner.Show();
 				this.icon.Enabled = false;
 			}
@@ -271,7 +297,16 @@ namespace gw2stacks_blish {
 
 		}
 
-
+		private void update_textures()
+		{
+			foreach (var item in model.items.Keys)
+			{
+				if(this.itemTextures.ContainsKey(item)==false)
+				{
+					itemTextures.Add(item, AsyncTexture2D.FromAssetId(model.items[item].iconId));
+				}
+			}
+		}
 
 
 		private void update_views(string tabName_)
@@ -284,8 +319,17 @@ namespace gw2stacks_blish {
 		{
 			if (validData == true)
 			{
-				var tabName = event_.NewValue.Name;
-				this.update_views(tabName);
+				
+				try
+				{
+					var tabName = event_.NewValue.Name;
+					this.update_views(tabName);
+				}
+				catch (Exception e_)
+				{
+					this.fatalError = true;
+					Logger.Fatal("Unexpected exception: " + e_.Message);
+				}
 			}
 		}
 
@@ -319,8 +363,9 @@ namespace gw2stacks_blish {
 
 			try
 			{
+				this.create_window();
 				this.create_values();
-				this.gw2stacks_root.TabChanged += on_tab_change;
+				
 			}
 			catch (Exception e_)
 			{
@@ -337,6 +382,20 @@ namespace gw2stacks_blish {
         protected override void Update(GameTime gameTime) {
 
 			this.loadingIntervalTicks += gameTime.ElapsedGameTime.Milliseconds;
+
+			this.cooldownIntervalTicks += gameTime.ElapsedGameTime.Milliseconds;
+
+			if(this.cooldownIntervalTicks>3000)//5 min cooldown
+			{
+				if(this.isOnCooldown == true)
+				{
+					
+					this.isOnCooldown = false;
+					Logger.Info("Cooldown over");
+				}
+				this.cooldownIntervalTicks = 0;
+			}
+
 			if(this.loadingIntervalTicks>100)
 			{
 				if(task != null && this.validData == false && this.running == true&&this.fatalError==false)
@@ -347,13 +406,24 @@ namespace gw2stacks_blish {
 						this.running = false;
 						try
 						{
+							Logger.Warn(this.model.items.Count.ToString());
 							model.includeConsumables = this.includeConsumableSetting.Value;
+							this.dispose_window();
+							this.create_window();
 							this.update_advice();
+							
+							this.update_textures();
 							this.validData = true;
 							this.update_views(this.gw2stacks_root.SelectedTab.Name);
 							this.loadingSpinner.Hide();
 							this.icon.Enabled = true;
 							this.gw2stacks_root.Show();
+							if(this.isOnCooldown==false)
+							{
+								this.isOnCooldown = true;
+								this.cooldownIntervalTicks = 0;
+							}
+							
 						}
 						catch(Exception e_)
 						{
