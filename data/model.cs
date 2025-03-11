@@ -30,13 +30,12 @@ namespace gw2stacks_blish.data
 		private Logger log;
         //Magic magicValues;
 
-		public void reset_state()
+		public async Task reset_state()
 		{
 			foreach (var item in this.items)
 			{
 				item.Value.sources.Clear();
 			}
-			
 			this.materialStorageSize = 0;
 			this.craftableRecipes = new List<Recipe>();
 			this.recipeResults = new Dictionary<int, Item>();
@@ -58,6 +57,7 @@ namespace gw2stacks_blish.data
 		{
 			this.validData = false;
 			//await this.build_material_storage_size(api_);
+			await this.reset_state();
 			await this.build_inventory(api_);
 			await this.build_ecto_price(api_);
 			await this.build_recipe_info(api_);

@@ -261,7 +261,7 @@ namespace gw2stacks_blish {
 				model.includeConsumables = this.includeConsumableSetting.Value;
 				if(this.isOnCooldown==false)
 				{
-					this.model = new Model(Logger);
+					//this.model = new Model(Logger);
 					this.task = null;
 					task = Task.Run(() => this.model?.setup(this.api));
 				}
@@ -385,7 +385,7 @@ namespace gw2stacks_blish {
 
 			this.cooldownIntervalTicks += gameTime.ElapsedGameTime.Milliseconds;
 
-			if(this.cooldownIntervalTicks>3000)//5 min cooldown
+			if(this.cooldownIntervalTicks>300000)//5 min cooldown
 			{
 				if(this.isOnCooldown == true)
 				{
@@ -408,11 +408,10 @@ namespace gw2stacks_blish {
 						{
 							Logger.Warn(this.model.items.Count.ToString());
 							model.includeConsumables = this.includeConsumableSetting.Value;
-							this.dispose_window();
-							this.create_window();
+							
 							this.update_advice();
 							
-							this.update_textures();
+							
 							this.validData = true;
 							this.update_views(this.gw2stacks_root.SelectedTab.Name);
 							this.loadingSpinner.Hide();
