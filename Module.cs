@@ -189,12 +189,6 @@ namespace gw2stacks_blish {
 		}
 
 
-		private void dispose_window()
-		{
-			gw2stacks_root?.Dispose();
-			this.sourceWindow?.Dispose();
-		}
-
 		private void create_window()
 		{
 			this.gw2stacks_root = new TabbedWindow2(
@@ -212,7 +206,7 @@ namespace gw2stacks_blish {
 			sourceWindow.Parent = GameService.Graphics.SpriteScreen;
 
 
-
+			
 
 			gw2stacks_root.Parent = GameService.Graphics.SpriteScreen;
 			this.adviceView = new AdviceTabView();
@@ -261,7 +255,6 @@ namespace gw2stacks_blish {
 				model.includeConsumables = this.includeConsumableSetting.Value;
 				if(this.isOnCooldown==false)
 				{
-					//this.model = new Model(Logger);
 					this.task = null;
 					task = Task.Run(() => this.model?.setup(this.api));
 				}
@@ -297,16 +290,7 @@ namespace gw2stacks_blish {
 
 		}
 
-		private void update_textures()
-		{
-			foreach (var item in model.items.Keys)
-			{
-				if(this.itemTextures.ContainsKey(item)==false)
-				{
-					itemTextures.Add(item, AsyncTexture2D.FromAssetId(model.items[item].iconId));
-				}
-			}
-		}
+		
 
 
 		private void update_views(string tabName_)
@@ -432,7 +416,7 @@ namespace gw2stacks_blish {
 						
 					}
 				}
-				if (this.fatalError == true)//hide UI elements until fatalError is set to false by validate_ai() upon subtoken change
+				if (this.fatalError == true)//hide UI elements until fatalError is set to false by validate_api() upon subtoken change
 				{
 					gw2stacks_root?.Hide();
 					this.sourceWindow?.Hide();

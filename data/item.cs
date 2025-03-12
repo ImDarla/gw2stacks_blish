@@ -147,20 +147,22 @@ namespace gw2stacks_blish.data
         public int itemId;
         public int count;
 		public List<int> food;
+        public string name;
 
-        public Gobbler(int id_, List<int> food_, int count_)
+        public Gobbler(int id_, List<int> food_, int count_, string name_)
         {
             this.itemId = id_;
 			this.food = food_;
 			this.count = count_;
-            
+            this.name = name_;
         }
 
-        public Gobbler(int id_, int food_, int count_)
+        public Gobbler(int id_, int food_, int count_, string name_)
         {
 			this.itemId = id_;
 			this.food = new List<int> { food_ };
 			this.count = count_;
+            this.name = name_;
 		}
 
 		public Gobbler()
@@ -168,6 +170,7 @@ namespace gw2stacks_blish.data
 			this.itemId = 0;
 			this.food = null;
 			this.count = 0;
+            this.name = null;
 		}
 	}
 

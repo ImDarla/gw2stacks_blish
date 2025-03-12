@@ -665,12 +665,13 @@ namespace gw2stacks_blish.data
 		private static List<ApiEnum<RecipeType>> pertinentRecipeTypes = new List<ApiEnum<RecipeType>> { RecipeType.Refinement, RecipeType.RefinementEctoplasm, RecipeType.RefinementObsidian, RecipeType.IngredientCooking };
 
 		public static List<Gobbler> gobblers = new List<Gobbler>{
-			new Gobbler(46731, 77093, 250), // Herta
-            new Gobbler(46731, 66999, 50),  // Mawdrey
-            new Gobbler(46733, 69887, 50),  // Princess
-            new Gobbler(46735, 68369, 50),  // Star
-
-            new Gobbler(83103, 83305, 25),  // Spearmarshall 
+			new Gobbler(77093, 46731, 250, "Herta"), // Herta
+            new Gobbler(66999, 46731, 50, "Mawdrey"),  // Mawdrey
+            new Gobbler(69887, 46733, 50, "Princess"),  // Princess
+            new Gobbler(68369, 46735, 50, "Star of Gratitude"),  // Star
+			new Gobbler(81780,new List<int>{46733, 46731, 46735} , 25, "Gleam of Sentience"),
+			new Gobbler(101771,new List<int>{46733, 46731, 46735}, 25, "Portable Wizard's Tower Exchange"),
+			new Gobbler(83305, 83103, 25, "Spearmarshal's Plea"),  // Spearmarshall 
 			};
 
 		public static List<MiscAdvice> miscAdvices = new List<MiscAdvice>{

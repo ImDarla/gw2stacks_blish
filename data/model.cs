@@ -266,9 +266,7 @@ namespace gw2stacks_blish.data
             item_.wikiLink = $"wiki.guildwars2.com/wiki/{urlName}";
 
 			bool salvagable = true;
-			//this.log.Warn("itemId:" + itemInformation?.Id ?? "NaN");
-			//this.log.Warn("URI:" + itemInformation?.Icon ?? "NaN");
-			//this.log.Warn("Name:" + itemInformation?.Name ?? "NaN");
+			
 
 			if (Magic.is_non_stackable_type(info_.Type) == false)
 			{
@@ -317,39 +315,32 @@ namespace gw2stacks_blish.data
 		{
             List<int> appraisedItemIds = new List<int>();
 			var filter = this.items.Keys.Where(id => this.items[id].hasInformation == false);
-			var ids = this.recipeResults.Keys.Where(id => this.recipeResults[id].hasInformation == false);
-			var idList = filter.Concat((ids));
-			if(true)
+			foreach (var itemInformation in await api_.item_information_bulk(filter.ToList()))
 			{
-				foreach (var itemInformation in await api_.item_information_bulk(filter.ToList()))
+				var item = this.items[itemInformation.Id];
+				this.build_basic_item_info(item, itemInformation);
+				if (item.isRareForSalvage == true)
 				{
-					var item = this.items[itemInformation.Id];
-					this.build_basic_item_info(item, itemInformation);
-					if(item.isRareForSalvage==true)
+					appraisedItemIds.Add(itemInformation.Id);
+				}
+				else
+				{
+					if (itemInformation.Type == ItemType.CraftingMaterial && item.isAccountBound == false && item.isCharacterBound == false)
 					{
 						appraisedItemIds.Add(itemInformation.Id);
 					}
-					else
-					{
-						if(itemInformation.Type==ItemType.CraftingMaterial&&item.isAccountBound==false&&item.isCharacterBound==false)
-						{
-							appraisedItemIds.Add(itemInformation.Id);
-						}
-					}
-
-
 				}
-				//loading market prices
-				if(appraisedItemIds.Count()>0)
-				{
-					foreach (var price in await api_.item_prices(appraisedItemIds))
-					{
-						this.items[price.Id].price = price.Sells.UnitPrice;
-					}
-				}
-				
+
 			}
-			
+			//loading market prices
+			if (appraisedItemIds.Count() > 0)
+			{
+				foreach (var price in await api_.item_prices(appraisedItemIds))
+				{
+					this.items[price.Id].price = price.Sells.UnitPrice;
+				}
+			}
+
 		}
 
 		public async Task build_ecto_price(Gw2Api api_)
@@ -363,16 +354,7 @@ namespace gw2stacks_blish.data
 
 		public async Task build_recipe_info(Gw2Api api_)
 		{
-			/*
-			if(this.storedRecipes.Count>0)
-			{
-				var taskIds = await api_.recipe_ids();
-				
-				foreach (var recipe in await api_.recipes(taskIds.ToList()))
-				{
-					this.storedRecipes.Add(recipe.Id, recipe);
-				}
-			}*/
+			
 			var taskIds = await api_.recipe_ids();
 			List<int> outputItemIds = new List<int>();
 			this.craftableRecipes = new List<Recipe>();
@@ -536,7 +518,7 @@ namespace gw2stacks_blish.data
 					{
 						if (this.items[food].total_count() > Convert.ToUInt64(this.materialStorageSize))
 						{
-							result.Add(new ItemForDisplay(this.items[food], this.items[food].sources, ("Feed these items to gobblers")));
+							result.Add(new ItemForDisplay(this.items[food], this.items[food].sources, ("Feed these items to gobblers ("+gobbler.name+")")));
 
 						}
 					}
