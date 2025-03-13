@@ -18,9 +18,8 @@ namespace gw2stacks_blish.data
 		public bool isAccountBound;
 		public string name;
 		public string description;
-        public RenderUrl? icon;
         public int iconId;
-        public ItemRarity? rarity;
+        public ApiEnum<ItemRarity> rarity;
 		public bool isStackable;
 		public bool isDeletable;
 		public bool isRareForSalvage;
@@ -39,7 +38,7 @@ namespace gw2stacks_blish.data
 			isAccountBound = false;
 		    name= null;
 		    description= null;
-            icon = null;
+			this.iconId = 63369; //when in doubt cabbage
             rarity = null;
 			isStackable =false;
 		    isDeletable = false;
@@ -192,6 +191,54 @@ namespace gw2stacks_blish.data
 			this.itemId = 0;
 			this.minCount = 0;
 			this.advice = null;
+		}
+	}
+
+	class ItemInfo
+	{
+		public int Id;
+		public string Name;
+		public int IconId;
+		public int Rarity;//ApiEnum<ItemRarity> Rarity;
+		public string Description;
+		public int Type;//ApiEnum<ItemType> Type;
+		public bool isFoodOrUtility;
+		public List<int> Flags;//ApiFlags<ItemFlag> Flags;
+		public int Level;
+		public ItemInfo()
+		{
+			this.Id = 0;
+			this.Name = null;
+			this.IconId = 63369;
+			this.Rarity = 0;
+			this.Description = null;
+			this.Type = 0;
+			this.isFoodOrUtility = false;
+			this.Flags = new List<int>();
+			this.Level = 0;
+		}
+
+
+
+	}
+
+	class RecipeInfo
+	{
+		public int Id;
+		public int Type;//ApiEnum<RecipeType> Type;
+
+		public IReadOnlyList<RecipeIngredient> Ingredients;
+		public int OutputItemId;
+		public List<int> Disciplines;//ApiFlags<CraftingDisciplineType> Disciplines;
+
+		public RecipeInfo()
+		{
+			this.Id = 0;
+			this.Type = 0;
+			this.Ingredients = null;
+			this.OutputItemId = 0;
+			this.Disciplines = new List<int>();
+
 		}
 	}
 }

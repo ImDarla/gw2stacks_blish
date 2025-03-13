@@ -21,6 +21,9 @@ using System.Collections;
 using gw2stacks_blish.data;
 using gw2stacks_blish.reader;
 using Gw2Sharp.WebApi.V2.Clients;
+using Newtonsoft.Json;
+using Flurl.Http.Testing;
+using Flurl.Http;
 
 namespace gw2stacks_blish {
 
@@ -59,6 +62,8 @@ namespace gw2stacks_blish {
 		private bool running = false;
 
 		private bool fatalError = false;
+
+		private bool hasLut = false;
 
 
 
@@ -124,16 +129,36 @@ namespace gw2stacks_blish {
 
 
 
+		private async Task load_LUT()
+		{
+			try
+			{
+				string input = System.IO.File.ReadAllText(@"G:\LUT.json");
+				var fallbackObject = JsonConvert.DeserializeObject<LUT>(input);
+				var fallback = new HttpTest();
+				fallback.RespondWithJson(fallbackObject);
+				Magic.jsonLut= await "https://mp-repo.blishhud.com/repo.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<LUT>();
+				fallback.Dispose();
+				this.hasLut = true;
+				Logger.Info("Lut successfully parsed");
+			}
+			catch(Exception e_)
+			{
+				this.fatalError = true;
+				this.hasLut = false;
+				Logger.Fatal("Unexpected exception: " + e_.Message);
+				
+			}
+			
+		}
 
 
-		
 
-		
-		
 
-		
 
-		
+
+
+
 
 		protected override void DefineSettings(SettingCollection settings) 
 		{
@@ -245,7 +270,7 @@ namespace gw2stacks_blish {
 
 		private void start_api_update()
 		{
-			if (this.running == false)
+			if (this.running == false&&this.hasLut==true)
 			{
 				this.validData = false;
 				this.gw2stacks_root.Hide();
@@ -334,7 +359,7 @@ namespace gw2stacks_blish {
 		
 
         protected override async Task LoadAsync() {
-			
+			await this.load_LUT();
 		}
 
 		

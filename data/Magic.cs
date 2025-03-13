@@ -18,6 +18,7 @@ namespace gw2stacks_blish.data
 		public static double salvagePrice = 0.10496; //seemingly from mystic salvage kit??
 		public static double ectoChance = 0.875;
 		public static double tax = 0.85;
+		public static LUT jsonLut = null;
 		#endregion
 
 		#region dictionaries
@@ -875,9 +876,9 @@ namespace gw2stacks_blish.data
 
 		public static  int id_from_Render_URI(string uri_)
 		{
-			if(uri_==null)
+			if(uri_==null||uri_=="")
 			{
-				return 69469;//when in doubt then cabbage
+				return 63369;//when in doubt then cabbage
 			}
 			var initialSplit = uri_.Split('/');
 			var file = initialSplit.Last();
@@ -914,5 +915,17 @@ namespace gw2stacks_blish.data
 		
 
 		
+	}
+
+	class LUT
+	{
+		public Dictionary<int, ItemInfo> itemLut = new Dictionary<int, ItemInfo>();
+
+		public Dictionary<int, RecipeInfo> recipeLut = new Dictionary<int, RecipeInfo>();
+
+		public LUT()
+		{
+
+		}
 	}
 }
