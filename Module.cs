@@ -142,7 +142,7 @@ namespace gw2stacks_blish {
 				var fallback = new HttpTest();
 				fallback.RespondWithJson(fallbackObject);
 				#endif
-				Magic.jsonLut= await "https://bhm.blishhud.com/gw2stacks_blish/lib/LUT.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<LUT>();
+				Magic.jsonLut= await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/LUT.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<LUT>();
 				#if FALLBACK
 				fallback.Dispose();
 				#endif
