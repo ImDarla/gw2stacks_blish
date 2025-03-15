@@ -346,7 +346,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CppNet.dll" />
+    <Content Include="Docs\detailsView.gif" />
+    <Content Include="Docs\diverseTabs.gif" />
     <Content Include="Docs\KeyInterface.png" />
+    <Content Include="Docs\waitingForApi.gif" />
     <Content Include="libmojoshader_64.dll" />
     <Content Include="mgfxc.dll" />
     <Content Include="mgfxc.exe" />
