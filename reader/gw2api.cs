@@ -76,6 +76,12 @@ namespace gw2stacks_blish.reader
 			return response;
 		}
 
+		public async Task<IReadOnlyList<int>> item_price_ids()
+		{
+			var response = await this.manager.Gw2ApiClient.V2.Commerce.Prices.IdsAsync();
+			return response;
+		}
+
 		public async Task<Itemstat> item_information(int id_)
 		{
 			var response = await this.manager.Gw2ApiClient.V2.Itemstats.GetAsync(id_);//stats of specific ID

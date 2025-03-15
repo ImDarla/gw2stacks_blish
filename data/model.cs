@@ -58,10 +58,11 @@ namespace gw2stacks_blish.data
 			this.validData = false;
 
 			await this.reset_state();
-			var ectoTask = this.build_ecto_price(api_);
-			ectoTask.Wait();
-			var task= this.build_inventory(api_);
-			task.Wait();
+			await this.build_ecto_price(api_);
+			
+			await this.build_inventory(api_);
+			
+			
 			this.validData = true;
 		}
 
@@ -117,13 +118,8 @@ namespace gw2stacks_blish.data
 		public async Task build_inventory(Gw2Api api_)
 		{
 			UInt64 emptySlots = 0;
-			var characterTask = api_.characters();
-			var materialTask = api_.material_storage();
-			var bankTask = api_.bank();
-			var sharedTask = api_.shared_inventory();
-
-			characterTask.Wait();
-			foreach (var character in characterTask.Result)
+			
+			foreach (var character in await api_.characters())
 			{
                 foreach(var bag in character.Bags)
                 {
@@ -161,10 +157,8 @@ namespace gw2stacks_blish.data
             }
 
 			UInt64 maxCount = 0;
-
-			materialTask.Wait();
 			//get items from material storage and set material storage max size
-			foreach (var item in materialTask.Result)
+			foreach (var item in await api_.material_storage())
 			{
 				bool accountBound = false;
 				bool characterBound = false;
@@ -184,9 +178,7 @@ namespace gw2stacks_blish.data
 				maxCount = Math.Max(maxCount, (UInt64)item.Count);
 			}
 			this.materialStorageSize = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(maxCount / 250)) * 250);
-
-			bankTask.Wait();
-			foreach (var item in bankTask.Result)
+			foreach (var item in await api_.bank())
 			{
                 if(item==null)
                 {
@@ -211,9 +203,7 @@ namespace gw2stacks_blish.data
 					this.add_item(item.Id, accountBound, characterBound, new Source(Convert.ToUInt64(item.Count), ("Bank Storage")));
 				}
             }
-
-			sharedTask.Wait();
-			foreach (var item in sharedTask.Result)
+			foreach (var item in await api_.shared_inventory())
 			{
 				if (item == null)
 				{
@@ -246,8 +236,6 @@ namespace gw2stacks_blish.data
 				this.log.Warn("Item: " + price.Id + " Price: " + this.items[price.Id].price);
 			}
 		}
-
-        
 
 		public void build_basic_item_info(Item item_, ItemInfo info_)
 		{
@@ -317,7 +305,7 @@ namespace gw2stacks_blish.data
 		}
 
 		
-
+		//Deprecated function
 		public async Task build_item_info(Gw2Api api_)
 		{
             List<int> appraisedItemIds = new List<int>();

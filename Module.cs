@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define FALLBACK
+using System;
 using System.ComponentModel.Composition;
 using System.Threading.Tasks;
 using Blish_HUD;
@@ -127,18 +128,24 @@ namespace gw2stacks_blish {
 			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.miscAdvice), model.get_misc_advice());
 		}
 
-
+		
 
 		private async Task load_LUT()
 		{
+		
 			try
 			{
+				
+				#if FALLBACK
 				string input = System.IO.File.ReadAllText(@"G:\LUT.json");
 				var fallbackObject = JsonConvert.DeserializeObject<LUT>(input);
 				var fallback = new HttpTest();
 				fallback.RespondWithJson(fallbackObject);
+				#endif
 				Magic.jsonLut= await "https://mp-repo.blishhud.com/repo.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<LUT>();
+				#if FALLBACK
 				fallback.Dispose();
+				#endif
 				this.hasLut = true;
 				Logger.Info("Lut successfully parsed");
 			}
@@ -415,7 +422,7 @@ namespace gw2stacks_blish {
 						this.running = false;
 						try
 						{
-							Logger.Warn(this.model.items.Count.ToString());
+							
 							model.includeConsumables = this.includeConsumableSetting.Value;
 							
 							this.update_advice();

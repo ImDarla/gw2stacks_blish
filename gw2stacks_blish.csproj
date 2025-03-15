@@ -346,6 +346,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CppNet.dll" />
+    <Content Include="Docs\KeyInterface.png" />
     <Content Include="libmojoshader_64.dll" />
     <Content Include="mgfxc.dll" />
     <Content Include="mgfxc.exe" />
@@ -356,6 +357,7 @@
     <Content Include="SharpDX.dll" />
     <Content Include="SharpDX.xml" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
