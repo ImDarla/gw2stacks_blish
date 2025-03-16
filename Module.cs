@@ -69,6 +69,7 @@ namespace gw2stacks_blish {
 
 
 		SettingEntry<bool> includeConsumableSetting;
+		SettingEntry<bool> localJson;
 
 		
 		Dictionary<int, AsyncTexture2D> itemTextures;
@@ -153,8 +154,7 @@ namespace gw2stacks_blish {
 			{
 				this.fatalError = true;
 				this.hasLut = false;
-				Logger.Fatal("Unexpected exception: " + e_.Message);
-				
+				Logger.Fatal("Unexpected exception: " + e_.Message+ " @"+ e_.StackTrace);
 			}
 			
 		}
@@ -216,7 +216,7 @@ namespace gw2stacks_blish {
 			catch(Exception e_)
 			{
 				this.fatalError = true;
-				Logger.Fatal("Unexpected exception: " + e_.Message);
+				Logger.Fatal("Unexpected exception: " + e_.Message+ " @"+ e_.StackTrace);
 			}
 		}
 
@@ -315,7 +315,7 @@ namespace gw2stacks_blish {
 				catch (Exception e_)
 				{
 					this.fatalError = true;
-					Logger.Fatal("Unexpected exception: " + e_.Message);
+					Logger.Fatal("Unexpected exception: " + e_.Message+ " @"+ e_.StackTrace);
 				}
 			}
 
@@ -344,7 +344,7 @@ namespace gw2stacks_blish {
 				catch (Exception e_)
 				{
 					this.fatalError = true;
-					Logger.Fatal("Unexpected exception: " + e_.Message);
+					Logger.Fatal("Unexpected exception: " + e_.Message+ " @"+ e_.StackTrace);
 				}
 			}
 		}
@@ -386,7 +386,7 @@ namespace gw2stacks_blish {
 			catch (Exception e_)
 			{
 				this.fatalError = true;
-				Logger.Fatal("Unexpected exception: " + e_.Message);
+				Logger.Fatal("Unexpected exception: " + e_.Message+ " @"+ e_.StackTrace);
 			}
 			
 
@@ -443,7 +443,7 @@ namespace gw2stacks_blish {
 						catch(Exception e_)
 						{
 							this.fatalError = true;
-							Logger.Fatal("Unexpected exception: " + e_.Message);
+							Logger.Fatal("Unexpected exception: " + e_.Message+ " @"+ e_.StackTrace);
 						}
 						
 					}

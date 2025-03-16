@@ -385,7 +385,11 @@ namespace gw2stacks_blish.data
 			{
 				Item item = new Item(id);
 				this.build_basic_item_info(item, Magic.jsonLut.itemLut[id]);
-				this.recipeResults.Add(item.itemId, item);
+				if(this.recipeResults.ContainsKey(item.itemId)==false)
+				{
+					this.recipeResults.Add(item.itemId, item);
+				}
+				
 			}
 		}
 		#endregion
