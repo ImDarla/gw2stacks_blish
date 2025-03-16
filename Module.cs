@@ -136,17 +136,35 @@ namespace gw2stacks_blish {
 		
 			try
 			{
+				bool local = this.localJson.Value;
+				var path = this.DirectoriesManager.GetFullDirectoryPath("gw2stacks");
+				if(path==null)
+				{
+					DirectoryUtil.RegisterDirectory("gw2stacks");
+					local = false;
+				}
+				else
+				{
+					DirectoryReader dir = new DirectoryReader(path);
+					if(dir.FileExists("LUT.json")==false)
+					{
+						local = false;
+					}
+				}
+
+				if(local ==true)
+				{
+					Logger.Info("Loading local LUT");
+					var input = System.IO.File.ReadAllText(path+"/LUT.json");
+					Magic.jsonLut = JsonConvert.DeserializeObject<LUT>(input);
+					
+				}
+				else
+				{
+					Logger.Info("Loading remote LUT");
+					Magic.jsonLut = await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/LUT.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<LUT>();
+				}
 				
-				#if FALLBACK
-				string input = System.IO.File.ReadAllText(@"G:\LUT.json");
-				var fallbackObject = JsonConvert.DeserializeObject<LUT>(input);
-				var fallback = new HttpTest();
-				fallback.RespondWithJson(fallbackObject);
-				#endif
-				Magic.jsonLut= await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/LUT.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<LUT>();
-				#if FALLBACK
-				fallback.Dispose();
-				#endif
 				this.hasLut = true;
 				Logger.Info("Lut successfully parsed");
 			}
@@ -170,6 +188,7 @@ namespace gw2stacks_blish {
 		protected override void DefineSettings(SettingCollection settings) 
 		{
 			this.includeConsumableSetting = settings.DefineSetting("includeConsumables", true, () => " include consumables", () => "toggle to include food and utility");
+			this.localJson = settings.DefineSetting("localLut", false, () => "use a local item json", ()=> "will only have an effect if a LUT exists inside the gw2stacks folder");
 		}
 
 		private void validate_api()
