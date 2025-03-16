@@ -105,7 +105,7 @@ namespace gw2stacks_blish.data
 		//deprecated method, part of build_inventory
 		public async Task build_material_storage_size(Gw2Api api_)
 		{
-			//task.Wait();
+			
 			UInt64 maxCount = 0;
 			foreach (var item in await api_.material_storage()) //.Result
 			{
