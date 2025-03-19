@@ -145,7 +145,14 @@
     <None Include="Content\bin\Windows\Content\fonts\newkrytan\newkrytan-12-regular.xnb" />
     <None Include="Content\bin\Windows\Content\fonts\newkrytan\newkrytan-12-regular_0.xnb" />
     <None Include="Content\bin\Windows\Content\fonts\newkrytan\newkrytan-12-regular_1.xnb" />
+    <None Include="item_storage\chineseLocal.json" />
+    <None Include="item_storage\englishLocal.json" />
+    <None Include="item_storage\frenchLocal.json" />
+    <None Include="item_storage\germanLocal.json" />
+    <None Include="item_storage\koreanLocal.json" />
+    <None Include="item_storage\localeItemLUT.json" />
     <None Include="item_storage\LUT.json" />
+    <None Include="item_storage\spanishLocal.json" />
     <None Include="manifest.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
