@@ -1,4 +1,5 @@
-﻿using Blish_HUD.GameServices.ArcDps.V2.Models;
+﻿using Blish_HUD.Controls;
+using Blish_HUD.GameServices.ArcDps.V2.Models;
 using Gw2Sharp.WebApi;
 using Gw2Sharp.WebApi.V2.Models;
 using System;
@@ -19,6 +20,19 @@ namespace gw2stacks_blish.data
 		public static double ectoChance = 0.875;
 		public static double tax = 0.85;
 		public static LUT jsonLut = null;
+		public static localeLut  localeItemNamesLut= null;
+		public static ItemInfo unknown = new ItemInfo()
+		{
+			Id = 0,
+			Name = "Item unknown to LUT",
+			IconId = 63369,
+			Rarity = 0,
+			Description = null,
+			Type = 0,
+			isFoodOrUtility = false,
+			Flags = new List<int>(),
+			Level = 0,
+		};
 		#endregion
 
 		#region dictionaries
@@ -79,7 +93,7 @@ namespace gw2stacks_blish.data
 
 		};
 
-		private static Dictionary<AdviceType, string> adviceTypeNameMapping = new Dictionary<AdviceType, string>
+		public static Dictionary<AdviceType, string> adviceTypeNameMapping = new Dictionary<AdviceType, string>
 		{
 			{AdviceType.stackAdvice , "stack advice"},
 			{AdviceType.vendorAdvice , "vendor advice"},
@@ -97,14 +111,14 @@ namespace gw2stacks_blish.data
 
 
 
-		private static Dictionary<StorageType, string> storageTypeNameMapping = new Dictionary<StorageType, string>
+		public static Dictionary<StorageType, string> storageTypeNameMapping = new Dictionary<StorageType, string>
 		{
 			{StorageType.materialStorage,  "Material Storage"},
 			{StorageType.bankStorage, "Bank Storage" },
 			{StorageType.sharedStorage, "Shared Storage" }
 		};
 
-		private static Dictionary<string, string> englishToEnglish = new Dictionary<string, string>
+		public static Dictionary<string, string> englishToEnglish = new Dictionary<string, string>
 		{
 			
 			#region discipline names
@@ -195,7 +209,7 @@ namespace gw2stacks_blish.data
 			#endregion
 		};
 
-		private static Dictionary<string, string> englishToSpanish = new Dictionary<string, string>
+		public static Dictionary<string, string> englishToSpanish = new Dictionary<string, string>
 		{
 			
 			#region discipline names
@@ -286,7 +300,7 @@ namespace gw2stacks_blish.data
 			#endregion
 		};
 
-		private static Dictionary<string, string> englishToGerman = new Dictionary<string, string>
+		public static Dictionary<string, string> englishToGerman = new Dictionary<string, string>
 		{
 			
 			#region discipline names
@@ -377,7 +391,7 @@ namespace gw2stacks_blish.data
 			#endregion
 		};
 
-		private static Dictionary<string, string> englishToFrench = new Dictionary<string, string>
+		public static Dictionary<string, string> englishToFrench = new Dictionary<string, string>
 		{
 			
 			#region discipline names
@@ -468,7 +482,7 @@ namespace gw2stacks_blish.data
 			#endregion
 		};
 
-		private static Dictionary<string, string> englishToKorean = new Dictionary<string, string>
+		public static Dictionary<string, string> englishToKorean = new Dictionary<string, string>
 		{
 			
 			#region discipline names
@@ -559,7 +573,7 @@ namespace gw2stacks_blish.data
 			#endregion
 		};
 
-		private static Dictionary<string, string> englishToChinese = new Dictionary<string, string>
+		public static Dictionary<string, string> englishToChinese = new Dictionary<string, string>
 		{
 			
 			#region discipline names
@@ -842,36 +856,90 @@ namespace gw2stacks_blish.data
 		}
 
 
-		
+		public static string get_local_storage_name(string storage_)
+		{
+			if(storageTypeNameMapping.ContainsValue(storage_))
+			{
+				return get_current_translated_string(storage_);
+			}
+			else
+			{
+				return storage_;
+			}
+		}
 
-		public static  string get_string(StorageType storage_)
+		public static  string get_local_storage(StorageType storage_)
 		{
 			return get_current_translated_string(storageTypeNameMapping[storage_]);
 		}
 
-		public static  string get_string(AdviceType advice_)
+		public static  string get_local_advice(AdviceType advice_)
 		{
 			return get_current_translated_string(adviceTypeNameMapping[advice_]);
 		}
 
-		public static  string get_string(CraftingDisciplineType discipline_)
+		public static  string get_local_discipline(CraftingDisciplineType discipline_)
 		{
 			return get_current_translated_string(disciplineNameMapping[discipline_]);
 		}
 
-		public static string get_string(int id_)
+		public static string get_local_consumable_id_name(int id_)
+		{
+			if (is_gameplay_consumable(id_))
+			{
+				return get_current_translated_string(gameplayConsumables[id_]);
+			}
+			else
+			{
+				return "invalid id requested: consumable localisation";
+			}
+		}
+
+		public static string get_local_name(int id_)
 		{
 			if(is_luck_essence(id_))
 			{
 				return get_current_translated_string(luckNameMapping[id_]);
 			}
-
-			if(is_gameplay_consumable(id_))
+			else
 			{
-				return get_current_translated_string(gameplayConsumables[id_]);
+				if(localeItemNamesLut.english.ContainsKey(id_)==false)
+				{
+					if(id_==97873)
+					{
+						return "Amber Runestone";
+					}
+					return "invalid id: " + id_;
+				}
+
+				switch (currentLocale)
+				{
+					case Locale.English:
+						return localeItemNamesLut.english[id_];
+
+					case Locale.Spanish:
+						return localeItemNamesLut.spanish[id_];
+
+					case Locale.German:
+						return localeItemNamesLut.german[id_];
+
+					case Locale.French:
+						return localeItemNamesLut.french[id_];
+
+					case Locale.Korean:
+						return localeItemNamesLut.korean[id_];
+
+					case Locale.Chinese:
+						return localeItemNamesLut.chinese[id_];
+
+					default:
+						return localeItemNamesLut.english[id_];
+				}
 			}
 
-			return "Unknown Name of id:"+id_;
+
+
+				
 		}
 
 		public static  int id_from_Render_URI(string uri_)
@@ -888,28 +956,30 @@ namespace gw2stacks_blish.data
 		
 		public static  string get_current_translated_string(string tooltip_)
 		{
+			
+
 			switch(currentLocale)
 			{
 				case Locale.English:
-					return englishToEnglish[tooltip_];
+					return englishToEnglish.ContainsKey(tooltip_)? englishToEnglish[tooltip_]: "no english local";
 
 				case Locale.Spanish:
-					return englishToSpanish[tooltip_];
+					return englishToSpanish.ContainsKey(tooltip_)? englishToSpanish[tooltip_]: "no spanish local";
 
 				case Locale.German:
-					return englishToGerman[tooltip_];
+					return englishToGerman.ContainsKey(tooltip_)? englishToGerman[tooltip_]: "no german local";
 
 				case Locale.French:
-					return englishToFrench[tooltip_];
+					return englishToFrench.ContainsKey(tooltip_)? englishToFrench[tooltip_]: "no french local";
 
 				case Locale.Korean:
-					return englishToKorean[tooltip_];
+					return englishToKorean.ContainsKey(tooltip_)? englishToKorean[tooltip_]: "no korean local";
 
 				case Locale.Chinese:
-					return englishToChinese[tooltip_];
+					return englishToChinese.ContainsKey(tooltip_)? englishToChinese[tooltip_]: "no chinese local";
 
 				default:
-					return englishToEnglish[tooltip_];
+					return englishToEnglish.ContainsKey(tooltip_) ? englishToEnglish[tooltip_] : "no english local";
 			}
 		}
 		
@@ -926,6 +996,21 @@ namespace gw2stacks_blish.data
 		public LUT()
 		{
 
+		}
+	}
+
+	class localeLut
+	{
+		public Dictionary<int, string> english = new Dictionary<int, string>();
+		public Dictionary<int, string> german = new Dictionary<int, string>();
+		public Dictionary<int, string> french = new Dictionary<int, string>();
+		public Dictionary<int, string> spanish = new Dictionary<int, string>();
+		public Dictionary<int, string> korean = new Dictionary<int, string>();
+		public Dictionary<int, string> chinese = new Dictionary<int, string>();
+
+		public localeLut()
+		{
+			
 		}
 	}
 }

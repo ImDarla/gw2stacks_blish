@@ -43,9 +43,9 @@ namespace gw2stacks_blish {
         [ImportingConstructor]
         public Module([Import("ModuleParameters")] ModuleParameters moduleParameters) : base(moduleParameters) { }
 
-        private TabbedWindow2 gw2stacks_root;
+		#region variables
 
-		private StandardWindow sourceWindow;
+		private TabbedWindow2 gw2stacks_root;
 
 		private CornerIcon icon;
 
@@ -57,7 +57,6 @@ namespace gw2stacks_blish {
 
 		private bool isOnCooldown = false;
 
-		private bool ready = true;
 		private bool validData = false;
 
 		private bool running = false;
@@ -66,129 +65,204 @@ namespace gw2stacks_blish {
 
 		private bool hasLut = false;
 
-
-
 		SettingEntry<bool> includeConsumableSetting;
+
 		SettingEntry<bool> localJson;
 
-		
 		Dictionary<int, AsyncTexture2D> itemTextures;
+
 		Model model;
+
 		Gw2Api api;
+
 		Dictionary<string, List<ItemForDisplay>> adviceDictionary;
-		Task task = null;
-		
-		
-
-
 
 		AdviceTabView adviceView;
 
-		private Dictionary<string, Tab> nameTabMapping;
-		
+		private Dictionary<Tab, string> tabNameMapping;
+
+		#endregion
+
+		#region populate
+
 		private void create_name_tab_mapping()
 		{
-			this.nameTabMapping = new Dictionary<string, Tab>
+			this.tabNameMapping = new Dictionary<Tab, string>
 			{
-				{Magic.get_string(Magic.AdviceType.stackAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.stackAdvice)) },
-				{Magic.get_string(Magic.AdviceType.vendorAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.vendorAdvice)) },
-				{Magic.get_string(Magic.AdviceType.rareSalvageAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.rareSalvageAdvice)) },
-				{Magic.get_string(Magic.AdviceType.craftLuckAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.craftLuckAdvice)) },
-				{Magic.get_string(Magic.AdviceType.deletableAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.deletableAdvice)) },
-				{Magic.get_string(Magic.AdviceType.salvageAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.salvageAdvice)) },
-				{Magic.get_string(Magic.AdviceType.consumableAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.consumableAdvice)) },
-				{Magic.get_string(Magic.AdviceType.gobblerAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.gobblerAdvice)) },
-				{Magic.get_string(Magic.AdviceType.karmaAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.karmaAdvice)) },
-				{Magic.get_string(Magic.AdviceType.craftingAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.craftingAdvice)) },
-				{Magic.get_string(Magic.AdviceType.lwsAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.lwsAdvice)) },
-				{Magic.get_string(Magic.AdviceType.miscAdvice), new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.get_string(Magic.AdviceType.miscAdvice)) }
+				{new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.adviceTypeNameMapping[Magic.AdviceType.stackAdvice]),Magic.adviceTypeNameMapping[Magic.AdviceType.stackAdvice] },
+				{new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.adviceTypeNameMapping[Magic.AdviceType.vendorAdvice]),Magic.adviceTypeNameMapping[Magic.AdviceType.vendorAdvice] },
+				{new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.adviceTypeNameMapping[Magic.AdviceType.rareSalvageAdvice]), Magic.adviceTypeNameMapping[Magic.AdviceType.rareSalvageAdvice] },
+				{new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.adviceTypeNameMapping[Magic.AdviceType.craftLuckAdvice]), Magic.adviceTypeNameMapping[Magic.AdviceType.craftLuckAdvice] },
+				{new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.adviceTypeNameMapping[Magic.AdviceType.deletableAdvice]),Magic.adviceTypeNameMapping[Magic.AdviceType.deletableAdvice] },
+				{new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.adviceTypeNameMapping[Magic.AdviceType.salvageAdvice]), Magic.adviceTypeNameMapping[Magic.AdviceType.salvageAdvice] },
+				{new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.adviceTypeNameMapping[Magic.AdviceType.consumableAdvice]), Magic.adviceTypeNameMapping[Magic.AdviceType.consumableAdvice] },
+				{new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.adviceTypeNameMapping[Magic.AdviceType.gobblerAdvice]), Magic.adviceTypeNameMapping[Magic.AdviceType.gobblerAdvice] },
+				{new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.adviceTypeNameMapping[Magic.AdviceType.karmaAdvice]), Magic.adviceTypeNameMapping[Magic.AdviceType.karmaAdvice] },
+				{new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.adviceTypeNameMapping[Magic.AdviceType.craftingAdvice]), Magic.adviceTypeNameMapping[Magic.AdviceType.craftingAdvice] },
+				{new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.adviceTypeNameMapping[Magic.AdviceType.lwsAdvice]), Magic.adviceTypeNameMapping[Magic.AdviceType.lwsAdvice] },
+				{new Tab(ContentService.Content.GetTexture("155052"), () => this.adviceView, Magic.adviceTypeNameMapping[Magic.AdviceType.miscAdvice]), Magic.adviceTypeNameMapping[Magic.AdviceType.miscAdvice]  }
 			};
+
+
 		}
-
-		
-
-		
-		
-
-		
-
-		private void update_advice()
-		{
-			this.adviceDictionary = new Dictionary<string, List<ItemForDisplay>>();
-			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.stackAdvice), model.get_stacks_advice());
-			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.vendorAdvice), model.get_vendor_advice());
-			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.rareSalvageAdvice), model.get_rare_salvage_advice());
-			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.craftLuckAdvice), model.get_craft_luck_advice());
-			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.deletableAdvice), model.get_just_delete_advice());
-			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.salvageAdvice), model.get_just_salvage_advice());
-			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.consumableAdvice), model.get_play_to_consume_advice());
-			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.gobblerAdvice), model.get_gobbler_advice());
-			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.karmaAdvice), model.get_karma_consumables_advice());
-			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.craftingAdvice), model.get_crafting_advice());
-			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.lwsAdvice), model.get_living_world_advice());
-			this.adviceDictionary.Add(Magic.get_string(Magic.AdviceType.miscAdvice), model.get_misc_advice());
-		}
-
-		
 
 		private async Task load_LUT()
 		{
-		
+
 			try
 			{
 				bool local = this.localJson.Value;
 				var path = this.DirectoriesManager.GetFullDirectoryPath("gw2stacks");
-				if(path==null)
+				if (path == null)
 				{
-					DirectoryUtil.RegisterDirectory("gw2stacks");
-					local = false;
+					path =DirectoryUtil.RegisterDirectory("gw2stacks");
 				}
 				else
 				{
 					DirectoryReader dir = new DirectoryReader(path);
-					if(dir.FileExists("LUT.json")==false)
+
+					if (dir.FileExists("LUT.json") == false||
+					dir.FileExists("localeItemLUT.json")==false||
+					dir.FileExists("chineseLocal.json")==false||
+					dir.FileExists("englishLocal.json")==false||
+					dir.FileExists("germanLocal.json")==false||
+					dir.FileExists("koreanLocal.json")==false||
+					dir.FileExists("spanishLocal.json")==false||
+					dir.FileExists("frenchLocal.json")==false)
 					{
 						local = false;
 					}
+
 				}
 
-				if(local ==true)
+				if (local ==true)
 				{
 					Logger.Info("Loading local LUT");
-					var input = System.IO.File.ReadAllText(path+"/LUT.json");
+					var input = System.IO.File.ReadAllText(path + "/LUT.json");
 					Magic.jsonLut = JsonConvert.DeserializeObject<LUT>(input);
-					
+					var localeInput = System.IO.File.ReadAllText(path + "/localeItemLUT.json");
+					Magic.localeItemNamesLut = JsonConvert.DeserializeObject<localeLut>(localeInput);
+					var chineseLocal = System.IO.File.ReadAllText(path + "/chineseLocal.json");
+					Magic.englishToChinese = JsonConvert.DeserializeObject<Dictionary<string,string>>(chineseLocal);
+					var englishLocal = System.IO.File.ReadAllText(path + "/englishLocal.json");
+					Magic.englishToEnglish = JsonConvert.DeserializeObject<Dictionary<string, string>>(englishLocal);
+					var germanLocal = System.IO.File.ReadAllText(path + "/germanLocal.json");
+					Magic.englishToGerman = JsonConvert.DeserializeObject<Dictionary<string, string>>(germanLocal);
+					var koreanLocal = System.IO.File.ReadAllText(path + "/koreanLocal.json");
+					Magic.englishToKorean = JsonConvert.DeserializeObject<Dictionary<string, string>>(koreanLocal);
+					var spanishLocal = System.IO.File.ReadAllText(path + "/spanishLocal.json");
+					Magic.englishToSpanish = JsonConvert.DeserializeObject<Dictionary<string, string>>(spanishLocal);
+					var frenchLocal = System.IO.File.ReadAllText(path + "/frenchLocal.json");
+					Magic.englishToFrench = JsonConvert.DeserializeObject<Dictionary<string, string>>(frenchLocal);
 				}
 				else
 				{
 					Logger.Info("Loading remote LUT");
 					Magic.jsonLut = await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/LUT.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<LUT>();
+					Magic.localeItemNamesLut = await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/localeItemLUT.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<localeLut>();
+					Magic.englishToChinese = await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/chineseLocal.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<Dictionary<string, string>>();
+					Magic.englishToEnglish = await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/englishLocal.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<Dictionary<string, string>>();
+					Magic.englishToGerman = await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/germanLocal.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<Dictionary<string, string>>();
+					Magic.englishToKorean = await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/koreanLocal.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<Dictionary<string, string>>();
+					Magic.englishToSpanish = await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/spanishLocal.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<Dictionary<string, string>>();
+					Magic.englishToFrench = await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/frenchLocal.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<Dictionary<string, string>>();
 				}
+
 				
+
 				this.hasLut = true;
 				Logger.Info("Lut successfully parsed");
 			}
-			catch(Exception e_)
+			catch (Exception e_)
 			{
 				this.fatalError = true;
 				this.hasLut = false;
-				Logger.Fatal("Unexpected exception: " + e_.Message+ " @"+ e_.StackTrace);
+				Logger.Fatal("Unexpected exception: " + e_.Message + " @" + e_.StackTrace);
 			}
-			
+
 		}
 
-
-
-
-
-
-
-
-
-		protected override void DefineSettings(SettingCollection settings) 
+		protected override void DefineSettings(SettingCollection settings)
 		{
 			this.includeConsumableSetting = settings.DefineSetting("includeConsumables", true, () => " include consumables", () => "toggle to include food and utility");
-			this.localJson = settings.DefineSetting("localLut", false, () => "use a local item json", ()=> "will only have an effect if a LUT exists inside the gw2stacks folder");
+			this.localJson = settings.DefineSetting("localLut", false, () => "use a local item json", () => "will only have an effect if a LUT exists inside the gw2stacks folder");
+		}
+
+		private void create_window()
+		{
+			this.gw2stacks_root = new TabbedWindow2(
+				AsyncTexture2D.FromAssetId(155997), // The background texture of the window.155997 1909316 GameService.Content.GetTexture("controls/window/502049")
+				new Microsoft.Xna.Framework.Rectangle(24, 30, 565, 630),              // The windowRegion
+				new Microsoft.Xna.Framework.Rectangle(82, 30, 467, 600)               // The contentRegion
+			);
+
+
+			gw2stacks_root.Parent = GameService.Graphics.SpriteScreen;
+			this.adviceView = new AdviceTabView();
+			this.gw2stacks_root.Tabs.Clear();
+			this.create_name_tab_mapping();
+
+			foreach (var tab in this.tabNameMapping.Keys)
+			{
+				this.gw2stacks_root.Tabs.Add(tab);
+			}
+
+			this.gw2stacks_root.TabChanged += on_tab_change;
+		}
+
+		private void create_values()
+		{
+			this.itemTextures = new Dictionary<int, AsyncTexture2D>();
+			this.adviceDictionary = new Dictionary<string, List<ItemForDisplay>>();
+
+
+			icon = new CornerIcon(AsyncTexture2D.FromAssetId(155052), "gw2stacks");
+
+			icon.Parent = GameService.Graphics.SpriteScreen;
+			icon.Click += async (s, e) => await on_click();
+
+			loadingSpinner = new LoadingSpinner()
+			{
+				Size = new Point(48, 48)
+			};
+			loadingSpinner.Parent = GameService.Graphics.SpriteScreen;
+
+			loadingSpinner.Hide();
+			loadingSpinner.Enabled = false;
+
+			this.model = new Model(Logger);
+			this.api = new Gw2Api(Gw2ApiManager);
+			icon.Show();
+		}
+		#endregion
+
+		#region update
+
+		private void update_tab_locale()
+		{
+			Magic.set_locale(GameService.Overlay.UserLocale.Value);
+			foreach (var tab in gw2stacks_root.Tabs)
+			{
+				tab.Name = Magic.get_current_translated_string(this.tabNameMapping[tab]);
+			}
+		}
+
+		private void update_advice()
+		{
+			//Magic.set_locale(GameService.Overlay.UserLocale.Value);
+			this.adviceDictionary = new Dictionary<string, List<ItemForDisplay>>();
+			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.stackAdvice), model.get_stacks_advice());
+			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.vendorAdvice), model.get_vendor_advice());
+			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.rareSalvageAdvice), model.get_rare_salvage_advice());
+			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.craftLuckAdvice), model.get_craft_luck_advice());
+			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.deletableAdvice), model.get_just_delete_advice());
+			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.salvageAdvice), model.get_just_salvage_advice());
+			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.consumableAdvice), model.get_play_to_consume_advice());
+			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.gobblerAdvice), model.get_gobbler_advice());
+			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.karmaAdvice), model.get_karma_consumables_advice());
+			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.craftingAdvice), model.get_crafting_advice());
+			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.lwsAdvice), model.get_living_world_advice());
+			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.miscAdvice), model.get_misc_advice());
 		}
 
 		private void validate_api()
@@ -239,75 +313,21 @@ namespace gw2stacks_blish {
 			}
 		}
 
-
-		private void create_window()
-		{
-			this.gw2stacks_root = new TabbedWindow2(
-				AsyncTexture2D.FromAssetId(155997), // The background texture of the window.155997 1909316 GameService.Content.GetTexture("controls/window/502049")
-				new Microsoft.Xna.Framework.Rectangle(24, 30, 565, 630),              // The windowRegion
-				new Microsoft.Xna.Framework.Rectangle(82, 30, 467, 600)               // The contentRegion
-			);
-
-			this.sourceWindow = new StandardWindow(
-				AsyncTexture2D.FromAssetId(155985), // The background texture of the window.155997 1909316 GameService.Content.GetTexture("controls/window/502049")
-				new Microsoft.Xna.Framework.Rectangle(40, 26, 933, 691),              // The windowRegion
-				new Microsoft.Xna.Framework.Rectangle(70, 71, 839, 605)               // The contentRegion
-			);
-
-			sourceWindow.Parent = GameService.Graphics.SpriteScreen;
-
-
-			
-
-			gw2stacks_root.Parent = GameService.Graphics.SpriteScreen;
-			this.adviceView = new AdviceTabView();
-			this.gw2stacks_root.Tabs.Clear();
-			this.create_name_tab_mapping();
-
-			foreach (var tab in this.nameTabMapping.Values)
-			{
-				this.gw2stacks_root.Tabs.Add(tab);
-			}
-
-			this.gw2stacks_root.TabChanged += on_tab_change;
-		}
-
-		private void create_values()
-		{
-			this.itemTextures = new Dictionary<int, AsyncTexture2D>();
-			this.adviceDictionary = new Dictionary<string, List<ItemForDisplay>>();
-			
-			
-			icon = new CornerIcon(AsyncTexture2D.FromAssetId(155052), "gw2stacks");
-			
-			icon.Parent = GameService.Graphics.SpriteScreen;
-			icon.Click += onClick2;
-
-			loadingSpinner = new LoadingSpinner();
-			loadingSpinner.Parent = GameService.Graphics.SpriteScreen;
-			
-			loadingSpinner.Hide();
-			loadingSpinner.Enabled = false;
-			
-			this.model = new Model(Logger);
-			this.api = new Gw2Api(Gw2ApiManager);
-			icon.Show();
-		}
-
-		private void start_api_update()
+		private async Task start_api_update()
 		{
 			if (this.running == false&&this.hasLut==true)
 			{
+				this.icon.Enabled = false;
 				this.validData = false;
 				this.gw2stacks_root.Hide();
-				this.sourceWindow.Hide();
 				loadingSpinner.Location = icon.Location;
 				Logger.Info("starting setup");
 				model.includeConsumables = this.includeConsumableSetting.Value;
-				if(this.isOnCooldown==false)
+				this.loadingSpinner.Show();
+				if (this.isOnCooldown==false)
 				{
-					this.task = null;
-					task = Task.Run(() => this.model?.setup(this.api));
+					this.model?.reset_state();
+					await this.model?.setup(this.api);
 				}
 				else
 				{
@@ -315,39 +335,31 @@ namespace gw2stacks_blish {
 				}
 
 					this.running = true;
-				this.loadingSpinner.Show();
-				this.icon.Enabled = false;
 			}
 
 		}
 
-
-		private void onClick2(object sender_, MouseEventArgs event_)
+		private async Task on_click()
 		{
 			this.validate_api();
 			if (fatalError == false)
 			{
 				try
 				{
-					this.start_api_update();
+					await this.start_api_update();
 				}
 				catch (Exception e_)
 				{
 					this.fatalError = true;
-					Logger.Fatal("Unexpected exception: " + e_.Message+ " @"+ e_.StackTrace);
+					Logger.Fatal("Unexpected exception: " + e_.Message + " @" + e_.StackTrace);
 				}
 			}
-
-
 		}
-
-		
-
 
 		private void update_views(string tabName_)
 		{
 			this.gw2stacks_root.Title = tabName_;
-			this.adviceView.update(this.adviceDictionary[tabName_], tabName_, this.itemTextures, this.sourceWindow);
+			this.adviceView.update(this.adviceDictionary[tabName_], tabName_, this.itemTextures);//, this.sourceWindow
 		}
 
 		private void on_tab_change(object sender_, ValueChangedEventArgs<Tab> event_)
@@ -368,13 +380,8 @@ namespace gw2stacks_blish {
 			}
 		}
 
-		private void on_locale_change(object sender_, ValueEventArgs<System.Globalization.CultureInfo> event_)
-		{
-			//TODO implement
-			//var newLocale = GameService.Overlay.UserLocale;
-			//update locale in magic
-			//update all written text
-		}
+		#endregion
+
 
 		protected override void Initialize() {
 			
@@ -433,9 +440,9 @@ namespace gw2stacks_blish {
 
 			if(this.loadingIntervalTicks>100)
 			{
-				if(task != null && this.validData == false && this.running == true&&this.fatalError==false)
+				if(this.validData == false && this.running == true&&this.fatalError==false)
 				{
-					if (task.IsCompleted)
+					if (this.model.validData)
 					{
 						Logger.Info("task finished");
 						this.running = false;
@@ -443,7 +450,7 @@ namespace gw2stacks_blish {
 						{
 							
 							model.includeConsumables = this.includeConsumableSetting.Value;
-							
+							this.update_tab_locale();
 							this.update_advice();
 							
 							
@@ -470,7 +477,7 @@ namespace gw2stacks_blish {
 				if (this.fatalError == true)//hide UI elements until fatalError is set to false by validate_api() upon subtoken change
 				{
 					gw2stacks_root?.Hide();
-					this.sourceWindow?.Hide();
+					
 					icon?.Hide();
 					loadingSpinner?.Hide();
 				}
@@ -483,7 +490,7 @@ namespace gw2stacks_blish {
         protected override void Unload() {
 			// Unload here
 			gw2stacks_root?.Dispose();
-			this.sourceWindow?.Dispose();
+			
 			icon?.Dispose();
 			loadingSpinner?.Dispose();
             // All static members must be manually unset

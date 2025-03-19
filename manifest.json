@@ -1,6 +1,6 @@
 {
   "name": "gw2stacks",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "namespace": "gw2stacks_blish",
   "package": "gw2stacks_blish.dll",
   "manifest_version": 1,

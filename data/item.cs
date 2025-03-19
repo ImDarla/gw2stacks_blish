@@ -24,7 +24,7 @@ namespace gw2stacks_blish.data
 		public bool isDeletable;
 		public bool isRareForSalvage;
         public string wikiLink;
-        public int? price;
+        public int price;
         public bool isFoodOrUtility;
         public bool hasInformation;
 
@@ -43,7 +43,7 @@ namespace gw2stacks_blish.data
 			isStackable =false;
 		    isDeletable = false;
 		    isRareForSalvage = false;
-            price = null;
+            price = 0;
             this.hasInformation = false;
         }
 
@@ -111,7 +111,7 @@ namespace gw2stacks_blish.data
 		public override string ToString()
         {
             return this.itemId.ToString() + " " + this.name + " " + string.Join(", ", this.sources);
-        }
+		}
 
 	}
 
@@ -134,6 +134,11 @@ namespace gw2stacks_blish.data
             }
             this.advice = advice_;
         }
+
+		public string get_source_string()
+		{
+			return "Sources:\n" + string.Join("\n", this.sources);
+		}
 
 		public override string ToString()
 		{

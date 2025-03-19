@@ -27,16 +27,37 @@ namespace gw2stacks_blish.data
 
 		public override string ToString() 
 		{
-			return this.count.ToString() + " @ " + this.place;
+			return this.count.ToString() + " @ " + Magic.get_local_storage_name(this.place);
 		}
 	}
 
+	class IngredientSource : Source
+	{
+		public int id;
+
+
+		public IngredientSource(UInt64 count_, int id_):base(count_, null)
+		{
+
+			this.id = id_;
+
+		}
+
+
+
+		public override string ToString()
+		{
+			return this.count.ToString() + " x " + Magic.get_local_name(this.id);
+		}
+	}
+
+
 	class RecipeSource:Source
 	{
-		public List<Source> recipeIngredients;
+		public List<IngredientSource> recipeIngredients;
 		public List<string> disciplines;
 
-		public RecipeSource(List<Source> recipeIngredients_, List<string> disciplines_) : base(0, null)
+		public RecipeSource(List<IngredientSource> recipeIngredients_, List<string> disciplines_) : base(0, null)
 		{
 			this.recipeIngredients = recipeIngredients_;
 			this.disciplines = disciplines_;
@@ -51,5 +72,5 @@ namespace gw2stacks_blish.data
 	}
 
 	
-	//TODO implement new source representing recipes, their input items and their profession, change recipe storage to use a map<outputitem, recipe>
+	
 }
