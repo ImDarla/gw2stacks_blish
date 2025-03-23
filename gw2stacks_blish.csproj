@@ -347,7 +347,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CppNet.dll" />
-    <Content Include="Docs\detailsView.gif" />
+    <Content Include="Docs\detailsView.png" />
     <Content Include="Docs\diverseTabs.gif" />
     <Content Include="Docs\KeyInterface.png" />
     <Content Include="Docs\waitingForApi.gif" />

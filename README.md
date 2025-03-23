@@ -16,12 +16,12 @@ Clicking the cog icon next to the blish hud icon starts the process of retrievin
 
 After the information is retrieved and compiled a window with all of the gw2stacks advice tabs will be opened.
 
-![lDetail Interface](Docs/detailsView.gif)
+![lDetail Interface](Docs/detailsView.png)
 
-Clicking on one of the items opens a separate window containing the advice for this item, its location and its quantities on your account.
+Hovering over one of these items will display the advice for this item, its location and its quantities on your account.
 
 ## Notes
-All crafting and salvage advice does not take TP prices into account at this point in time.
+Korean and spanish translations are currently missing and will revert to english for the advice sections
 
 
 ## Permission
@@ -30,7 +30,7 @@ I got written permission by zwei2stein on reddit to create this module
 ## Q&A
 >The initial loading takes a long time
 
-This is due to the time it takes for the API calls to be answered. Further calls will draw from a cache and be faster.
+Despise only requesting the minimum amount of information to the API, the bucket structure of blishhud api calls might delay requests by some time.
 
 >The module seems frozen
 
@@ -42,6 +42,4 @@ The api requests have an internal cooldown of 5 minutes to reduce this modules i
 
 ## Planned features
 
-* Taking the current price of items into account when giving advice
-
-* Translation for german, french, spanish (and potentially korean) users
+* Translation for spanish (and potentially korean) users
