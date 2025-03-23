@@ -30,7 +30,7 @@ I got written permission by zwei2stein on reddit to create this module
 ## Q&A
 >The initial loading takes a long time
 
-Despise only requesting the minimum amount of information to the API, the bucket structure of blishhud api calls might delay requests by some time.
+Despite only requesting the minimum amount of information to the API, the bucket structure of blishhud api calls might delay requests by some time.
 
 >The module seems frozen
 
