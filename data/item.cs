@@ -27,34 +27,134 @@ namespace gw2stacks_blish.data
         public int price;
         public bool isFoodOrUtility;
         public bool hasInformation;
+		public int VendorValue;
+		public bool isSellable;
+		public bool isSalvagable;
 
-
-		public Item(int id_)
+		public Item(int id_, bool isCharacterBound_, bool isAccountBound_, bool delayedCreate=false)
         {
             this.itemId = id_;
             this.sources = new List<Source>();
             this.isFoodOrUtility = false;
-            this.isCharacterBound = false;
-			isAccountBound = false;
+            this.isCharacterBound = isCharacterBound_;
+			this.isAccountBound = isAccountBound_;
 		    name= null;
 		    description= null;
 			this.iconId = 63369; //when in doubt cabbage
             rarity = null;
-			isStackable =false;
+			isStackable =true;
 		    isDeletable = false;
 		    isRareForSalvage = false;
             price = 0;
             this.hasInformation = false;
-        }
+			this.VendorValue = 0;
+			this.isSellable=true;
+			this.isSalvagable=true;
+			if(delayedCreate==false)
+			{
+				this.build_basic_item_info();
+			}
+			
+		}
 
-        //condense sources 
-        public void add_source(Source source_)
+		public void build_basic_item_info()
+		{
+
+			ItemInfo info_;
+			if (Magic.jsonLut.itemLut.ContainsKey(this.itemId))
+			{
+				info_ = Magic.jsonLut.itemLut[this.itemId];
+			}
+			else
+			{
+				
+				info_ = Magic.unknown;
+				info_.Id = this.itemId;
+			}
+
+			//adjust name of Essence of luck items to include the rarity
+			if (Magic.is_luck_essence(this.itemId))
+			{
+				this.name = Magic.get_local_name(this.itemId);
+			}
+			else
+			{
+				this.name = info_.Name;
+			}
+
+			this.iconId = info_.IconId;
+			this.rarity = (ItemRarity)info_.Rarity;
+			this.description = info_.Description;
+			this.isFoodOrUtility = info_.isFoodOrUtility;
+			this.VendorValue = info_.VendorValue;
+			var urlName = this.name.Replace(" ", "_");
+			this.wikiLink = $"wiki.guildwars2.com/wiki/{urlName}";
+
+			bool salvagable = true;
+
+
+			if (Magic.is_non_stackable_type((ItemType)info_.Type) == true)
+			{
+				this.isStackable = false;
+			}
+			
+			
+			foreach (var flag in info_.Flags)
+			{
+				if ((ItemFlag)flag == ItemFlag.NoSalvage)
+				{
+					salvagable = false;
+				}
+				if ((ItemFlag)flag == ItemFlag.SoulbindOnAcquire)
+				{
+					this.isAccountBound = true;
+					this.isCharacterBound = true;
+					this.isStackable = false;
+
+				}
+				if((ItemFlag) flag ==ItemFlag.AccountBound)
+				{
+					this.isAccountBound = true;
+				}
+				if((ItemFlag)flag == ItemFlag.NoSalvage)
+				{
+					this.isSalvagable = false;
+				}
+				if((ItemFlag)flag == ItemFlag.NoSell)
+				{
+					this.isSellable = false;
+				}
+
+			}
+
+
+			if (Magic.collectionOnlyIds.Contains(info_.Id))
+			{
+				this.isDeletable = true;
+			}
+
+			if (Magic.is_salvagable_equipment((ItemType)info_.Type) && (ItemRarity)info_.Rarity == ItemRarity.Rare && salvagable && info_.Level > 67)
+			{
+				this.isRareForSalvage = true;
+				
+
+
+			}
+
+
+
+			this.hasInformation = true;
+		}
+
+		//condense sources 
+		public void add_source(Source source_)
         {
 			foreach (var source in this.sources)
 			{
 				if(source.place==source_.place)
                 {
                     source.count += source_.count;
+					source.stacks++;
                     return;
                 }
 			}
@@ -70,15 +170,22 @@ namespace gw2stacks_blish.data
             }
             else
             {
-				List<Source> stackableSources = new List<Source>();
-				List<Source> stackableSource = this.get_partial_stacks(materialStorageSize_);
-				UInt64 numberOfPartialStacks = Convert.ToUInt64(stackableSource.Count());
-				UInt64 numberOfConsolidatedStacks = Convert.ToUInt64(Math.Ceiling(Convert.ToDouble(this.total_count() / 250)));
-				if (this.isStackable && ((numberOfPartialStacks > 1) && (numberOfPartialStacks > numberOfConsolidatedStacks)))
+				
+				List<Source> stackableSources = this.get_partial_stacks(materialStorageSize_);
+				
+				UInt64 numberOfPartialStacks = 0;//Convert.ToUInt64(stackableSources.Count());//TODO fix partial stack count only giving 1 PER SOURCE PLACE
+				UInt64 partialStackAmount = 0;
+				foreach (var source in stackableSources)
 				{
-					stackableSources.AddRange(stackableSource);
+					numberOfPartialStacks += source.stacks;
+					partialStackAmount += source.count;
 				}
-				return stackableSources;
+				UInt64 numberOfConsolidatedStacks = Convert.ToUInt64(Math.Ceiling(Convert.ToDouble(partialStackAmount / 250)));
+				if ((numberOfPartialStacks > 1) && (numberOfPartialStacks > numberOfConsolidatedStacks))
+				{
+					return stackableSources;
+				}
+				return new List<Source>();
 			}
             
         }
@@ -88,7 +195,7 @@ namespace gw2stacks_blish.data
             List<Source> partialStacks = new List<Source>();
 			foreach (Source currentSource in this.sources)
 			{
-				if ((currentSource.count%250 !=0) || ((currentSource.place == "Material Storage") && (currentSource.count < Convert.ToUInt64(materialStorageSize_))))
+				if ((currentSource.count%Convert.ToUInt64(250) != Convert.ToUInt64(0)) || ((currentSource.place == "Material Storage") && (currentSource.count < Convert.ToUInt64(materialStorageSize_))))
 				{
 					partialStacks.Add(currentSource);
 				}
@@ -120,8 +227,9 @@ namespace gw2stacks_blish.data
         public Item item;
         public List<Source> sources;
         public string advice;
+		public int gobblerId;
 
-        public ItemForDisplay(Item item_, List<Source> sources_=null, string advice_ = null)
+        public ItemForDisplay(Item item_, List<Source> sources_=null, string advice_ = null, int id_ = 0)
         {
             this.item = item_;
             if(sources_==null)
@@ -133,6 +241,7 @@ namespace gw2stacks_blish.data
                 this.sources = sources_;
             }
             this.advice = advice_;
+			this.gobblerId = id_;
         }
 
 		public string get_source_string()
@@ -210,6 +319,7 @@ namespace gw2stacks_blish.data
 		public bool isFoodOrUtility;
 		public List<int> Flags;//ApiFlags<ItemFlag> Flags;
 		public int Level;
+		public int VendorValue;
 		public ItemInfo()
 		{
 			this.Id = 0;
@@ -221,6 +331,7 @@ namespace gw2stacks_blish.data
 			this.isFoodOrUtility = false;
 			this.Flags = new List<int>();
 			this.Level = 0;
+			this.VendorValue = 0;
 		}
 
 

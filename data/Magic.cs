@@ -1,4 +1,5 @@
-﻿using Blish_HUD.Controls;
+﻿using Blish_HUD;
+using Blish_HUD.Controls;
 using Blish_HUD.GameServices.ArcDps.V2.Models;
 using Gw2Sharp.WebApi;
 using Gw2Sharp.WebApi.V2.Models;
@@ -21,6 +22,7 @@ namespace gw2stacks_blish.data
 		public static double tax = 0.85;
 		public static LUT jsonLut = null;
 		public static localeLut  localeItemNamesLut= null;
+		public static Logger log = null;
 		public static ItemInfo unknown = new ItemInfo()
 		{
 			Id = 0,
@@ -32,6 +34,11 @@ namespace gw2stacks_blish.data
 			isFoodOrUtility = false,
 			Flags = new List<int>(),
 			Level = 0,
+		};
+
+		public static Item inventoryBag = new Item(8932, false, false, true)
+		{
+			
 		};
 		#endregion
 
@@ -953,7 +960,12 @@ namespace gw2stacks_blish.data
 			return Convert.ToInt32(file.Split('.')[0]);
 		}
 
-		
+		private static string handle_missing_translation(string tooltip_, string message_)
+		{
+			log.Warn(message_ + ": " + tooltip_);
+			return message_;
+		}
+
 		public static  string get_current_translated_string(string tooltip_)
 		{
 			
@@ -961,25 +973,25 @@ namespace gw2stacks_blish.data
 			switch(currentLocale)
 			{
 				case Locale.English:
-					return englishToEnglish.ContainsKey(tooltip_)? englishToEnglish[tooltip_]: "no english local";
+					return englishToEnglish.ContainsKey(tooltip_)? englishToEnglish[tooltip_]: handle_missing_translation(tooltip_, "no english local");
 
 				case Locale.Spanish:
-					return englishToSpanish.ContainsKey(tooltip_)? englishToSpanish[tooltip_]: "no spanish local";
+					return englishToSpanish.ContainsKey(tooltip_)? englishToSpanish[tooltip_]: handle_missing_translation(tooltip_, "no spanish local");
 
 				case Locale.German:
-					return englishToGerman.ContainsKey(tooltip_)? englishToGerman[tooltip_]: "no german local";
+					return englishToGerman.ContainsKey(tooltip_)? englishToGerman[tooltip_]: handle_missing_translation(tooltip_, "no german local");
 
 				case Locale.French:
-					return englishToFrench.ContainsKey(tooltip_)? englishToFrench[tooltip_]: "no french local";
+					return englishToFrench.ContainsKey(tooltip_)? englishToFrench[tooltip_]: handle_missing_translation(tooltip_, "no french local");
 
 				case Locale.Korean:
-					return englishToKorean.ContainsKey(tooltip_)? englishToKorean[tooltip_]: "no korean local";
+					return englishToKorean.ContainsKey(tooltip_)? englishToKorean[tooltip_]: handle_missing_translation(tooltip_, "no korean local");
 
 				case Locale.Chinese:
-					return englishToChinese.ContainsKey(tooltip_)? englishToChinese[tooltip_]: "no chinese local";
+					return englishToChinese.ContainsKey(tooltip_)? englishToChinese[tooltip_]: handle_missing_translation(tooltip_, "no chinese local");
 
 				default:
-					return englishToEnglish.ContainsKey(tooltip_) ? englishToEnglish[tooltip_] : "no english local";
+					return englishToEnglish.ContainsKey(tooltip_) ? englishToEnglish[tooltip_] : handle_missing_translation(tooltip_, "no english local");
 			}
 		}
 		

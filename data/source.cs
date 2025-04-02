@@ -10,17 +10,16 @@ namespace gw2stacks_blish.data
    
     class Source
     {
-		
 
 		public UInt64 count;
 		public string place;
-		
+		public UInt64 stacks;
 
 		public Source(UInt64 count_, string place_)
 		{
 			this.count = count_;
 			this.place = place_;
-			
+			this.stacks = 1;
 		}
 
 		
