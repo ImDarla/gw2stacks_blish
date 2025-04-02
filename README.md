@@ -20,6 +20,18 @@ After the information is retrieved and compiled a window with all of the gw2stac
 
 Hovering over one of these items will display the advice for this item, its location and its quantities on your account.
 
+![Blacklist Feature](Docs/ignoreFeature.png)
+
+The blacklist feature for items can be enabled in the module settings.
+
+![Blacklist Function](Docs/ignoreWindow.png)
+
+Clicking on an Item in the advice list with the blacklist feature enabled, ignores the items from further advice. Blacklisted items are saved localy between module executions.
+
+![Search Feature](Docs/searchBar.png)
+
+Searching for an item name filters for this specific item. This feature ignores case and takes module localisation into account.
+
 ## Notes
 Korean and spanish translations are currently missing and will revert to english for the advice sections
 

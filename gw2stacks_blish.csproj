@@ -349,7 +349,10 @@
     <Content Include="CppNet.dll" />
     <Content Include="Docs\detailsView.png" />
     <Content Include="Docs\diverseTabs.gif" />
+    <Content Include="Docs\ignoreFeature.png" />
+    <Content Include="Docs\ignoreWindow.png" />
     <Content Include="Docs\KeyInterface.png" />
+    <Content Include="Docs\searchBar.png" />
     <Content Include="Docs\waitingForApi.gif" />
     <Content Include="libmojoshader_64.dll" />
     <Content Include="mgfxc.dll" />
