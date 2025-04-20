@@ -30,6 +30,7 @@ namespace gw2stacks_blish.data
 		public int VendorValue;
 		public bool isSellable;
 		public bool isSalvagable;
+		public string chatLink;
 
 		public Item(int id_, bool isCharacterBound_, bool isAccountBound_, bool delayedCreate=false)
         {
@@ -50,6 +51,7 @@ namespace gw2stacks_blish.data
 			this.VendorValue = 0;
 			this.isSellable=true;
 			this.isSalvagable=true;
+			this.chatLink = "";
 			if(delayedCreate==false)
 			{
 				this.build_basic_item_info();
@@ -161,6 +163,7 @@ namespace gw2stacks_blish.data
 			this.sources.Add(source_);
         }
 
+		
        
 		public List<Source> get_advice_stacks(int materialStorageSize_)
         {
@@ -173,14 +176,21 @@ namespace gw2stacks_blish.data
 				
 				List<Source> stackableSources = this.get_partial_stacks(materialStorageSize_);
 				
-				UInt64 numberOfPartialStacks = 0;//Convert.ToUInt64(stackableSources.Count());//TODO fix partial stack count only giving 1 PER SOURCE PLACE
-				UInt64 partialStackAmount = 0;
+				int numberOfPartialStacks = 0;//Convert.ToUInt64(stackableSources.Count());//TODO fix partial stack count only giving 1 PER SOURCE PLACE
+				int partialStackAmount = 0;
 				foreach (var source in stackableSources)
 				{
-					numberOfPartialStacks += source.stacks;
-					partialStackAmount += source.count;
+					numberOfPartialStacks++;//= Convert.ToInt32(source.stacks);
+					partialStackAmount += Convert.ToInt32(source.count%250);
 				}
-				UInt64 numberOfConsolidatedStacks = Convert.ToUInt64(Math.Ceiling(Convert.ToDouble(partialStackAmount / 250)));
+				//UInt64 numberOfConsolidatedStacks = Convert.ToUInt64(Math.Ceiling(Convert.ToDouble(partialStackAmount) / Convert.ToDouble(250)));
+				int remainder = 0;
+				int numberOfConsolidatedStacks =Math.DivRem(partialStackAmount, 250, out remainder);
+				if(remainder!=0)
+				{
+					numberOfConsolidatedStacks++;
+				}
+				//(stackableSources.Count>1)&&
 				if ((numberOfPartialStacks > 1) && (numberOfPartialStacks > numberOfConsolidatedStacks))
 				{
 					return stackableSources;
@@ -224,12 +234,12 @@ namespace gw2stacks_blish.data
 
     class ItemForDisplay
     {
-        public Item item;
+        private Item item;
         public List<Source> sources;
         public string advice;
-		public int gobblerId;
+		
 
-        public ItemForDisplay(Item item_, List<Source> sources_=null, string advice_ = null, int id_ = 0)
+        public ItemForDisplay(Item item_, List<Source> sources_=null, string advice_ = null)
         {
             this.item = item_;
             if(sources_==null)
@@ -241,20 +251,115 @@ namespace gw2stacks_blish.data
                 this.sources = sources_;
             }
             this.advice = advice_;
-			this.gobblerId = id_;
+			
         }
 
-		public string get_source_string()
+		public virtual string get_source_string()
 		{
 			return "Sources:\n" + string.Join("\n", this.sources);
 		}
 
+		public virtual int get_id()
+		{
+			return this.item.itemId;
+		}
+
+		public virtual string get_chatlink()
+		{
+			return this.item.chatLink;
+		}
+
+		public virtual int get_iconId()
+		{
+			return this.item.iconId;
+		}
+
 		public override string ToString()
 		{
-            return (this.item?.ToString() ?? " ") + " " + (this.advice?.ToString() ?? " ") + " " + string.Join(", ", this.sources);
+            //return (this.item?.ToString() ?? " ") + " " + (this.advice?.ToString() ?? " ") + " " + string.Join(", ", this.sources);
+			return this.item.total_count()+"x\n"+Magic.get_current_translated_string(this.advice) + "\n" + this.get_source_string();
 		}
     }
 
+	class GobblerItemForDisplay : ItemForDisplay
+	{
+		public int gobblerId;
+		public GobblerItemForDisplay(Item item_, List<Source> sources_ = null, string advice_ = null, int id_ = 0) :base(item_, sources_, advice_)
+		{
+			this.gobblerId = id_;
+		}
+
+		public override string get_source_string()
+		{
+			return "Sources:\n" + string.Join("\n", this.sources);
+		}
+
+		public override int get_id()
+		{
+			return base.get_id();
+		}
+
+		public override int get_iconId()
+		{
+			return base.get_iconId();
+		}
+
+		public override string ToString()
+		{
+			return Magic.get_current_translated_string(this.advice) + " (" + Magic.get_local_name(this.gobblerId) + ")" + "\n" + this.get_source_string();
+		}
+	}
+
+	class MiscCraftingItemForDisplay : ItemForDisplay
+	{
+		public int outputId;
+		public MiscCraftingItemForDisplay(Item item_, List<Source> sources_ = null, string advice_ = null, int outputId_ = 0): base(item_, sources_, advice_)
+		{
+			this.outputId = outputId_;
+		}
+
+		private string get_ingredient_names()
+		{
+			string output = "";
+			foreach (var item in Magic.craftingMiscAdvices[this.outputId].idCountMapping)
+			{
+				output += "0-" + item.Value + "x " + Magic.get_local_name(item.Key) + "\n";
+			}
+			return output;
+		}
+
+		public override string get_source_string()
+		{
+			return "Sources:\n" + string.Join("\n", this.sources);
+		}
+
+		public override int get_id()
+		{
+			return this.outputId;
+		}
+
+		public override int get_iconId()
+		{
+			if(Magic.jsonLut.itemLut.ContainsKey(outputId))
+			{
+				return Magic.jsonLut.itemLut[this.outputId].IconId;
+			}
+			else
+			{
+				return Magic.unknown.IconId;
+			}
+		}
+
+		public override string get_chatlink()
+		{
+			return Magic.jsonLut.itemLut[this.outputId].chatLink;
+		}
+
+		public override string ToString()
+		{
+			return Magic.get_current_translated_string(this.advice) + " (" + Magic.get_local_name(this.outputId) + ")" + "\n" + this.get_ingredient_names()+this.get_source_string();
+		}
+	}
     class Gobbler
     {
         public int itemId;
@@ -308,6 +413,28 @@ namespace gw2stacks_blish.data
 		}
 	}
 
+	class CraftingMiscAdvice
+	{
+		public Dictionary<int, int> idCountMapping;
+		public string advice;
+		public int outputId;
+		public CraftingMiscAdvice(Dictionary<int, int> idCountMapping, string advice, int outputId)
+		{
+			this.idCountMapping = idCountMapping;
+			this.advice = advice;
+			this.outputId = outputId;
+		}
+
+		public CraftingMiscAdvice()
+		{
+			this.idCountMapping = new Dictionary<int, int>();
+			this.advice = null;
+			this.outputId = 0;
+		}
+	}
+
+	
+
 	class ItemInfo
 	{
 		public int Id;
@@ -320,6 +447,7 @@ namespace gw2stacks_blish.data
 		public List<int> Flags;//ApiFlags<ItemFlag> Flags;
 		public int Level;
 		public int VendorValue;
+		public string chatLink;
 		public ItemInfo()
 		{
 			this.Id = 0;
@@ -332,6 +460,7 @@ namespace gw2stacks_blish.data
 			this.Flags = new List<int>();
 			this.Level = 0;
 			this.VendorValue = 0;
+			this.chatLink = "";
 		}
 
 
@@ -346,7 +475,7 @@ namespace gw2stacks_blish.data
 		public IReadOnlyList<RecipeIngredient> Ingredients;
 		public int OutputItemId;
 		public List<int> Disciplines;//ApiFlags<CraftingDisciplineType> Disciplines;
-
+		public string chatLink;
 		public RecipeInfo()
 		{
 			this.Id = 0;
@@ -354,6 +483,7 @@ namespace gw2stacks_blish.data
 			this.Ingredients = null;
 			this.OutputItemId = 0;
 			this.Disciplines = new List<int>();
+			this.chatLink = "";
 
 		}
 	}

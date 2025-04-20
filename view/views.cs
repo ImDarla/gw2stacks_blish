@@ -18,10 +18,168 @@ using gw2stacks_blish.data;
 using Blish_HUD.Input;
 using Gw2Sharp.WebApi.V2.Models;
 using SharpDX.DirectWrite;
+using System.Text.RegularExpressions;
 
 namespace views
 {
-	
+	class ItemView : View
+	{
+		FlowPanel panel = new FlowPanel()
+		{
+			WidthSizingMode = SizingMode.Fill,
+			HeightSizingMode = SizingMode.Fill,
+			FlowDirection = ControlFlowDirection.SingleTopToBottom,
+			CanScroll = true,
+		};
+		Dictionary<int, AsyncTexture2D> itemTextures;
+
+		public List<ItemForDisplay> combinedAdvice = new List<ItemForDisplay>();
+
+		TextBox search = new TextBox()
+		{
+			PlaceholderText = "Enter item name here ...",
+			Size = new Point(830, 43),
+			Font = GameService.Content.DefaultFont16,
+			Location = new Point(0, 0)
+		};
+		string hunt = "";
+
+		
+
+		private void handle_text_input(object s_, EventArgs e_)
+		{
+
+			//TODO add removal of numbers
+			this.hunt = search.Text;//.Replace("[", string.Empty).Replace("]", string.Empty);
+			this.update();
+		}
+
+		private ViewContainer GetStandardPanel(Panel rootPanel, string title, int id_)
+		{
+			return new ViewContainer()
+			{
+				Icon = this.itemTextures[id_],
+				//WidthSizingMode = SizingMode.Fill,
+				Width=830,
+				HeightSizingMode = SizingMode.AutoSize,
+				Title = title,
+				ShowBorder = true,
+				Parent = rootPanel
+
+
+			};
+		}
+
+		private void build_item_panels(Panel rootPanel)
+		{
+			this.search.Parent = rootPanel;
+			this.search.TextChanged += handle_text_input;
+			foreach (var item in this.combinedAdvice)
+			{
+				if (string.IsNullOrEmpty(this.hunt) || Magic.get_local_name(item.get_id()).ToLower().Contains(this.hunt.ToLower()))//||item.get_chatlink()==hunt
+				{
+					if (this.itemTextures.ContainsKey(item.get_id()) == false)
+					{
+						this.itemTextures.Add(item.get_id(), AsyncTexture2D.FromAssetId(item.get_iconId()));//Magic.jsonLut.itemLut[item.get_id()].IconId
+					}
+					var container = GetStandardPanel(rootPanel, Magic.get_local_name(item.get_id()), item.get_id());
+					container.BasicTooltipText = item.ToString();
+					container.Show();
+				}
+
+			}
+		}
+
+		public void update()
+		{
+			this.search.Parent = null;
+			this.panel.ClearChildren();
+			this.search.TextChanged -= handle_text_input;
+			this.build_item_panels(panel);
+			this.panel.Title = "Gw2stacks";
+
+		}
+
+		public void set_values(Dictionary<int, AsyncTexture2D> itemTextures_, List<ItemForDisplay> excludedItemIds_)
+		{
+			this.itemTextures = itemTextures_;
+			this.combinedAdvice = excludedItemIds_;
+		}
+
+		protected override void Build(Container buildPanel)
+		{
+			this.panel.Parent = buildPanel;
+			build_item_panels(this.panel);
+		}
+	}
+
+	class CharacterView : View
+	{
+		string characterName = "";
+		Dictionary<int, AsyncTexture2D> itemTextures;
+		List<ItemForDisplay> adviceList;
+		FlowPanel panel = new FlowPanel()
+		{
+			WidthSizingMode = SizingMode.Fill,
+			HeightSizingMode = SizingMode.Fill,
+			FlowDirection = ControlFlowDirection.SingleTopToBottom,
+			CanScroll = true,
+		};
+
+		
+		public void update(Dictionary<int, AsyncTexture2D> itemTextures_, List<ItemForDisplay> items_, string names_)
+		{
+			this.itemTextures = itemTextures_;
+			this.adviceList = items_;
+			this.characterName = names_;
+			build_inventory_panel();
+		}
+
+		private void build_inventory_panel()
+		{
+			var parent = this.panel.Parent;
+			this.panel.Parent = null;
+			this.panel = new FlowPanel()
+			{
+				WidthSizingMode = SizingMode.Fill,
+				HeightSizingMode = SizingMode.Fill,
+				FlowDirection = ControlFlowDirection.LeftToRight,
+				CanScroll = true,
+			};
+			this.panel.Parent = parent;
+			var filtered = this.adviceList.Where(item => item.sources.Any(source => source.place==this.characterName)).ToList();
+			this.panel.Title = this.characterName;
+			foreach (var advice in filtered)
+			{
+				if (this.itemTextures.ContainsKey(advice.get_id()) == false)
+				{
+					this.itemTextures.Add(advice.get_id(), AsyncTexture2D.FromAssetId(advice.get_iconId()));
+				}
+				
+
+				var container = new Image()
+				{
+					Texture = this.itemTextures[advice.get_id()],
+					Size = new Point(40, 40),
+					Location = new Point(0, 0),
+					Parent = this.panel
+				};
+				container.BasicTooltipText = Magic.get_local_name(advice.get_id()) + "\n"+advice.ToString();
+				container.Show();
+			}
+		}
+
+		
+		
+
+		protected override void Build(Container buildPanel)
+		{
+			this.panel.Parent = buildPanel;
+			build_inventory_panel();
+		}
+	}
+
+
 	class IgnoredView : View
 	{
 		FlowPanel panel =new FlowPanel()
@@ -30,7 +188,7 @@ namespace views
 				HeightSizingMode = SizingMode.Fill,
 				FlowDirection = ControlFlowDirection.SingleTopToBottom,
 				CanScroll = true,
-			};
+		};
 		Dictionary<int, AsyncTexture2D> itemTextures;
 
 		
@@ -84,7 +242,15 @@ namespace views
 				{
 					if (this.itemTextures.ContainsKey(item) == false)
 					{
-						this.itemTextures.Add(item, AsyncTexture2D.FromAssetId(Magic.jsonLut.itemLut[item].IconId));
+						if(Magic.jsonLut.itemLut.ContainsKey(item)==true)
+						{
+							this.itemTextures.Add(item, AsyncTexture2D.FromAssetId(Magic.jsonLut.itemLut[item].IconId));
+						}
+						else
+						{
+							this.itemTextures.Add(item, AsyncTexture2D.FromAssetId(Magic.unknown.IconId));
+						}
+						
 					}
 					var container = GetStandardPanel(rootPanel, Magic.get_local_name(item), item);
 
@@ -186,50 +352,26 @@ namespace views
 			search.Show();
 			foreach (var item in this.adviceList)
 			{
-				if (this.itemTextures.ContainsKey(item.item.itemId) == false)
+				if (this.itemTextures.ContainsKey(item.get_id()) == false)
 				{
-					this.itemTextures.Add(item.item.itemId, AsyncTexture2D.FromAssetId(item.item.iconId));
+					this.itemTextures.Add(item.get_id(), AsyncTexture2D.FromAssetId(item.get_iconId()));
 				}
 
-				if (string.IsNullOrEmpty(this.hunt)||Magic.get_local_name(item.item.itemId).ToLower().Contains(this.hunt.ToLower()))
+				if (string.IsNullOrEmpty(this.hunt)||Magic.get_local_name(item.get_id()).ToLower().Contains(this.hunt.ToLower()))
 				{
-					if(this.excludedItemIds.Contains(item.item.itemId)==false)
+					if(this.excludedItemIds.Contains(item.get_id())==false)
 					{
-						var container = GetStandardPanel(rootPanel, Magic.get_local_name(item.item.itemId), item.item.itemId);
-						if(item.gobblerId==0)
-						{
-							container.BasicTooltipText = Magic.get_current_translated_string(item.advice) + "\n" + item.get_source_string();
-						}
-						else
-						{
-							container.BasicTooltipText = Magic.get_current_translated_string(item.advice)+" ("+Magic.get_local_name(item.gobblerId)+")" + "\n" + item.get_source_string();
-						}
-
+						var container = GetStandardPanel(rootPanel, Magic.get_local_name(item.get_id()), item.get_id());
+						container.BasicTooltipText = item.ToString();
 						if (this.ignoredItemsFlag == true)
 						{
-							container.Click += (s, e) => this.callback(item.item.itemId, true);
+							container.Click += (s, e) => this.callback(item.get_id(), true);
 						}
 						
 						
 						container.Show();
 					}
-					/*
-					if (this.ignoredItemsFlag == false)
-					{
-						var container = GetStandardPanel(rootPanel, Magic.get_local_name(item.item.itemId), item.item.itemId);
-						container.BasicTooltipText = Magic.get_current_translated_string(item.advice) + "\n" + item.get_source_string();
-						container.Show();
-					}
-					else
-					{
-						if (this.ignoredItemsFlag == true && this.ignoredItems.Contains(item.item.itemId) == false)
-						{
-							var container = GetStandardPanel(rootPanel, Magic.get_local_name(item.item.itemId), item.item.itemId);
-							container.BasicTooltipText = Magic.get_current_translated_string(item.advice) + "\n" + item.get_source_string();
-							container.Click += (s, e) => this.ignore(item.item.itemId);
-							container.Show();
-						}
-					}*/
+					
 				}
 				
 			}

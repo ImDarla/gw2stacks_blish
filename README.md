@@ -32,6 +32,12 @@ Clicking on an Item in the advice list with the blacklist feature enabled, ignor
 
 Searching for an item name filters for this specific item. This feature ignores case and takes module localisation into account.
 
+![Item Feature](Docs/itemFeature.png)
+
+![Character Feature](Docs/characterFeature.png)
+
+Optional item and character based UI types can be chosen in the module settings.
+
 ## Notes
 Korean and spanish translations are currently missing and will revert to english for the advice sections
 
@@ -55,3 +61,6 @@ The api requests have an internal cooldown of 5 minutes to reduce this modules i
 ## Planned features
 
 * Translation for spanish (and potentially korean) users
+* expansion of ingored feature to other windows
+* click based advice
+* chat code search

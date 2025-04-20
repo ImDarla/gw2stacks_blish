@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 using Blish_HUD;
 using System.IdentityModel;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace gw2stacks_blish.data
 {
@@ -29,7 +30,7 @@ namespace gw2stacks_blish.data
 		public bool validData;
 		private Logger log;
 		private Dictionary<int, List<Source>> upgradableBags;
-
+		public List<string> characterNames = new List<string>();
 		public void reset_state()
 		{
 			foreach (var item in this.items)
@@ -43,6 +44,7 @@ namespace gw2stacks_blish.data
 			this.includeConsumables = true;
 			this.ectoSalvagePrice = 0;
 			this.upgradableBags = new Dictionary<int, List<Source>>();
+			this.characterNames=new List<string>();
 			this.validData = false;
 		}
 
@@ -65,7 +67,8 @@ namespace gw2stacks_blish.data
 			await this.build_recipe_info();
 			log.Info("started building prices");
 			await this.build_item_prices(api_);
-			Magic.inventoryBag.build_basic_item_info();
+			Magic.silkBag.build_basic_item_info();
+			Magic.borealTrunk.build_basic_item_info();
 			this.validData = true;
 		}
 
@@ -125,6 +128,7 @@ namespace gw2stacks_blish.data
 			
 			foreach (var character in await api_.characters())
 			{
+				this.characterNames.Add(character.Name);
                 foreach(var bag in character.Bags)
                 {
                     if(bag!=null)
@@ -467,7 +471,7 @@ namespace gw2stacks_blish.data
 					{
 						if (this.items[food].total_count() > Convert.ToUInt64(this.materialStorageSize))
 						{
-							result.Add(new ItemForDisplay(this.items[food], this.items[food].sources, ("Feed these items to gobblers"), gobbler.itemId));
+							result.Add(new GobblerItemForDisplay(this.items[food], this.items[food].sources, ("Feed these items to gobblers"), gobbler.itemId));
 
 						}
 					}
@@ -489,20 +493,45 @@ namespace gw2stacks_blish.data
 					
 				}
 			}
+			foreach (var advice in Magic.craftingMiscAdvices.Values)
+			{
+				List<Source> ingredients = new List<Source>();
+				foreach (var item in advice.idCountMapping)
+				{
+					if (this.has_item(item.Key) && this.items[item.Key].total_count() >= Convert.ToUInt64(item.Value))
+					{
+						ingredients.AddRange(this.items[item.Key].sources);
+					}
+				}
+				if(ingredients.Any()==true)
+				{
+					result.Add(new MiscCraftingItemForDisplay(null, ingredients, advice.advice, advice.outputId));
+				}
+			}
+			List<Source> upgradeTo18 = new List<Source>();
+			List<Source> upgradeTo32 = new List<Source>();
 			foreach (var slots in this.upgradableBags)
 			{
 				if(slots.Key<18)
 				{
-					result.Add(new ItemForDisplay(Magic.inventoryBag, slots.Value, "Upgrade these bags to 18 slots"));
+					upgradeTo18.AddRange(slots.Value);
 				}
 				if(this.has_item(83410))
 				{
 					if (slots.Key < 32 && this.items[83410].total_count() >= 12)
 					{
-						result.Add(new ItemForDisplay(Magic.inventoryBag, slots.Value, "Potentially replace these bags with boreal trunks"));
+						upgradeTo32.AddRange(slots.Value);
 					}
 				}
 				
+			}
+			if(upgradeTo18.Any()==true)
+			{
+				result.Add(new ItemForDisplay(Magic.silkBag, upgradeTo18, "Upgrade these bags to 18 slots"));
+			}
+			if(upgradeTo32.Any()==true)
+			{
+				result.Add(new ItemForDisplay(Magic.borealTrunk, upgradeTo32, "Potentially replace these bags with boreal trunks"));
 			}
 			return result;
 		}
