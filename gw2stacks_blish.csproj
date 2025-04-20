@@ -149,6 +149,7 @@
     <None Include="item_storage\englishLocal.json" />
     <None Include="item_storage\frenchLocal.json" />
     <None Include="item_storage\germanLocal.json" />
+    <None Include="item_storage\ignoredItemsList.json" />
     <None Include="item_storage\koreanLocal.json" />
     <None Include="item_storage\localeItemLUT.json" />
     <None Include="item_storage\LUT.json" />
