@@ -71,5 +71,10 @@
     "Ignored Items":"Objets ignorés", 
     "Upgrade these bags to 18 slots":"Améliorer ces sacs jusqu'à 18 emplacements", 
     "Potentially replace these bags with boreal trunks":"Eventuellement remplacer ces sacs par des coffres boréaux renforcés",
-    "Craft: ":"Fabriquer: "
+    "Craft: ":"Fabriquer: ",
+    "Upgrade these bags to":"Améliorer ces sacs jusqu'à",
+    "Potentially replace these bags with":"Eventuellement remplacer ces sacs par des",
+    "Empty":"Vide",
+    "Equip:":"Équipe:",
+    "No current advice":"Aucun conseil actuel"
 }
