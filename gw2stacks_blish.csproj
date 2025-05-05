@@ -352,6 +352,7 @@
     <Content Include="Docs\diverseTabs.gif" />
     <Content Include="Docs\ignoreFeature.png" />
     <Content Include="Docs\ignoreWindow.png" />
+    <Content Include="Docs\inventoryRecreation.png" />
     <Content Include="Docs\itemFeature.png" />
     <Content Include="Docs\KeyInterface.png" />
     <Content Include="Docs\searchBar.png" />

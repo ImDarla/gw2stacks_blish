@@ -87,6 +87,10 @@ namespace gw2stacks_blish {
 
 		SettingEntry<string> displayType;
 
+		SettingEntry<bool> showBag;
+
+		SettingEntry<bool> itemShortcut;
+
 		Dictionary<int, AsyncTexture2D> itemTextures = new Dictionary<int, AsyncTexture2D>();
 
 		Model model;
@@ -95,13 +99,19 @@ namespace gw2stacks_blish {
 
 		Dictionary<string, List<ItemForDisplay>> adviceDictionary = new Dictionary<string, List<ItemForDisplay>>();
 
+		Dictionary<string, List<ItemForDisplay>> fullCharacterInventories = new Dictionary<string, List<ItemForDisplay>>();
+
+		Dictionary<string, List<BagForDisplay>> characterBags = new Dictionary<string, List<BagForDisplay>>();
+
 		List<ItemForDisplay> combinedAdvice = new List<ItemForDisplay>();
 
 		AdviceTabView adviceView;
 
 		IgnoredView ignoredView;
 
-		CharacterView characterBasedView;
+		//CharacterView characterBasedView;
+
+		FullCharacterView fullCharacterView;
 
 		ItemView itemView;
 
@@ -174,7 +184,7 @@ namespace gw2stacks_blish {
 
 				if (local ==true)
 				{
-					Logger.Info("Loading local LUT");
+					Logger.Debug("Loading local LUT");
 					var input = System.IO.File.ReadAllText(path + "/LUT.json");
 					Magic.jsonLut = JsonConvert.DeserializeObject<LUT>(input);
 					var localeInput = System.IO.File.ReadAllText(path + "/localeItemLUT.json");
@@ -194,7 +204,7 @@ namespace gw2stacks_blish {
 				}
 				else
 				{
-					Logger.Info("Loading remote LUT");
+					Logger.Debug("Loading remote LUT");
 					Magic.jsonLut = await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/LUT.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<LUT>();
 					Magic.localeItemNamesLut = await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/localeItemLUT.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<localeLut>();
 					Magic.englishToChinese = await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/chineseLocal.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<Dictionary<string, string>>();
@@ -207,12 +217,13 @@ namespace gw2stacks_blish {
 
 				
 				this.hasLut = true;
-				Logger.Info("Lut successfully parsed");
+				Logger.Debug("Lut successfully parsed");
 			}
 			catch (Exception e_)
 			{
 				this.fatalError = true;
 				this.hasLut = false;
+				this.handle_error("Error when creating LUTs");
 				Logger.Warn("Unexpected exception: " + "can't create LUT" + " @" + e_.StackTrace);
 			}
 
@@ -223,7 +234,12 @@ namespace gw2stacks_blish {
 			this.includeConsumableSetting = settings.DefineSetting("includeConsumables", true, () => " include consumables", () => "toggle to include food and utility");
 			this.localJson = settings.DefineSetting("localLut", false, () => "use a local item json", () => "will only have an effect if a LUT exists inside the gw2stacks folder");
 			this.ignoreItemsFeature = settings.DefineSetting("ignoreItems", false, () => "blacklist", () => "enable the blacklist feature for item advice");
-			this.displayType = settings.DefineSetting("UI version", "0", () => "", () => "Choose the UI version\n0 for classic gw2stacks\n1 for character based advice\n2 for item specific advice ");
+			this.displayType = settings.DefineSetting("UI version", "0", () => "", () => "Choose the UI version\n0 for classic gw2stacks\n1 for character based advice\n2 for item specific advice");//\n3 for full inventory recreation\n4 for item advice shortcut functionality ");
+			this.showBag = settings.DefineSetting("Show bags", false, () => "", () => "Toggle showing bags in the inventory recreation");
+			this.itemShortcut = settings.DefineSetting("Enable advice shortcuts", false, () => "", () => "Enable a shift+lclick shortcut for item advice (only works in mode 2)");
+			this.displayType.SettingChanged += (s, e) => { if (this.validData == true) { this.hide_windows(); }; };
+			this.showBag.SettingChanged += (s, e) => { this.fullCharacterView.set_bag_flag(e.NewValue); };
+			this.itemShortcut.SettingChanged += (s, e) => { if (e.NewValue == false) { GameService.Input.Mouse.LeftMouseButtonPressed -= on_mouse_alt_click; }; };
 		}
 
 		private void create_window()
@@ -271,54 +287,47 @@ namespace gw2stacks_blish {
 				new Microsoft.Xna.Framework.Rectangle(70, 71, 839, 605)               // The contentRegion
 			);
 			this.characterBasedWindow.Hide();
-			this.characterBasedView = new CharacterView();
+			//this.characterBasedView = new CharacterView();
 			this.characterBasedWindow.Parent= GameService.Graphics.SpriteScreen;
 			this.characterBasedWindow.Title = "Gw2stacks";
+			this.characterBasedWindow.CanResize = true;
+			
 			GameService.Gw2Mumble.PlayerCharacter.NameChanged += this.on_character_change;
 
 			this.itemView = new ItemView();
 			this.itemView.set_values(itemTextures, combinedAdvice);
 
+			fullCharacterView = new FullCharacterView();
+
 		}
-		private async void on_mouse_alt_click(object s = null, MouseEventArgs e = null)
+		private async void on_mouse_alt_click(object s_ = null, MouseEventArgs e_ = null)
 		{
-			
-			if(GameService.Input.Keyboard.KeysDown.Contains(Keys.LeftAlt))
+
+			if (GameService.Input.Keyboard.KeysDown.Contains(Keys.LeftShift))
 			{
+				
 				Logger.Warn("registered click combo");
-				var position=GameService.Input.Mouse.Position;
+				var position = GameService.Input.Mouse.Position;
 
 				//TODO timings
-				Mouse.Release(MouseButton.LEFT, -1, -1, true);
-				Keyboard.Release(Key.LMENU, true);
-
-				await Task.Delay(50);
-				Keyboard.Press(Key.LSHIFT, true);
-				await Task.Delay(50);
-				Mouse.Click(MouseButton.LEFT, -1, -1, true);
 				await Task.Delay(50);
 				Keyboard.Release(Key.LSHIFT, true);
 				
 				await Task.Delay(50);
 				Keyboard.Press(Key.LCONTROL, true);
+				Keyboard.Stroke(Key.KEY_A, true);
 				await Task.Delay(50);
 				Keyboard.Stroke(Key.KEY_C, true);
 				await Task.Delay(50);
 				Keyboard.Release(Key.LCONTROL, true);
+				
 				await Task.Delay(50);
 				Keyboard.Stroke(Key.BACK, true);
 				Keyboard.Stroke(Key.RETURN, true);
 				string entry = await ClipboardUtil.WindowsClipboardService.GetTextAsync();
-				Logger.Info("Found entry: " + entry);
-				var label = new Label()
-				{
-					Text = "I'm just a Label\nMultiline works too!",
-					Size = new Point(300, 100),
-					Location = position,
-					Parent = GameService.Graphics.SpriteScreen,
-					Enabled=false
-				};
-
+				Logger.Debug("Found entry: " + entry);
+				this.itemView.set_search_string(entry);
+				this.show_windows();
 			}
 		}
 
@@ -343,6 +352,16 @@ namespace gw2stacks_blish {
 			this.model = new Model(Logger);
 			this.api = new Gw2Api(Gw2ApiManager);
 			icon.Show();
+		}
+
+		public void handle_error(string error_)
+		{
+			if(this.icon!=null)
+			{
+				this.icon.Enabled = false;
+				this.icon.BasicTooltipText += "\n"+error_;
+			}
+			
 		}
 		#endregion
 
@@ -382,7 +401,7 @@ namespace gw2stacks_blish {
 		private void update_advice()
 		{
 			//Magic.set_locale(GameService.Overlay.UserLocale.Value);
-			this.adviceDictionary = new Dictionary<string, List<ItemForDisplay>>();
+			this.adviceDictionary.Clear();//= new Dictionary<string, List<ItemForDisplay>>();
 			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.stackAdvice), model.get_stacks_advice());
 			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.vendorAdvice), model.get_vendor_advice());
 			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.rareSalvageAdvice), model.get_rare_salvage_advice());
@@ -395,11 +414,75 @@ namespace gw2stacks_blish {
 			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.craftingAdvice), model.get_crafting_advice());
 			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.lwsAdvice), model.get_living_world_advice());
 			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.miscAdvice), model.get_misc_advice());
-			this.combinedAdvice.Clear();
+
+			List<ItemForDisplay> fullAdvice = new List<ItemForDisplay>();
 			foreach (var item in this.adviceDictionary.Values)
 			{
-				this.combinedAdvice.AddRange(item);
+				fullAdvice.AddRange(item);
 			}
+			this.combinedAdvice.Clear();
+			foreach (var entry in this.model?.items)
+			{
+				var applicable = fullAdvice.Where(itemForDisplay => itemForDisplay.applicable_to_id(entry.Key) == true);
+				combinedAdvice.Add(new CombinedItemForDisplay(entry.Value, applicable.ToList()));
+			}
+			this.fullCharacterInventories.Clear();
+			foreach (var entry in this.model?.characterInventory)
+			{
+				List<ItemForDisplay> list = new List<ItemForDisplay>();
+				foreach (var id in entry.Value)
+				{
+					
+					if (id == null)
+					{
+						
+						list.Add(new EmptyItemForDisplay());
+					}
+					else
+					{
+						/*
+						var applicable = this.combinedAdvice.Where(item => item.applicable_to_id(id.Value));
+						data.Item newItem;
+						if(Magic.jsonLut.itemLut.ContainsKey(id.Value))
+						{
+							newItem = new data.Item(id.Value, false, false);
+						}
+						else
+						{
+							newItem = new data.Item(12332, false, false);
+						}
+						
+						list.Add(new CombinedItemForDisplay(newItem, applicable.ToList()));*/
+						var applicable = this.combinedAdvice.Where(item => item.applicable_to_id(id.Value));
+						if(applicable.Count()!=1)
+						{
+							Logger.Warn("Internal error while assigning combined advice to inventory: invalid count of " + applicable.Count());
+						}
+						list.Add(applicable.First());
+					}
+				}
+				this.fullCharacterInventories.Add(entry.Key, list);
+			}
+
+			this.characterBags.Clear();// = this.model?.inventoryBags;
+			foreach (var entry in this.model?.inventoryBags)
+			{
+				List<BagForDisplay> bagsForDisplay = new List<BagForDisplay>();
+				foreach (var bag in entry.Value)
+				{
+					if(bag.get_id()==0)
+					{
+						bagsForDisplay.Add(new BagForDisplay(null, 0));
+					}
+					else
+					{
+						bagsForDisplay.Add(new BagForDisplay(bag.get_id(), bag.get_size()));
+					}
+					
+				}
+				this.characterBags.Add(entry.Key, bagsForDisplay);
+			}
+
 		}
 
 		public void show_windows()
@@ -426,11 +509,16 @@ namespace gw2stacks_blish {
 					}
 					break;
 				case 1:
-					this.characterBasedWindow.Show(this.characterBasedView);
+					//this.characterBasedWindow.Show(this.characterBasedView);
+					this.characterBasedWindow.Show(this.fullCharacterView);
+					this.fullCharacterView.set_bag_flag(this.showBag.Value);
 					break;
 				case 2:
 					this.characterBasedWindow.Show(this.itemView);
-					//GameService.Input.Mouse.LeftMouseButtonPressed += on_mouse_alt_click;
+					if(this.itemShortcut.Value==true)
+					{
+						GameService.Input.Mouse.LeftMouseButtonPressed += on_mouse_alt_click;
+					}
 					break;
 				default:
 					this.gw2stacksWindow.Show();
@@ -461,18 +549,22 @@ namespace gw2stacks_blish {
 					if (Gw2ApiManager.HasPermissions(new List<TokenPermission> { TokenPermission.Account, TokenPermission.Characters, TokenPermission.Inventories }))
 					{
 						this.fatalError = false;
-						Logger.Info("Api validated successfully");
+						this.icon.Enabled = true;
+						this.icon.BasicTooltipText = null;
+						Logger.Debug("Api validated successfully");
 						this.icon.Show();
 					}
 					else
 					{
 						this.fatalError = true;
+						this.handle_error("Missing API permissions");
 						Logger.Warn("Missing Permissions");
 					}
 				}
 				else
 				{
 					this.fatalError = true;
+					this.handle_error("No subtoken supplied");
 					Logger.Warn("No subtoken supplied");
 				}
 				
@@ -481,21 +573,25 @@ namespace gw2stacks_blish {
 			catch (Gw2Sharp.WebApi.Exceptions.InvalidAccessTokenException e_)
 			{
 				this.fatalError = true;
+				this.handle_error("Invalid access token");
 				Logger.Warn("Invalid access token: " + e_.Message);
 			}
 			catch (Gw2Sharp.WebApi.Exceptions.MissingScopesException e_)
 			{
 				this.fatalError = true;
+				this.handle_error("Missing API scopes");
 				Logger.Warn("Missing scopes: " + e_.Message);
 			}
 			catch (Gw2Sharp.WebApi.Exceptions.RequestException e_)
 			{
 				this.fatalError = true;
+				this.handle_error("API request exception");
 				Logger.Warn("Request exception: " + e_.Message);
 			}
 			catch(Exception e_)
 			{
 				this.fatalError = true;
+				this.handle_error("Unexpected API exception");
 				Logger.Warn("Unexpected exception: " + e_.Message+ " @"+ e_.StackTrace);
 			}
 		}
@@ -508,7 +604,7 @@ namespace gw2stacks_blish {
 				this.validData = false;
 				this.hide_windows();
 				loadingSpinner.Location = icon.Location;
-				Logger.Info("starting setup");
+				Logger.Debug("starting setup");
 				model.includeConsumables = this.includeConsumableSetting.Value;
 				this.loadingSpinner.Show();
 				if (this.isOnCooldown==false)
@@ -518,7 +614,7 @@ namespace gw2stacks_blish {
 				}
 				else
 				{
-					Logger.Info("on cooldown");
+					Logger.Debug("on cooldown");
 				}
 
 					this.running = true;
@@ -538,6 +634,7 @@ namespace gw2stacks_blish {
 				catch (Exception e_)
 				{
 					this.fatalError = true;
+					this.handle_error("Unexpected backend exception");
 					Logger.Warn("Unexpected exception: " + e_.Message + " @" + e_.StackTrace);
 				}
 			}
@@ -549,15 +646,25 @@ namespace gw2stacks_blish {
 			this.adviceView.update(this.adviceDictionary[tabName_], tabName_, this.ignoreItemsFlag);//, this.sourceWindow
 			this.ignoredItemsWindow.Title = Magic.get_current_translated_string("Ignored Items");
 			this.ignoredView.update(Magic.get_current_translated_string("Ignored Items"));
-			this.characterBasedView.update(this.itemTextures, this.combinedAdvice, GameService.Gw2Mumble.PlayerCharacter.Name);
 			this.itemView.update();
+			Logger.Debug("update views name found " + GameService.Gw2Mumble.PlayerCharacter.Name);
+			if(this.fullCharacterInventories.ContainsKey(GameService.Gw2Mumble.PlayerCharacter.Name)==true)
+			//this.characterBasedView.update(this.itemTextures, this.combinedAdvice, GameService.Gw2Mumble.PlayerCharacter.Name);
+			this.fullCharacterView.update(this.itemTextures, this.fullCharacterInventories[GameService.Gw2Mumble.PlayerCharacter.Name], GameService.Gw2Mumble.PlayerCharacter.Name, this.characterBags[GameService.Gw2Mumble.PlayerCharacter.Name]);
 			
 		}
 
 		
 		private void on_character_change(object sender_, ValueEventArgs<string> e_)
 		{
-			this.characterBasedView.update(this.itemTextures, this.combinedAdvice, e_.Value??"invalid name");
+			var newName = e_.Value ?? "invalid name";
+			if(this.fullCharacterInventories.ContainsKey(newName)==true)
+			{
+				//this.characterBasedView.update(this.itemTextures, this.combinedAdvice, newName);
+				this.fullCharacterView.update(this.itemTextures, this.fullCharacterInventories[newName], newName, this.characterBags[newName]);
+			}
+			
+			
 		}
 
 		private void on_tab_change(object sender_, ValueChangedEventArgs<Tab> event_)
@@ -574,6 +681,7 @@ namespace gw2stacks_blish {
 				catch (Exception e_)
 				{
 					this.fatalError = true;
+					this.handle_error("Unexpected UI exception (tab change)");
 					Logger.Warn("Unexpected exception: " + e_.Message+ " @"+ e_.StackTrace);
 				}
 			}
@@ -623,10 +731,15 @@ namespace gw2stacks_blish {
 				this.create_window();
 				this.create_values();
 				Magic.log = Logger;
+				if(this.hasLut==false)
+				{
+					this.handle_error("Error when creating LUTs");
+				}
 			}
 			catch (Exception e_)
 			{
 				this.fatalError = true;
+				this.handle_error("Unexpected error while creating UI");
 				Logger.Warn("Unexpected exception: " + e_.Message+ " @"+ e_.StackTrace);
 			}
 			
@@ -648,7 +761,7 @@ namespace gw2stacks_blish {
 				{
 					
 					this.isOnCooldown = false;
-					Logger.Info("Cooldown over");
+					Logger.Debug("Cooldown over");
 				}
 				this.cooldownIntervalTicks = 0;
 			}
@@ -659,7 +772,7 @@ namespace gw2stacks_blish {
 				{
 					if (this.model.validData)
 					{
-						Logger.Info("task finished");
+						Logger.Debug("task finished");
 						this.running = false;
 						try
 						{
@@ -689,6 +802,7 @@ namespace gw2stacks_blish {
 						catch(Exception e_)
 						{
 							this.fatalError = true;
+							this.handle_error("Unexpected error updating UI");
 							Logger.Warn("Unexpected exception: " + e_.Message+ " @"+ e_.StackTrace);
 						}
 						
@@ -697,7 +811,6 @@ namespace gw2stacks_blish {
 				if (this.fatalError == true)//hide UI elements until fatalError is set to false by validate_api() upon subtoken change
 				{
 					this.hide_windows();
-					icon?.Hide();
 					loadingSpinner?.Hide();
 				}
 				this.loadingIntervalTicks = 0;
@@ -726,7 +839,6 @@ namespace gw2stacks_blish {
 			this.Gw2ApiManager.SubtokenUpdated -= this.validate_api;
 			GameService.Input.Mouse.LeftMouseButtonPressed -= on_mouse_alt_click;
 			GameService.Gw2Mumble.PlayerCharacter.NameChanged -= this.on_character_change;
-			//TODO change event behaviour to unregister and take default arguments
 			// All static members must be manually unset
 		}
 

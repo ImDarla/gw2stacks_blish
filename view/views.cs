@@ -22,6 +22,184 @@ using System.Text.RegularExpressions;
 
 namespace views
 {
+	class FullCharacterView: View
+	{
+		string characterName = "";
+		Dictionary<int, AsyncTexture2D> itemTextures;
+		List<ItemForDisplay> adviceList;
+		List<BagForDisplay> bags;
+		bool showBags = false;
+		FlowPanel panel = new FlowPanel()
+		{
+			WidthSizingMode = SizingMode.Fill,
+			HeightSizingMode = SizingMode.Fill,
+			FlowDirection = ControlFlowDirection.LeftToRight,
+			CanScroll = true,
+		};
+
+		public void set_bag_flag(bool flag_)
+		{
+			this.showBags = flag_;
+			this.update(itemTextures, adviceList, characterName, bags);
+		}
+
+		public void update(Dictionary<int, AsyncTexture2D> itemTextures_, List<ItemForDisplay> items_, string name_, List<BagForDisplay> bags_)
+		{
+			this.itemTextures = itemTextures_;
+			this.adviceList = items_;
+			this.characterName = name_;
+			this.bags = bags_;
+			if(this.showBags==true)
+			{
+				this.build_bag_inventory_panel();
+			}
+			else
+			{
+				this.build_inventory_panel();
+			}
+			
+		}
+
+		private void build_bag_inventory_panel()
+		{
+			var parent = this.panel.Parent;
+			this.panel.Parent = null;
+			this.panel = new FlowPanel()
+			{
+				WidthSizingMode = SizingMode.Fill,
+				HeightSizingMode = SizingMode.Fill,
+				FlowDirection = ControlFlowDirection.SingleTopToBottom,
+				CanScroll = true,
+			};
+			this.panel.Parent = parent;
+			if (this.itemTextures.ContainsKey(63172) == false)
+			{
+				this.itemTextures.Add(63172, AsyncTexture2D.FromAssetId(63172));
+			}
+
+			
+			var filtered = this.adviceList;//.Where(item => item.has_source(this.characterName)).ToList();
+			this.panel.Title = this.characterName;
+			FlowPanel currentPanel = new FlowPanel()
+			{
+				WidthSizingMode = SizingMode.AutoSize,
+				HeightSizingMode = SizingMode.AutoSize,
+				FlowDirection = ControlFlowDirection.LeftToRight,
+				CanScroll = false,
+			};
+			int i = 0;
+			int index = 0;
+			foreach (var bag in this.bags)
+			{
+				if (this.itemTextures.ContainsKey(bag.get_icon_id()) == false)
+				{
+					this.itemTextures.Add(bag.get_icon_id(), AsyncTexture2D.FromAssetId(bag.get_icon_id()));
+				}
+				var wrapper = new ViewContainer()
+				{
+					WidthSizingMode = SizingMode.Fill,
+					Height = 128,
+					ShowBorder = true,
+					Parent = this.panel,
+				};
+				wrapper.Icon = this.itemTextures[bag.get_icon_id()];
+				wrapper.Title = bag.get_name();
+				wrapper.BasicTooltipText = bag.get_advice();
+				wrapper.Show();
+
+				currentPanel = new FlowPanel()
+				{
+					WidthSizingMode = SizingMode.Fill,
+					HeightSizingMode = SizingMode.Fill,
+					FlowDirection = ControlFlowDirection.LeftToRight,
+					CanScroll = true,
+				};
+				currentPanel.Show();
+				currentPanel.Parent = wrapper;
+				i = 0;
+				while(i!=bag.get_size())
+				{
+					var advice = this.adviceList[index];
+					if (this.itemTextures.ContainsKey(advice.get_iconId()) == false)
+					{
+						this.itemTextures.Add(advice.get_iconId(), AsyncTexture2D.FromAssetId(advice.get_iconId()));
+					}
+					var container = new Image()
+					{
+						Texture = this.itemTextures[advice.get_iconId()],
+						Size = new Point(40, 40),
+						Location = new Point(0, 0),
+						Parent = currentPanel
+					};
+					var text = advice.print(this.characterName);
+					if (text != null)
+					{
+						container.BasicTooltipText = text;
+					}
+					i++;
+					index++;
+				}
+			}
+			
+		}
+
+		private void build_inventory_panel()
+		{
+			var parent = this.panel.Parent;
+			this.panel.Parent = null;
+			this.panel = new FlowPanel()
+			{
+				WidthSizingMode = SizingMode.Fill,
+				HeightSizingMode = SizingMode.Fill,
+				FlowDirection = ControlFlowDirection.LeftToRight,
+				CanScroll = true,
+			};
+			this.panel.Parent = parent;
+			if (this.itemTextures.ContainsKey(63172) == false)
+			{
+				this.itemTextures.Add(63172, AsyncTexture2D.FromAssetId(63172));
+			}
+
+			
+			var filtered = this.adviceList;//.Where(item => item.has_source(this.characterName)).ToList();
+			this.panel.Title = this.characterName;
+			foreach (var advice in filtered)
+			{
+				if (this.itemTextures.ContainsKey(advice.get_iconId()) == false)
+				{
+					this.itemTextures.Add(advice.get_iconId(), AsyncTexture2D.FromAssetId(advice.get_iconId()));
+				}
+
+
+				var container = new Image()
+				{
+					Texture = this.itemTextures[advice.get_iconId()],
+					Size = new Point(40, 40),
+					Location = new Point(0, 0),
+					Parent = this.panel
+				};
+				var text =  advice.print(this.characterName);
+				if(text!=null)
+				{
+					container.BasicTooltipText = text;
+				}
+				
+				container.Show();
+			}
+		}
+
+
+
+
+		protected override void Build(Container buildPanel)
+		{
+			this.panel.Parent = buildPanel;
+			//this.panel.Click+= (s, e) => { this.showBags ^= true; this.update(this.itemTextures, this.adviceList, this.characterName, this.bags); };
+			this.build_inventory_panel();
+		}
+	}
+
+
 	class ItemView : View
 	{
 		FlowPanel panel = new FlowPanel()
@@ -43,6 +221,13 @@ namespace views
 			Location = new Point(0, 0)
 		};
 		string hunt = "";
+
+		public void set_search_string(string input_)
+		{
+			var sanitized = input_.Trim(new char[] { '[', ']', ' ', '	', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' }).TrimEnd(new char[] { 's' });
+			this.search.Text = sanitized;
+			this.update(true);
+		}
 
 		
 
@@ -70,19 +255,20 @@ namespace views
 			};
 		}
 
-		private void build_item_panels(Panel rootPanel)
+		private void build_item_panels(Panel rootPanel, bool chatCode)
 		{
 			this.search.Parent = rootPanel;
 			this.search.TextChanged += handle_text_input;
 			foreach (var item in this.combinedAdvice)
 			{
-				if (string.IsNullOrEmpty(this.hunt) || Magic.get_local_name(item.get_id()).ToLower().Contains(this.hunt.ToLower()))//||item.get_chatlink()==hunt
+				//Magic.get_local_name(item.get_id()).ToLower().Contains(this.hunt.ToLower())
+				if (string.IsNullOrEmpty(this.hunt) || Magic.get_local_name(item.get_id()).ToLower().Contains(this.hunt.ToLower())|| (chatCode&&Magic.string_similar(this.hunt.ToLower(), Magic.get_local_name(item.get_id()).ToLower()))==true) //this.hunt.ToLower().Split(' ').Any(subString => Magic.get_local_name(item.get_id()).ToLower().Contains(subString)))//||item.get_chatlink()==hunt
 				{
-					if (this.itemTextures.ContainsKey(item.get_id()) == false)
+					if (this.itemTextures.ContainsKey(item.get_iconId()) == false)
 					{
-						this.itemTextures.Add(item.get_id(), AsyncTexture2D.FromAssetId(item.get_iconId()));//Magic.jsonLut.itemLut[item.get_id()].IconId
+						this.itemTextures.Add(item.get_iconId(), AsyncTexture2D.FromAssetId(item.get_iconId()));//Magic.jsonLut.itemLut[item.get_id()].IconId
 					}
-					var container = GetStandardPanel(rootPanel, Magic.get_local_name(item.get_id()), item.get_id());
+					var container = GetStandardPanel(rootPanel, Magic.get_local_name(item.get_id()), item.get_iconId());
 					container.BasicTooltipText = item.ToString();
 					container.Show();
 				}
@@ -90,12 +276,12 @@ namespace views
 			}
 		}
 
-		public void update()
+		public void update(bool chatCode = false)
 		{
 			this.search.Parent = null;
 			this.panel.ClearChildren();
 			this.search.TextChanged -= handle_text_input;
-			this.build_item_panels(panel);
+			this.build_item_panels(panel, chatCode);
 			this.panel.Title = "Gw2stacks";
 
 		}
@@ -109,10 +295,12 @@ namespace views
 		protected override void Build(Container buildPanel)
 		{
 			this.panel.Parent = buildPanel;
-			build_item_panels(this.panel);
+			this.panel.ClearChildren();
+			build_item_panels(this.panel, false);
 		}
 	}
 
+	/*
 	class CharacterView : View
 	{
 		string characterName = "";
@@ -122,7 +310,7 @@ namespace views
 		{
 			WidthSizingMode = SizingMode.Fill,
 			HeightSizingMode = SizingMode.Fill,
-			FlowDirection = ControlFlowDirection.SingleTopToBottom,
+			FlowDirection = ControlFlowDirection.LeftToRight,
 			CanScroll = true,
 		};
 
@@ -147,24 +335,24 @@ namespace views
 				CanScroll = true,
 			};
 			this.panel.Parent = parent;
-			var filtered = this.adviceList.Where(item => item.sources.Any(source => source.place==this.characterName)).ToList();
+			var filtered = this.adviceList.Where(item => item.has_source(this.characterName)).ToList();
 			this.panel.Title = this.characterName;
 			foreach (var advice in filtered)
 			{
-				if (this.itemTextures.ContainsKey(advice.get_id()) == false)
+				if (this.itemTextures.ContainsKey(advice.get_iconId()) == false)
 				{
-					this.itemTextures.Add(advice.get_id(), AsyncTexture2D.FromAssetId(advice.get_iconId()));
+					this.itemTextures.Add(advice.get_iconId(), AsyncTexture2D.FromAssetId(advice.get_iconId()));
 				}
 				
 
 				var container = new Image()
 				{
-					Texture = this.itemTextures[advice.get_id()],
+					Texture = this.itemTextures[advice.get_iconId()],
 					Size = new Point(40, 40),
 					Location = new Point(0, 0),
 					Parent = this.panel
 				};
-				container.BasicTooltipText = Magic.get_local_name(advice.get_id()) + "\n"+advice.ToString();
+				container.BasicTooltipText = advice.print(this.characterName);
 				container.Show();
 			}
 		}
@@ -177,7 +365,7 @@ namespace views
 			this.panel.Parent = buildPanel;
 			build_inventory_panel();
 		}
-	}
+	}*/
 
 
 	class IgnoredView : View
@@ -238,21 +426,25 @@ namespace views
 			search.TextChanged += handle_text_input;
 			foreach (var item in this.excludedItemIds)
 			{
+
+				var icon = 0;
 				if (string.IsNullOrEmpty(this.hunt) || Magic.get_local_name(item).ToLower().Contains(this.hunt.ToLower()))
 				{
 					if (this.itemTextures.ContainsKey(item) == false)
 					{
-						if(Magic.jsonLut.itemLut.ContainsKey(item)==true)
+						if (Magic.jsonLut.itemLut.ContainsKey(item) == true)
 						{
-							this.itemTextures.Add(item, AsyncTexture2D.FromAssetId(Magic.jsonLut.itemLut[item].IconId));
+							icon = Magic.jsonLut.itemLut[item].IconId;
+							this.itemTextures.Add(icon, AsyncTexture2D.FromAssetId(icon));
 						}
 						else
 						{
-							this.itemTextures.Add(item, AsyncTexture2D.FromAssetId(Magic.unknown.IconId));
+							icon = Magic.unknown.IconId;
+							this.itemTextures.Add(icon, AsyncTexture2D.FromAssetId(icon));
 						}
-						
+
 					}
-					var container = GetStandardPanel(rootPanel, Magic.get_local_name(item), item);
+					var container = GetStandardPanel(rootPanel, Magic.get_local_name(item), icon);
 
 					container.Click += (s, e) => this.callback(item, false);
 					container.Show();
@@ -352,16 +544,16 @@ namespace views
 			search.Show();
 			foreach (var item in this.adviceList)
 			{
-				if (this.itemTextures.ContainsKey(item.get_id()) == false)
+				if (this.itemTextures.ContainsKey(item.get_iconId()) == false)
 				{
-					this.itemTextures.Add(item.get_id(), AsyncTexture2D.FromAssetId(item.get_iconId()));
+					this.itemTextures.Add(item.get_iconId(), AsyncTexture2D.FromAssetId(item.get_iconId()));
 				}
 
 				if (string.IsNullOrEmpty(this.hunt)||Magic.get_local_name(item.get_id()).ToLower().Contains(this.hunt.ToLower()))
 				{
 					if(this.excludedItemIds.Contains(item.get_id())==false)
 					{
-						var container = GetStandardPanel(rootPanel, Magic.get_local_name(item.get_id()), item.get_id());
+						var container = GetStandardPanel(rootPanel, Magic.get_local_name(item.get_id()), item.get_iconId());
 						container.BasicTooltipText = item.ToString();
 						if (this.ignoredItemsFlag == true)
 						{

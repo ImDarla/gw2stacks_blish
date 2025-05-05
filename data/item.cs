@@ -176,21 +176,21 @@ namespace gw2stacks_blish.data
 				
 				List<Source> stackableSources = this.get_partial_stacks(materialStorageSize_);
 				
-				int numberOfPartialStacks = 0;//Convert.ToUInt64(stackableSources.Count());//TODO fix partial stack count only giving 1 PER SOURCE PLACE
+				int numberOfPartialStacks = 0;
 				int partialStackAmount = 0;
 				foreach (var source in stackableSources)
 				{
-					numberOfPartialStacks++;//= Convert.ToInt32(source.stacks);
+					numberOfPartialStacks++;
 					partialStackAmount += Convert.ToInt32(source.count%250);
 				}
-				//UInt64 numberOfConsolidatedStacks = Convert.ToUInt64(Math.Ceiling(Convert.ToDouble(partialStackAmount) / Convert.ToDouble(250)));
+				
 				int remainder = 0;
 				int numberOfConsolidatedStacks =Math.DivRem(partialStackAmount, 250, out remainder);
 				if(remainder!=0)
 				{
 					numberOfConsolidatedStacks++;
 				}
-				//(stackableSources.Count>1)&&
+				
 				if ((numberOfPartialStacks > 1) && (numberOfPartialStacks > numberOfConsolidatedStacks))
 				{
 					return stackableSources;
@@ -234,12 +234,12 @@ namespace gw2stacks_blish.data
 
     class ItemForDisplay
     {
-        private Item item;
-        public List<Source> sources;
-        public string advice;
+        protected Item item;
+		protected List<Source> sources;
+		protected string advice;
 		
 
-        public ItemForDisplay(Item item_, List<Source> sources_=null, string advice_ = null)
+        public ItemForDisplay(Item item_, List<Source> sources_, string advice_)
         {
             this.item = item_;
             if(sources_==null)
@@ -254,9 +254,26 @@ namespace gw2stacks_blish.data
 			
         }
 
-		public virtual string get_source_string()
+		public virtual bool applicable_to_id(int id_)
+		{
+			if(this.item.itemId==id_)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		protected virtual string get_source_string()
 		{
 			return "Sources:\n" + string.Join("\n", this.sources);
+		}
+
+		public virtual bool has_source(string place_)
+		{
+			return this.sources.Any(source => source.place == place_);
 		}
 
 		public virtual int get_id()
@@ -274,22 +291,34 @@ namespace gw2stacks_blish.data
 			return this.item.iconId;
 		}
 
+		public virtual string get_advice(string name = null)
+		{
+			return Magic.get_current_translated_string(this.advice);
+		}
+
+		public virtual string print(string name= null)
+		{
+			return Magic.get_local_name(this.get_id()) + "\n" + this.item.total_count() + "x\n" + Magic.get_current_translated_string(this.advice) + "\n" + this.get_source_string();
+		}
+
 		public override string ToString()
 		{
-            //return (this.item?.ToString() ?? " ") + " " + (this.advice?.ToString() ?? " ") + " " + string.Join(", ", this.sources);
-			return this.item.total_count()+"x\n"+Magic.get_current_translated_string(this.advice) + "\n" + this.get_source_string();
+			//return (this.item?.ToString() ?? " ") + " " + (this.advice?.ToString() ?? " ") + " " + string.Join(", ", this.sources);
+			return this.print();
 		}
     }
 
 	class GobblerItemForDisplay : ItemForDisplay
 	{
 		public int gobblerId;
-		public GobblerItemForDisplay(Item item_, List<Source> sources_ = null, string advice_ = null, int id_ = 0) :base(item_, sources_, advice_)
+		public GobblerItemForDisplay(Item item_, List<Source> sources_ , string advice_ , int gobblerId_ ) :base(item_, sources_, advice_)
 		{
-			this.gobblerId = id_;
+			this.gobblerId = gobblerId_;
 		}
 
-		public override string get_source_string()
+		
+
+		protected override string get_source_string()
 		{
 			return "Sources:\n" + string.Join("\n", this.sources);
 		}
@@ -304,60 +333,323 @@ namespace gw2stacks_blish.data
 			return base.get_iconId();
 		}
 
+		public override string get_advice(string name = null)
+		{
+			return Magic.get_current_translated_string(this.advice) + " (" + Magic.get_local_name(this.gobblerId) + ")";
+		}
+
+		public override string print(string name = null)
+		{
+			return Magic.get_local_name(this.get_id()) + "\n" + Magic.get_current_translated_string(this.advice) + " (" + Magic.get_local_name(this.gobblerId) + ")" + "\n" + this.get_source_string();
+		}
+
 		public override string ToString()
 		{
-			return Magic.get_current_translated_string(this.advice) + " (" + Magic.get_local_name(this.gobblerId) + ")" + "\n" + this.get_source_string();
+			return this.print();
 		}
 	}
 
-	class MiscCraftingItemForDisplay : ItemForDisplay
+	class CraftingItemForDisplay : ItemForDisplay
 	{
-		public int outputId;
-		public MiscCraftingItemForDisplay(Item item_, List<Source> sources_ = null, string advice_ = null, int outputId_ = 0): base(item_, sources_, advice_)
+		Dictionary<RecipeIngredient, List<Source>> ingredientSources;
+		int outputId = 0;
+
+		public CraftingItemForDisplay(Item item_,	Dictionary<RecipeIngredient, List<Source>> ingredientSources_, string advice_, int outputId_) : base(item_, null, advice_)
 		{
+			this.ingredientSources = ingredientSources_;
 			this.outputId = outputId_;
 		}
 
-		private string get_ingredient_names()
+		public override bool applicable_to_id(int id_)
+		{
+			foreach (var id in this.ingredientSources.Keys)
+			{
+				if (id.ItemId == id_)
+				{
+					return true;
+				}
+				
+			}
+			return false;
+		}
+		public string get_ingredient_string(string place_ =null)
 		{
 			string output = "";
-			foreach (var item in Magic.craftingMiscAdvices[this.outputId].idCountMapping)
+			foreach (var item in this.ingredientSources)
 			{
-				output += "0-" + item.Value + "x " + Magic.get_local_name(item.Key) + "\n";
+				List<Source> sufficientCount = new List<Source>();
+				var sorted =item.Value.OrderByDescending(source => source.count).ToList();
+				if(place_!=null)
+				{
+					var index = sorted.FindIndex(source => source.place == place_);
+					if(index!=-1)
+					{
+						sufficientCount.Add(sorted.ElementAt(index));
+						sorted.RemoveAt(index);
+					}
+					else
+					{
+						sufficientCount.Add(sorted.First());
+						sorted.RemoveAt(0);
+					}
+					
+				}
+				else
+				{
+					sufficientCount.Add(sorted.First());
+					sorted.RemoveAt(0);
+				}
+					
+				while(sufficientCount.Sum(questionable => Convert.ToInt32(questionable.count))<item.Key.Count)
+				{
+					sufficientCount.Add(sorted.First());
+					sorted.RemoveAt(0);
+				}
+				var partial = item.Key.Count+ " x " + Magic.get_local_name(item.Key.ItemId) + " / " + string.Join("\n", sufficientCount)+"\n";
+				output += partial;
 			}
 			return output;
 		}
 
-		public override string get_source_string()
+		public override bool has_source(string place_)
 		{
-			return "Sources:\n" + string.Join("\n", this.sources);
+			
+			bool result = false;
+			foreach (var list in this.ingredientSources.Values)
+			{
+				result |= list.Any(source => source.place == place_);
+			}
+			return result;
 		}
 
 		public override int get_id()
 		{
-			return this.outputId;
-		}
-
-		public override int get_iconId()
-		{
-			if(Magic.jsonLut.itemLut.ContainsKey(outputId))
-			{
-				return Magic.jsonLut.itemLut[this.outputId].IconId;
-			}
-			else
-			{
-				return Magic.unknown.IconId;
-			}
+			return this.item.itemId;
 		}
 
 		public override string get_chatlink()
 		{
-			return Magic.jsonLut.itemLut[this.outputId].chatLink;
+			return this.item.chatLink;
+		}
+
+		public override int get_iconId()
+		{
+			return this.item.iconId;
+		}
+
+		public override string get_advice(string name = null)
+		{
+			return Magic.get_current_translated_string(this.advice) +": "+Magic.get_local_name(outputId)+ "\n" + this.get_ingredient_string(name);
+		}
+
+		public override string print(string name = null)
+		{
+			return Magic.get_local_name(this.get_id()) + "\n" + this.item.total_count() + "x\n" + Magic.get_current_translated_string(this.advice)+ ": " + Magic.get_local_name(outputId) +"\n" + this.get_ingredient_string(name);
 		}
 
 		public override string ToString()
 		{
-			return Magic.get_current_translated_string(this.advice) + " (" + Magic.get_local_name(this.outputId) + ")" + "\n" + this.get_ingredient_names()+this.get_source_string();
+
+			return this.print();
+		}
+	}
+
+	
+	class MiscCraftingItemForDisplay : ItemForDisplay
+	{
+		private Item output;
+		public MiscCraftingItemForDisplay(Item input_, Item output_, string advice_ ): base(input_, null, advice_)
+		{
+			this.output = output_;
+		}
+
+		public override bool applicable_to_id(int id_)
+		{
+			return this.item.itemId==id_;
+		}
+		protected override string get_source_string()
+		{
+			return "Sources:\n" + string.Join("\n", this.item.sources);
+		}
+
+		public override string print(string name = null)
+		{
+			//TODO add character based filtering
+			return Magic.get_local_name(this.get_id()) + "\n" + Magic.get_current_translated_string(this.advice) + " (" + Magic.get_local_name(this.output.itemId) + ")" + "\n"  + this.get_source_string();
+		}
+
+		public override string ToString()
+		{
+			return this.print();
+		}
+	}
+
+	class CombinedItemForDisplay: ItemForDisplay
+	{
+		List<ItemForDisplay> itemList;
+		
+		public CombinedItemForDisplay(Item item_, List<ItemForDisplay> itemList_): base(item_, null, null)
+		{
+			this.itemList = itemList_;
+		}
+
+		public override bool applicable_to_id(int id_)
+		{
+			if (this.item.itemId == id_)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		protected override string get_source_string()
+		{
+			//List<Source> combinedSources;
+			return "Sources:\n" + string.Join("\n", this.item.sources);
+		}
+
+		public override int get_id()
+		{
+			return base.get_id();
+		}
+
+		public override int get_iconId()
+		{
+			return base.get_iconId();
+		}
+
+		public override string print(string name = null)
+		{
+			if(this.itemList.Any()==false)
+			{
+				return Magic.get_local_name(this.get_id()) + "\n" + Magic.get_current_translated_string("No current advice") + "\n" + this.get_source_string();
+			}
+
+			string combinedAdvice = "";
+			foreach (var item in this.itemList)
+			{
+				combinedAdvice += item.get_advice() + "\n";
+				//
+			}
+
+			return Magic.get_local_name(this.get_id()) + "\n" + combinedAdvice+ "\n" + this.get_source_string();
+		}
+
+		public override string ToString()
+		{
+			return this.print();
+		}
+	}
+
+
+
+	class EmptyItemForDisplay : ItemForDisplay
+	{
+		public EmptyItemForDisplay() : base(Magic.borealTrunk, new List<Source>(), null)
+		{
+
+		}
+		protected override string get_source_string()
+		{
+			return null;
+		}
+
+		public override bool applicable_to_id(int id_)
+		{
+			return false;
+		}
+
+		public override int get_id()
+		{
+			return 0;
+		}
+
+		public override int get_iconId()
+		{
+			return 1414044;
+		}
+
+		public override string print(string name = null)
+		{
+			return null;
+		}
+
+		public override string ToString()
+		{
+			return null;
+		}
+	
+	}
+
+	class BagForDisplay
+	{
+		private int? id;
+		private int size;
+		public BagForDisplay(int? id_, int size_)
+		{
+			this.id = id_;
+			this.size = size_;
+		}
+
+		public int get_id()
+		{
+			if(this.id==null)
+			{
+				return 0;
+			}
+			else
+			{
+				return this.id.Value;
+			}
+		}
+
+		public int get_size()
+		{
+			return this.size;
+		}
+
+		public int get_icon_id()
+		{
+			if(this.id==null)
+			{
+				return 1414044;
+			}
+			else
+			{
+				return Magic.jsonLut.itemLut[this.id.Value].IconId;
+			}
+		}
+
+		public string get_name()
+		{
+			if (this.id == null)
+			{
+				return "Empty";//TODO add translation
+			}
+			else
+			{
+				return Magic.get_local_name(this.id.Value);
+			}
+		}
+
+		public string get_advice()
+		{
+			if(this.size==0)
+			{
+				return Magic.get_current_translated_string("Equip:") + " (" + Magic.get_local_name(Magic.silkBag.itemId) + ")";
+			}
+
+			if(this.size<18)
+			{
+				return Magic.get_current_translated_string("Upgrade these bags to") +" ("+ Magic.get_local_name(Magic.silkBag.itemId)+")";
+			}
+			else
+			{
+				return Magic.get_current_translated_string("Potentially replace these bags with") + " (" + Magic.get_local_name(Magic.borealTrunk.itemId)+")";
+			}
 		}
 	}
     class Gobbler
@@ -433,7 +725,25 @@ namespace gw2stacks_blish.data
 		}
 	}
 
-	
+	class InventoryBagSlot
+	{
+		private int id;
+		private int size;
+		public InventoryBagSlot(int id_, int size_=0)
+		{
+			this.id = id_;
+			this.size = size_;
+		}
+
+		public int get_size()
+		{
+			return this.size;
+		}
+		public int get_id()
+		{
+			return this.id;
+		}
+	}
 
 	class ItemInfo
 	{
@@ -471,7 +781,7 @@ namespace gw2stacks_blish.data
 	{
 		public int Id;
 		public int Type;//ApiEnum<RecipeType> Type;
-
+		
 		public IReadOnlyList<RecipeIngredient> Ingredients;
 		public int OutputItemId;
 		public List<int> Disciplines;//ApiFlags<CraftingDisciplineType> Disciplines;

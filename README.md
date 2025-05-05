@@ -34,9 +34,15 @@ Searching for an item name filters for this specific item. This feature ignores 
 
 ![Item Feature](Docs/itemFeature.png)
 
-![Character Feature](Docs/characterFeature.png)
+![Character Feature](Docs/inventoryRecreation.png)
 
 Optional item and character based UI types can be chosen in the module settings.
+
+In the settings additional functionality for both of these UI types can be enabled.
+
+For the character based UI this is a switch between compact or normal inventory view as seen in the vanilla game.
+
+For the item based UI this is an optinal shortcut to filter for an item directly.
 
 ## Notes
 Korean and spanish translations are currently missing and will revert to english for the advice sections
@@ -52,7 +58,7 @@ Despite only requesting the minimum amount of information to the API, the bucket
 
 >The module seems frozen
 
-On error the module will remove its UI elements and log the error to the Blishhud log file of the session.
+On error the module will close any of its windows, lock the icon and log the error to the tooltip text of the icon and to the Blishhud log file of the session.
 
 >Inventory changes are not displayed
 
@@ -61,6 +67,5 @@ The api requests have an internal cooldown of 5 minutes to reduce this modules i
 ## Planned features
 
 * Translation for spanish (and potentially korean) users
-* expansion of ingored feature to other windows
-* click based advice
-* chat code search
+* expansion of ignored feature to other windows
+* expansion of advice to include non exotic/rare gear and containers

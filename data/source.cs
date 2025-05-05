@@ -30,27 +30,46 @@ namespace gw2stacks_blish.data
 		}
 	}
 
+	/*
 	class IngredientSource : Source
 	{
 		public int id;
+		public List<Source> source;
 
-
-		public IngredientSource(UInt64 count_, int id_):base(count_, null)
+		public IngredientSource(UInt64 count_, int id_, List<Source> source_):base(count_, null)
 		{
 
 			this.id = id_;
-
+			this.source = source_;
 		}
 
-
+		public  string get_source_string()
+		{
+			Source max = null;
+			foreach (var item in this.source)
+			{
+				if (max == null)
+				{
+					max = item;
+				}
+				else
+				{
+					if (max.count < item.count)
+					{
+						max = item;
+					}
+				}
+			}
+			return max.ToString();
+		}
 
 		public override string ToString()
 		{
-			return this.count.ToString() + " x " + Magic.get_local_name(this.id);
+			return this.count.ToString() + " x " + Magic.get_local_name(this.id)+"/"+this.get_source_string();
 		}
 	}
-
-
+	
+	
 	class RecipeSource:Source
 	{
 		public List<IngredientSource> recipeIngredients;
@@ -70,6 +89,6 @@ namespace gw2stacks_blish.data
 		}
 	}
 
-	
+	*/
 	
 }

@@ -130,6 +130,12 @@ namespace gw2stacks_blish.data
 			{StorageType.sharedStorage, "Shared Storage" }
 		};
 
+		public static Dictionary<int, CraftingMiscAdvice> craftingMiscAdvices = new Dictionary<int, CraftingMiscAdvice>
+		{
+			{9251, new CraftingMiscAdvice( new Dictionary<int, int>{{ 20008, 1 }, { 8439, 1 }, { 19997, 1 }, { 49871, 1 }, {48951, 1 }, {37214, 1 }, {19999, 1 }, {49872, 1 }, {20006, 1 }, {8446, 1 } }, "Craft: ", 9251 ) },//Enchanted Reward Boost , {20001, 1 }, karma booster removed
+			{38050, new CraftingMiscAdvice( new Dictionary<int, int>{{ 20016, 1 }, { 20010, 1 }, { 20015, 1 }, { 20013, 1 } }, "Craft: ", 38050 ) }//Enchanted Combat Boost
+		};
+
 		public static Dictionary<string, string> englishToEnglish = new Dictionary<string, string>
 		{
 			
@@ -784,11 +790,6 @@ namespace gw2stacks_blish.data
 			100277, 100735
 		};
 
-		public static Dictionary<int,CraftingMiscAdvice> craftingMiscAdvices = new Dictionary<int, CraftingMiscAdvice>
-		{
-			{9251, new CraftingMiscAdvice( new Dictionary<int, int>{{ 20008, 1 }, { 8439, 1 }, { 19997, 1 }, { 49871, 1 }, {48951, 1 }, {37214, 1 }, {20001, 1 }, {19999, 1 }, {49872, 1 }, {20006, 1 }, {8446, 1 } }, "Craft: ", 9251 ) },//Enchanted Reward Boost
-			{38050, new CraftingMiscAdvice( new Dictionary<int, int>{{ 20016, 1 }, { 20010, 1 }, { 20015, 1 }, { 20013, 1 } }, "Craft: ", 38050 ) }//Enchanted Combat Boost
-		};
 		#endregion
 
 		#region function
@@ -827,6 +828,49 @@ namespace gw2stacks_blish.data
 		public static bool is_karma_item(int id_)
 		{
 			return karmaIds.Contains(id_);
+		}
+
+		public static int levenshtein_distance(ReadOnlySpan<char> left_, ReadOnlySpan<char> right_)
+		{
+			if(left_.Length==0)
+			{
+				return right_.Length;
+			}
+			if(right_.Length==0)
+			{
+				return left_.Length;
+			}
+			if(left_[0]==right_[0])
+			{
+				return levenshtein_distance(left_.Slice(1), right_.Slice(1));
+			}
+			var a = levenshtein_distance(left_.Slice(1), right_);
+			var b = levenshtein_distance(left_, right_.Slice(1));
+			var c = levenshtein_distance(left_.Slice(1), right_.Slice(1));
+			return 1 + Math.Min(a, Math.Min(b,c));
+		}
+
+		public static bool string_similar(string left_, string right_)
+		{
+			var splitLeft = left_.Split(' ');
+			var splitRight = right_.Split(' ');
+			if(splitLeft.Count()!=splitRight.Count())
+			{
+				return false;
+			}
+			int result = 0;
+			foreach (var sub in splitLeft.Zip(splitRight, (leftSub, rightSub)=>levenshtein_distance(new ReadOnlySpan<char>(leftSub.ToCharArray()), new ReadOnlySpan<char>(rightSub.ToCharArray()))))
+			{
+				result += sub;
+			}
+			if(result<=5)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 		#endregion
 
@@ -981,8 +1025,10 @@ namespace gw2stacks_blish.data
 
 		public static  string get_current_translated_string(string tooltip_)
 		{
-			
-
+			if(tooltip_==null)
+			{
+				return null;
+			}
 			switch(currentLocale)
 			{
 				case Locale.English:
