@@ -22,45 +22,25 @@ using System.Text.RegularExpressions;
 
 namespace views
 {
-	class FullCharacterView: View
+	class InventoryItem : Control
 	{
-		string characterName = "";
-		Dictionary<int, AsyncTexture2D> itemTextures;
-		List<ItemForDisplay> adviceList;
-		List<BagForDisplay> bags;
-		bool showBags = false;
-		FlowPanel panel = new FlowPanel()
+		private AsyncTexture2D border;
+		public AsyncTexture2D Texture = new AsyncTexture2D();
+		public InventoryItem(Texture2D border_)
 		{
-			WidthSizingMode = SizingMode.Fill,
-			HeightSizingMode = SizingMode.Fill,
-			FlowDirection = ControlFlowDirection.LeftToRight,
-			CanScroll = true,
-		};
-
-		public void set_bag_flag(bool flag_)
-		{
-			this.showBags = flag_;
-			this.update(itemTextures, adviceList, characterName, bags);
+			this.border = border_;
 		}
-
-		public void update(Dictionary<int, AsyncTexture2D> itemTextures_, List<ItemForDisplay> items_, string name_, List<BagForDisplay> bags_)
+		
+		protected override void Paint(SpriteBatch spriteBatch_, Microsoft.Xna.Framework.Rectangle bounds_)
 		{
-			this.itemTextures = itemTextures_;
-			this.adviceList = items_;
-			this.characterName = name_;
-			this.bags = bags_;
-			if(this.showBags==true)
-			{
-				this.build_bag_inventory_panel();
-			}
-			else
-			{
-				this.build_inventory_panel();
-			}
-			
+			spriteBatch_.DrawOnCtrl(this, Texture, bounds_);
+			spriteBatch_.DrawOnCtrl(this, this.border, bounds_); //TODO fix missing sprite texture
 		}
+	}
 
-		private void build_bag_inventory_panel()
+	class FullCharacterBagView : FullCharacterView
+	{
+		protected override void build_inventory_panel()
 		{
 			var parent = this.panel.Parent;
 			this.panel.Parent = null;
@@ -77,7 +57,7 @@ namespace views
 				this.itemTextures.Add(63172, AsyncTexture2D.FromAssetId(63172));
 			}
 
-			
+
 			var filtered = this.adviceList;//.Where(item => item.has_source(this.characterName)).ToList();
 			this.panel.Title = this.characterName;
 			FlowPanel currentPanel = new FlowPanel()
@@ -98,7 +78,7 @@ namespace views
 				var wrapper = new ViewContainer()
 				{
 					WidthSizingMode = SizingMode.Fill,
-					Height = 128,
+					Height = 160,
 					ShowBorder = true,
 					Parent = this.panel,
 				};
@@ -112,12 +92,13 @@ namespace views
 					WidthSizingMode = SizingMode.Fill,
 					HeightSizingMode = SizingMode.Fill,
 					FlowDirection = ControlFlowDirection.LeftToRight,
+					ControlPadding = new Vector2(5, 5),
 					CanScroll = true,
 				};
 				currentPanel.Show();
 				currentPanel.Parent = wrapper;
 				i = 0;
-				while(i!=bag.get_size())
+				while (i != bag.get_size())
 				{
 					var advice = this.adviceList[index];
 					if (this.itemTextures.ContainsKey(advice.get_iconId()) == false)
@@ -127,7 +108,7 @@ namespace views
 					var container = new Image()
 					{
 						Texture = this.itemTextures[advice.get_iconId()],
-						Size = new Point(40, 40),
+						Size = new Point(45, 45),
 						Location = new Point(0, 0),
 						Parent = currentPanel
 					};
@@ -140,10 +121,44 @@ namespace views
 					index++;
 				}
 			}
+
+		}
+	}
+
+
+	class FullCharacterView: View
+	{
+		protected string characterName = "";
+		protected Dictionary<int, AsyncTexture2D> itemTextures = new Dictionary<int, AsyncTexture2D>();
+		protected List<ItemForDisplay> adviceList = new List<ItemForDisplay>();
+		protected List<BagForDisplay> bags = new List<BagForDisplay>();
+		protected AsyncTexture2D border = AsyncTexture2D.FromAssetId(683588);//(605003);
+		//protected bool showBags = false;
+		protected FlowPanel panel = new FlowPanel()
+		{
+			WidthSizingMode = SizingMode.Fill,
+			HeightSizingMode = SizingMode.Fill,
+			FlowDirection = ControlFlowDirection.LeftToRight,
+			CanScroll = true,
+		};
+
+		
+
+		public void update(List<ItemForDisplay> items_, string name_, List<BagForDisplay> bags_)
+		{
+			this.adviceList = items_;
+			this.characterName = name_;
+			this.bags = bags_;
+			this.panel.Children.ToList().ForEach(item => item.Dispose());
+			this.panel.ClearChildren();
+			this.build_inventory_panel();
+			
 			
 		}
 
-		private void build_inventory_panel()
+		
+
+		protected virtual void build_inventory_panel()
 		{
 			var parent = this.panel.Parent;
 			this.panel.Parent = null;
@@ -152,6 +167,7 @@ namespace views
 				WidthSizingMode = SizingMode.Fill,
 				HeightSizingMode = SizingMode.Fill,
 				FlowDirection = ControlFlowDirection.LeftToRight,
+				ControlPadding = new Vector2(5, 5),
 				CanScroll = true,
 			};
 			this.panel.Parent = parent;
@@ -170,14 +186,23 @@ namespace views
 					this.itemTextures.Add(advice.get_iconId(), AsyncTexture2D.FromAssetId(advice.get_iconId()));
 				}
 
-
+				
 				var container = new Image()
+				{
+					Texture = this.itemTextures[advice.get_iconId()],
+					Size = new Point(45, 45),
+					Location = new Point(0, 0),
+					Parent = this.panel
+				};
+				
+				/*
+				var container = new InventoryItem(border)
 				{
 					Texture = this.itemTextures[advice.get_iconId()],
 					Size = new Point(40, 40),
 					Location = new Point(0, 0),
 					Parent = this.panel
-				};
+				};*/
 				var text =  advice.print(this.characterName);
 				if(text!=null)
 				{
@@ -188,13 +213,18 @@ namespace views
 			}
 		}
 
-
+		public void set_values(Dictionary<int, AsyncTexture2D> itemTextures_)
+		{
+			this.itemTextures = itemTextures_;
+			//this.border = border_;
+		}
 
 
 		protected override void Build(Container buildPanel)
 		{
 			this.panel.Parent = buildPanel;
 			//this.panel.Click+= (s, e) => { this.showBags ^= true; this.update(this.itemTextures, this.adviceList, this.characterName, this.bags); };
+			//this.build_bag_inventory_panel();
 			this.build_inventory_panel();
 		}
 	}
@@ -300,74 +330,7 @@ namespace views
 		}
 	}
 
-	/*
-	class CharacterView : View
-	{
-		string characterName = "";
-		Dictionary<int, AsyncTexture2D> itemTextures;
-		List<ItemForDisplay> adviceList;
-		FlowPanel panel = new FlowPanel()
-		{
-			WidthSizingMode = SizingMode.Fill,
-			HeightSizingMode = SizingMode.Fill,
-			FlowDirection = ControlFlowDirection.LeftToRight,
-			CanScroll = true,
-		};
-
-		
-		public void update(Dictionary<int, AsyncTexture2D> itemTextures_, List<ItemForDisplay> items_, string names_)
-		{
-			this.itemTextures = itemTextures_;
-			this.adviceList = items_;
-			this.characterName = names_;
-			build_inventory_panel();
-		}
-
-		private void build_inventory_panel()
-		{
-			var parent = this.panel.Parent;
-			this.panel.Parent = null;
-			this.panel = new FlowPanel()
-			{
-				WidthSizingMode = SizingMode.Fill,
-				HeightSizingMode = SizingMode.Fill,
-				FlowDirection = ControlFlowDirection.LeftToRight,
-				CanScroll = true,
-			};
-			this.panel.Parent = parent;
-			var filtered = this.adviceList.Where(item => item.has_source(this.characterName)).ToList();
-			this.panel.Title = this.characterName;
-			foreach (var advice in filtered)
-			{
-				if (this.itemTextures.ContainsKey(advice.get_iconId()) == false)
-				{
-					this.itemTextures.Add(advice.get_iconId(), AsyncTexture2D.FromAssetId(advice.get_iconId()));
-				}
-				
-
-				var container = new Image()
-				{
-					Texture = this.itemTextures[advice.get_iconId()],
-					Size = new Point(40, 40),
-					Location = new Point(0, 0),
-					Parent = this.panel
-				};
-				container.BasicTooltipText = advice.print(this.characterName);
-				container.Show();
-			}
-		}
-
-		
-		
-
-		protected override void Build(Container buildPanel)
-		{
-			this.panel.Parent = buildPanel;
-			build_inventory_panel();
-		}
-	}*/
-
-
+	
 	class IgnoredView : View
 	{
 		FlowPanel panel =new FlowPanel()

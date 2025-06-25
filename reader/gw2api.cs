@@ -13,9 +13,6 @@ using System.Threading.Tasks;
 namespace gw2stacks_blish.reader
 {
     
-
-
-    
 	class Gw2Api
     {
      
@@ -30,6 +27,12 @@ namespace gw2stacks_blish.reader
 		private async Task<Account> get_account_name()
 		{
 			var response = await this.manager.Gw2ApiClient.V2.Account.GetAsync();
+			return response;
+		}
+
+		public async Task<IApiV2ObjectList<AccountLegendaryArmory>> get_legendary_armory()
+		{
+			var response = await this.manager.Gw2ApiClient.V2.Account.LegendaryArmory.GetAsync();
 			return response;
 		}
 

@@ -12,6 +12,568 @@ using System.Threading.Tasks;
 
 namespace gw2stacks_blish.data
 {
+	class Translation
+	{
+		public Translation()
+		{ }
+
+		public void add_translation(string english_, Dictionary<Locale, string> translation_)
+		{
+			this.englishToEnglish.Add(english_, translation_[Locale.English]);
+			this.englishToSpanish.Add(english_, translation_[Locale.Spanish]);
+			this.englishToKorean.Add(english_, translation_[Locale.Korean]);
+			this.englishToFrench.Add(english_, translation_[Locale.French]);
+			this.englishToChinese.Add(english_, translation_[Locale.Chinese]);
+			this.englishToGerman.Add(english_, translation_[Locale.German]);
+		}
+
+		public  Dictionary<string, string> englishToEnglish = new Dictionary<string, string>
+		{
+			
+			#region discipline names
+			{"Scribe", "Scribe" },
+			{"Tailor", "Tailor" },
+			{"Leatherworker", "Leatherworker" },
+			{"Weaponsmith", "Weaponsmith" },
+			{"Armorsmith", "Armorsmith" },
+			{"Artificer", "Artificer" },
+			{"Chef", "Chef" },
+			{"Jeweler", "Jeweler" },
+			{"Huntsman", "Huntsman" },
+			{"Unknown", "Unknown" },
+			#endregion
+			
+			#region miscAdvice
+			{"Transform Quartz Crystals into a Charged Quartz Crystal at a place of power.", "Transform Quartz Crystals into a Charged Quartz Crystal at a place of power." },
+			{"Sift through silky sand.", "Sift through silky sand." },
+			{"Craft 'Completed Aetherkey'.", "Craft 'Completed Aetherkey'." },
+			{"Consume to get War Supplies", "Consume to get War Supplies" },
+			{"Consume to get Mordrem parts which can be exchanged for map currency", "Consume to get Mordrem parts which can be exchanged for map currency" },
+			{"Convert to Bauble Bubble", "Convert to Bauble Bubble" },
+			{"Convert to Candy Corn Cob", "Convert to Candy Corn Cob" },
+			{"Convert to Jorbreaker", "Convert to Jorbreaker" },
+			#endregion
+			
+			#region gameplay advice
+			{ "Trade to get bounty for bandit leader.", "Trade to get bounty for bandit leader."},
+			{ "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner", "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner"},
+			{ "Use during a treasure hunt meta in Desert Highlands to spawn chests", "Use during a treasure hunt meta in Desert Highlands to spawn chests"},
+			{ "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys.", "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys."},
+			{ "Open a greater nightmare pod in the Silverwastes after completing meta.", "Open a greater nightmare pod in the Silverwastes after completing meta."},
+			{ "Use during breach event in Silverwastes.", "Use during breach event in Silverwastes."},
+			{ "Open Tarnished chest in Silverwastes.", "Open Tarnished chest in Silverwastes."},
+			{ "Open krait Sunken Chests to progress a Master Diver achievement.", "Open krait Sunken Chests to progress a Master Diver achievement."},
+			{ "Open chests in the Aetherpath of the Twilight Arbor dungeon.", "Open chests in the Aetherpath of the Twilight Arbor dungeon."},
+			{ "Complete this bounty.", "Complete this bounty."},
+			{ "Complete events in the Verdant Brink.", "Complete events in the Verdant Brink."},
+			{ "Complete events in the Auric Basin.", "Complete events in the Auric Basin."},
+			{ "Complete events in the Tangled Depths.", "Complete events in the Tangled Depths."},
+			{ "Contribute Spare Parts to kick off meta event in the Domain of Kourna.", "Contribute Spare Parts to kick off meta event in the Domain of Kourna."},
+			{ "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys.", "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys."},
+			{ "Use to unlock achievements (and play in Drizzlewood Coast)", "Use to unlock achievements (and play in Drizzlewood Coast)"},
+			{ "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done.", "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done."},
+			#endregion
+			
+			#region luck names
+			{"Essence of Luck (fine)", "Essence of Luck (fine)" },
+			{"Essence of Luck (masterwork)", "Essence of Luck (masterwork)" },
+			{"Essence of Luck (rare)", "Essence of Luck (rare)" },
+			{"Essence of Luck (exotic)", "Essence of Luck (exotic)" },
+			{"Essence of Luck (legendary)", "Essence of Luck (legendary)" },
+			#endregion
+
+			#region Model strings
+			{"Material Storage", "Material Storage" },
+			{"Bank Storage", "Bank Storage"},
+			{"Shared Storage", "Shared Storage" },
+			{"This item only has value as part of a collection.", "This item only has value as part of a collection." },//TODO check API response
+			{"Combine these items into stacks", "Combine these items into stacks" },
+			{"Sell these items to a vendor", "Sell these items to a vendor" },
+			{"Salvage these items", "Salvage these items" },
+			{"Sell these items on the TP", "Sell these items on the TP" },
+			{"Craft these items into higher luck tiers", "Craft these items into higher luck tiers" },
+			{"Delete these items", "Delete these items" },
+			{"Salvage Item","Salvage Item" }, //TODO check api response
+			{"Feed these items to gobblers", "Feed these items to gobblers" },
+			{"Consume these items for karma", "Consume these items for karma" },
+			{"Consume these items for unbound magic", "Consume these items for unbound magic" },
+			{"Consume these items for volatile magic", "Consume these items for volatile magic" },
+			{"Convert these items to LWS4 currency", "Convert these items to LWS4 currency" },
+			{"Craft these items", "Craft these items" },
+			#endregion
+
+			#region advice names
+			{"stack advice", "stack advice" },
+			{"vendor advice", "vendor advice" },
+			{"rare salvage advice", "rare salvage advice" },
+			{"craftable luck advice", "craftable luck advice" },
+			{"deletable advice", "deletable advice" },
+			{"salvagable  advice", "salvagable  advice" },
+			{"consumable  advice", "consumable  advice" },
+			{"gobbler  advice", "gobbler  advice" },
+			{"karma consumable  advice", "karma consumable  advice" },
+			{"crafting advice", "crafting advice" },
+			{"living world advice", "living world advice" },
+			{"miscellaneous  advice", "miscellaneous  advice" }
+			#endregion
+		};
+
+		public  Dictionary<string, string> englishToSpanish = new Dictionary<string, string>
+		{
+			
+			#region discipline names
+			{"Scribe", "Scribe" },
+			{"Tailor", "Tailor" },
+			{"Leatherworker", "Leatherworker" },
+			{"Weaponsmith", "Weaponsmith" },
+			{"Armorsmith", "Armorsmith" },
+			{"Artificer", "Artificer" },
+			{"Chef", "Chef" },
+			{"Jeweler", "Jeweler" },
+			{"Huntsman", "Huntsman" },
+			{"Unknown", "Unknown" },
+			#endregion
+			
+			#region miscAdvice
+			{"Transform Quartz Crystals into a Charged Quartz Crystal at a place of power.", "Transform Quartz Crystals into a Charged Quartz Crystal at a place of power." },
+			{"Sift through silky sand.", "Sift through silky sand." },
+			{"Craft 'Completed Aetherkey'.", "Craft 'Completed Aetherkey'." },
+			{"Consume to get War Supplies", "Consume to get War Supplies" },
+			{"Consume to get Mordrem parts which can be exchanged for map currency", "Consume to get Mordrem parts which can be exchanged for map currency" },
+			{"Convert to Bauble Bubble", "Convert to Bauble Bubble" },
+			{"Convert to Candy Corn Cob", "Convert to Candy Corn Cob" },
+			{"Convert to Jorbreaker", "Convert to Jorbreaker" },
+			#endregion
+			
+			#region gameplay advice
+			{ "Trade to get bounty for bandit leader.", "Trade to get bounty for bandit leader."},
+			{ "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner", "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner"},
+			{ "Use during a treasure hunt meta in Desert Highlands to spawn chests", "Use during a treasure hunt meta in Desert Highlands to spawn chests"},
+			{ "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys.", "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys."},
+			{ "Open a greater nightmare pod in the Silverwastes after completing meta.", "Open a greater nightmare pod in the Silverwastes after completing meta."},
+			{ "Use during breach event in Silverwastes.", "Use during breach event in Silverwastes."},
+			{ "Open Tarnished chest in Silverwastes.", "Open Tarnished chest in Silverwastes."},
+			{ "Open krait Sunken Chests to progress a Master Diver achievement.", "Open krait Sunken Chests to progress a Master Diver achievement."},
+			{ "Open chests in the Aetherpath of the Twilight Arbor dungeon.", "Open chests in the Aetherpath of the Twilight Arbor dungeon."},
+			{ "Complete this bounty.", "Complete this bounty."},
+			{ "Complete events in the Verdant Brink.", "Complete events in the Verdant Brink."},
+			{ "Complete events in the Auric Basin.", "Complete events in the Auric Basin."},
+			{ "Complete events in the Tangled Depths.", "Complete events in the Tangled Depths."},
+			{ "Contribute Spare Parts to kick off meta event in the Domain of Kourna.", "Contribute Spare Parts to kick off meta event in the Domain of Kourna."},
+			{ "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys.", "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys."},
+			{ "Use to unlock achievements (and play in Drizzlewood Coast)", "Use to unlock achievements (and play in Drizzlewood Coast)"},
+			{ "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done.", "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done."},
+			#endregion
+			
+			#region luck names
+			{"Essence of Luck (fine)", "Essence of Luck (fine)" },
+			{"Essence of Luck (masterwork)", "Essence of Luck (masterwork)" },
+			{"Essence of Luck (rare)", "Essence of Luck (rare)" },
+			{"Essence of Luck (exotic)", "Essence of Luck (exotic)" },
+			{"Essence of Luck (legendary)", "Essence of Luck (legendary)" },
+			#endregion
+
+			#region Model strings
+			{"Material Storage", "Material Storage" },
+			{"Bank Storage", "Bank Storage"},
+			{"Shared Storage", "Shared Storage" },
+			{"This item only has value as part of a collection.", "This item only has value as part of a collection." },//TODO check API response
+			{"Combine these items into stacks", "Combine these items into stacks" },
+			{"Sell these items to a vendor", "Sell these items to a vendor" },
+			{"Salvage these items", "Salvage these items" },
+			{"Sell these items on the TP", "Sell these items on the TP" },
+			{"Craft these items into higher luck tiers", "Craft these items into higher luck tiers" },
+			{"Delete these items", "Delete these items" },
+			{"Salvage Item","Salvage Item" }, //TODO check api response
+			{"Feed these items to gobblers", "Feed these items to gobblers" },
+			{"Consume these items for karma", "Consume these items for karma" },
+			{"Consume these items for unbound magic", "Consume these items for unbound magic" },
+			{"Consume these items for volatile magic", "Consume these items for volatile magic" },
+			{"Convert these items to LWS4 currency", "Convert these items to LWS4 currency" },
+			{"Craft these items", "Craft these items" },
+			#endregion
+
+			#region advice names
+			{"stack advice", "stack advice" },
+			{"vendor advice", "vendor advice" },
+			{"rare salvage advice", "rare salvage advice" },
+			{"craftable luck advice", "craftable luck advice" },
+			{"deletable advice", "deletable advice" },
+			{"salvagable  advice", "salvagable  advice" },
+			{"consumable  advice", "consumable  advice" },
+			{"gobbler  advice", "gobbler  advice" },
+			{"karma consumable  advice", "karma consumable  advice" },
+			{"crafting advice", "crafting advice" },
+			{"living world advice", "living world advice" },
+			{"miscellaneous  advice", "miscellaneous  advice" }
+			#endregion
+		};
+
+		public  Dictionary<string, string> englishToGerman = new Dictionary<string, string>
+		{
+			
+			#region discipline names
+			{"Scribe", "Schreiber" },
+			{"Tailor", "Schneider" },
+			{"Leatherworker", "Lederer" },
+			{"Weaponsmith", "Waffenschmied" },
+			{"Armorsmith", "Rüstungsschmied" },
+			{"Artificer", "Konstrukteur" },
+			{"Chef", "Chefkoch" },
+			{"Jeweler", "Juwelier" },
+			{"Huntsman", "Waidmann" },
+			{"Unknown", "Unknown" },
+			#endregion
+			
+			#region miscAdvice
+			{"Transform Quartz Crystals into a Charged Quartz Crystal at a place of power.", "Verwandelt 25 Quarzkristalle an einem Ort der Macht in einen aufgeladenen Quarzkristall." },
+			{"Sift through silky sand.", "Siebt 10 Haufen Sand für die Chance, etwas Wertvolles zu finden." },
+			{"Craft 'Completed Aetherkey'.", "Kombiniere zu 'Kompletter Ätherschlüssel'" },
+			{"Consume to get War Supplies", "Verwende für Kriegs-Vorräte" },
+			{"Consume to get Mordrem parts which can be exchanged for map currency", "Verwende für Mordrem Teile und tausche diese geben Banditen-Wappen ein" },
+			{"Convert to Bauble Bubble", "Kombiniere zu Sphären-Blase" },
+			{"Convert to Candy Corn Cob", "Kombiniere zu Candy-Corn-Kolben" },
+			{"Convert to Jorbreaker", "Kombiniere zu Stück Jorzipan" },
+			#endregion
+			
+			#region gameplay advice
+			{ "Trade to get bounty for bandit leader.", "Tausche für Banditeanführer Kopfgeldaufträge ein."},
+			{ "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner", "Habe es beim besiegen eines Banditenanführers im Inventar um einen Lengendären Banditen-Henker zu beschwören"},
+			{ "Use during a treasure hunt meta in Desert Highlands to spawn chests", "Verwende im Wüsten-Hochland in der Schatzsuche"},
+			{ "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys.", "Verwende in der Silberwüste um Kisten auszugraben. Das Öffnen benötigt einen Schlüssel."},
+			{ "Open a greater nightmare pod in the Silverwastes after completing meta.", "Verwende in der Silberwüste um die Größere Albtraum-Kapsel zu öffnen"},
+			{ "Use during breach event in Silverwastes.", "Verwende während dem Bresche Event in der Silberwüste"},
+			{ "Open Tarnished chest in Silverwastes.", "Öffne Angelaufene Kisten in der Silberwüste."},
+			{ "Open krait Sunken Chests to progress a Master Diver achievement.", "Öffne Versunkene Krait Kisten."},
+			{ "Open chests in the Aetherpath of the Twilight Arbor dungeon.", "Öffne Kisten im Ätherpfad des Zwielichtgartens"},
+			{ "Complete this bounty.", "Absolviere diese Kopfgeldjagd."},
+			{ "Complete events in the Verdant Brink.", "Absolviere Events in der Grasgrünen Schwelle"},
+			{ "Complete events in the Auric Basin.", "Absolviere Events in dem Güldenen Talkessel."},
+			{ "Complete events in the Tangled Depths.", "Absolviere Events in den Verschlungenen Tiefen"},
+			{ "Contribute Spare Parts to kick off meta event in the Domain of Kourna.", "Verwende um das Meta Event in Kourna zu starten"},
+			{ "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys.", "Verwende in der Nieselwald-Küste um Kisten zu finden. Das Öffnen benötigt einen Schlüssel."},
+			{ "Use to unlock achievements (and play in Drizzlewood Coast)", "Verwende um Erfolge zu erlangen( oder spiele in der Nieselwald-Küste)"},
+			{ "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done.", "Verwende um Erfolge zu erlangen( oder spiele in der Nieselwald-Küste)}, oder lösche sie."},
+			#endregion
+			
+			#region luck names
+			{"Essence of Luck (fine)", "Essenz des Glücks (Edel)" },
+			{"Essence of Luck (masterwork)", "Essenz des Glücks (Meisterwerk)" },
+			{"Essence of Luck (rare)", "Essenz des Glücks (Selten)" },
+			{"Essence of Luck (exotic)", "Essenz des Glücks (Exotisch)" },
+			{"Essence of Luck (legendary)", "Essenz des Glücks (Legendär)" },
+			#endregion
+
+			#region Model strings
+			{"Material Storage", "Materialienlager" },
+			{"Bank Storage", "Bank"},
+			{"Shared Storage", "Gemeinsamer Inventarplatz" },
+			{"This item only has value as part of a collection.", "Dieser Gegenstand ist nur als Teil einer Sammlung wertvoll." },//TODO check API response
+			{"Combine these items into stacks", "Stapel diese Items" },
+			{"Sell these items to a vendor", "Verkaufe diese Items an einen NPC Händler" },
+			{"Salvage these items", "Verwerte diese Items wieder" },
+			{"Sell these items on the TP", "Verkaufe diese Items auf dem Handelsposten" },
+			{"Craft these items into higher luck tiers", "Bau höhere Glücksessenzen " },
+			{"Delete these items", "Zerstöre diese Items" },
+			{"Salvage Item","Wiederverwertbarer Gegenstand" }, //TODO check api response
+			{"Feed these items to gobblers", "Füttere diese Items an einen Konvertierer" },
+			{"Consume these items for karma", "Verwende diese Items für Karma" },
+			{"Consume these items for unbound magic", "Verwende diese Items für Entfesselte Magie" },
+			{"Consume these items for volatile magic", "Verwende diese Items für Flüchtige Magie" },
+			{"Convert these items to LWS4 currency", "Tausche diese Items into LW4 Währungen" },
+			{"Craft these items", "Baue diese Items" },
+			#endregion
+
+			#region advice names
+			{"stack advice", "stapel vorschlag" },
+			{"vendor advice", "verkäufer vorschlag" },
+			{"rare salvage advice", "seltener wiedervertbarer vorschlag" },
+			{"craftable luck advice", "baubare glückessenz vorschlag" },
+			{"deletable advice", "zerstörbarer vorschlag" },
+			{"salvagable  advice", "wiedervertbarer vorschlag" },
+			{"consumable  advice", "verwendbarer vorschlag" },
+			{"gobbler  advice", "konvertierer vorschlag" },
+			{"karma consumable  advice", "karma verwendbarer vorschlag" },
+			{"crafting advice", "bau vorschlag" },
+			{"living world advice", "lebendige welt vorschlag" },
+			{"miscellaneous  advice", "diverser vorschlag" }
+			#endregion
+		};
+
+		public  Dictionary<string, string> englishToFrench = new Dictionary<string, string>
+		{
+			
+			#region discipline names
+			{"Scribe", "Scribe" },
+			{"Tailor", "Tailor" },
+			{"Leatherworker", "Leatherworker" },
+			{"Weaponsmith", "Weaponsmith" },
+			{"Armorsmith", "Armorsmith" },
+			{"Artificer", "Artificer" },
+			{"Chef", "Chef" },
+			{"Jeweler", "Jeweler" },
+			{"Huntsman", "Huntsman" },
+			{"Unknown", "Unknown" },
+			#endregion
+			
+			#region miscAdvice
+			{"Transform Quartz Crystals into a Charged Quartz Crystal at a place of power.", "Transform Quartz Crystals into a Charged Quartz Crystal at a place of power." },
+			{"Sift through silky sand.", "Sift through silky sand." },
+			{"Craft 'Completed Aetherkey'.", "Craft 'Completed Aetherkey'." },
+			{"Consume to get War Supplies", "Consume to get War Supplies" },
+			{"Consume to get Mordrem parts which can be exchanged for map currency", "Consume to get Mordrem parts which can be exchanged for map currency" },
+			{"Convert to Bauble Bubble", "Convert to Bauble Bubble" },
+			{"Convert to Candy Corn Cob", "Convert to Candy Corn Cob" },
+			{"Convert to Jorbreaker", "Convert to Jorbreaker" },
+			#endregion
+			
+			#region gameplay advice
+			{ "Trade to get bounty for bandit leader.", "Trade to get bounty for bandit leader."},
+			{ "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner", "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner"},
+			{ "Use during a treasure hunt meta in Desert Highlands to spawn chests", "Use during a treasure hunt meta in Desert Highlands to spawn chests"},
+			{ "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys.", "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys."},
+			{ "Open a greater nightmare pod in the Silverwastes after completing meta.", "Open a greater nightmare pod in the Silverwastes after completing meta."},
+			{ "Use during breach event in Silverwastes.", "Use during breach event in Silverwastes."},
+			{ "Open Tarnished chest in Silverwastes.", "Open Tarnished chest in Silverwastes."},
+			{ "Open krait Sunken Chests to progress a Master Diver achievement.", "Open krait Sunken Chests to progress a Master Diver achievement."},
+			{ "Open chests in the Aetherpath of the Twilight Arbor dungeon.", "Open chests in the Aetherpath of the Twilight Arbor dungeon."},
+			{ "Complete this bounty.", "Complete this bounty."},
+			{ "Complete events in the Verdant Brink.", "Complete events in the Verdant Brink."},
+			{ "Complete events in the Auric Basin.", "Complete events in the Auric Basin."},
+			{ "Complete events in the Tangled Depths.", "Complete events in the Tangled Depths."},
+			{ "Contribute Spare Parts to kick off meta event in the Domain of Kourna.", "Contribute Spare Parts to kick off meta event in the Domain of Kourna."},
+			{ "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys.", "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys."},
+			{ "Use to unlock achievements (and play in Drizzlewood Coast)", "Use to unlock achievements (and play in Drizzlewood Coast)"},
+			{ "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done.", "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done."},
+			#endregion
+			
+			#region luck names
+			{"Essence of Luck (fine)", "Essence of Luck (fine)" },
+			{"Essence of Luck (masterwork)", "Essence of Luck (masterwork)" },
+			{"Essence of Luck (rare)", "Essence of Luck (rare)" },
+			{"Essence of Luck (exotic)", "Essence of Luck (exotic)" },
+			{"Essence of Luck (legendary)", "Essence of Luck (legendary)" },
+			#endregion
+
+			#region Model strings
+			{"Material Storage", "Material Storage" },
+			{"Bank Storage", "Bank Storage"},
+			{"Shared Storage", "Shared Storage" },
+			{"This item only has value as part of a collection.", "This item only has value as part of a collection." },//TODO check API response
+			{"Combine these items into stacks", "Combine these items into stacks" },
+			{"Sell these items to a vendor", "Sell these items to a vendor" },
+			{"Salvage these items", "Salvage these items" },
+			{"Sell these items on the TP", "Sell these items on the TP" },
+			{"Craft these items into higher luck tiers", "Craft these items into higher luck tiers" },
+			{"Delete these items", "Delete these items" },
+			{"Salvage Item","Salvage Item" }, //TODO check api response
+			{"Feed these items to gobblers", "Feed these items to gobblers" },
+			{"Consume these items for karma", "Consume these items for karma" },
+			{"Consume these items for unbound magic", "Consume these items for unbound magic" },
+			{"Consume these items for volatile magic", "Consume these items for volatile magic" },
+			{"Convert these items to LWS4 currency", "Convert these items to LWS4 currency" },
+			{"Craft these items", "Craft these items" },
+			#endregion
+
+			#region advice names
+			{"stack advice", "stack advice" },
+			{"vendor advice", "vendor advice" },
+			{"rare salvage advice", "rare salvage advice" },
+			{"craftable luck advice", "craftable luck advice" },
+			{"deletable advice", "deletable advice" },
+			{"salvagable  advice", "salvagable  advice" },
+			{"consumable  advice", "consumable  advice" },
+			{"gobbler  advice", "gobbler  advice" },
+			{"karma consumable  advice", "karma consumable  advice" },
+			{"crafting advice", "crafting advice" },
+			{"living world advice", "living world advice" },
+			{"miscellaneous  advice", "miscellaneous  advice" }
+			#endregion
+		};
+
+		public  Dictionary<string, string> englishToKorean = new Dictionary<string, string>
+		{
+			
+			#region discipline names
+			{"Scribe", "Scribe" },
+			{"Tailor", "Tailor" },
+			{"Leatherworker", "Leatherworker" },
+			{"Weaponsmith", "Weaponsmith" },
+			{"Armorsmith", "Armorsmith" },
+			{"Artificer", "Artificer" },
+			{"Chef", "Chef" },
+			{"Jeweler", "Jeweler" },
+			{"Huntsman", "Huntsman" },
+			{"Unknown", "Unknown" },
+			#endregion
+			
+			#region miscAdvice
+			{"Transform Quartz Crystals into a Charged Quartz Crystal at a place of power.", "Transform Quartz Crystals into a Charged Quartz Crystal at a place of power." },
+			{"Sift through silky sand.", "Sift through silky sand." },
+			{"Craft 'Completed Aetherkey'.", "Craft 'Completed Aetherkey'." },
+			{"Consume to get War Supplies", "Consume to get War Supplies" },
+			{"Consume to get Mordrem parts which can be exchanged for map currency", "Consume to get Mordrem parts which can be exchanged for map currency" },
+			{"Convert to Bauble Bubble", "Convert to Bauble Bubble" },
+			{"Convert to Candy Corn Cob", "Convert to Candy Corn Cob" },
+			{"Convert to Jorbreaker", "Convert to Jorbreaker" },
+			#endregion
+			
+			#region gameplay advice
+			{ "Trade to get bounty for bandit leader.", "Trade to get bounty for bandit leader."},
+			{ "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner", "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner"},
+			{ "Use during a treasure hunt meta in Desert Highlands to spawn chests", "Use during a treasure hunt meta in Desert Highlands to spawn chests"},
+			{ "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys.", "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys."},
+			{ "Open a greater nightmare pod in the Silverwastes after completing meta.", "Open a greater nightmare pod in the Silverwastes after completing meta."},
+			{ "Use during breach event in Silverwastes.", "Use during breach event in Silverwastes."},
+			{ "Open Tarnished chest in Silverwastes.", "Open Tarnished chest in Silverwastes."},
+			{ "Open krait Sunken Chests to progress a Master Diver achievement.", "Open krait Sunken Chests to progress a Master Diver achievement."},
+			{ "Open chests in the Aetherpath of the Twilight Arbor dungeon.", "Open chests in the Aetherpath of the Twilight Arbor dungeon."},
+			{ "Complete this bounty.", "Complete this bounty."},
+			{ "Complete events in the Verdant Brink.", "Complete events in the Verdant Brink."},
+			{ "Complete events in the Auric Basin.", "Complete events in the Auric Basin."},
+			{ "Complete events in the Tangled Depths.", "Complete events in the Tangled Depths."},
+			{ "Contribute Spare Parts to kick off meta event in the Domain of Kourna.", "Contribute Spare Parts to kick off meta event in the Domain of Kourna."},
+			{ "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys.", "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys."},
+			{ "Use to unlock achievements (and play in Drizzlewood Coast)", "Use to unlock achievements (and play in Drizzlewood Coast)"},
+			{ "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done.", "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done."},
+			#endregion
+			
+			#region luck names
+			{"Essence of Luck (fine)", "Essence of Luck (fine)" },
+			{"Essence of Luck (masterwork)", "Essence of Luck (masterwork)" },
+			{"Essence of Luck (rare)", "Essence of Luck (rare)" },
+			{"Essence of Luck (exotic)", "Essence of Luck (exotic)" },
+			{"Essence of Luck (legendary)", "Essence of Luck (legendary)" },
+			#endregion
+
+			#region Model strings
+			{"Material Storage", "Material Storage" },
+			{"Bank Storage", "Bank Storage"},
+			{"Shared Storage", "Shared Storage" },
+			{"This item only has value as part of a collection.", "This item only has value as part of a collection." },//TODO check API response
+			{"Combine these items into stacks", "Combine these items into stacks" },
+			{"Sell these items to a vendor", "Sell these items to a vendor" },
+			{"Salvage these items", "Salvage these items" },
+			{"Sell these items on the TP", "Sell these items on the TP" },
+			{"Craft these items into higher luck tiers", "Craft these items into higher luck tiers" },
+			{"Delete these items", "Delete these items" },
+			{"Salvage Item","Salvage Item" }, //TODO check api response
+			{"Feed these items to gobblers", "Feed these items to gobblers" },
+			{"Consume these items for karma", "Consume these items for karma" },
+			{"Consume these items for unbound magic", "Consume these items for unbound magic" },
+			{"Consume these items for volatile magic", "Consume these items for volatile magic" },
+			{"Convert these items to LWS4 currency", "Convert these items to LWS4 currency" },
+			{"Craft these items", "Craft these items" },
+			#endregion
+
+			#region advice names
+			{"stack advice", "stack advice" },
+			{"vendor advice", "vendor advice" },
+			{"rare salvage advice", "rare salvage advice" },
+			{"craftable luck advice", "craftable luck advice" },
+			{"deletable advice", "deletable advice" },
+			{"salvagable  advice", "salvagable  advice" },
+			{"consumable  advice", "consumable  advice" },
+			{"gobbler  advice", "gobbler  advice" },
+			{"karma consumable  advice", "karma consumable  advice" },
+			{"crafting advice", "crafting advice" },
+			{"living world advice", "living world advice" },
+			{"miscellaneous  advice", "miscellaneous  advice" }
+			#endregion
+		};
+
+		public  Dictionary<string, string> englishToChinese = new Dictionary<string, string>
+		{
+			
+			#region discipline names
+			{"Scribe", "Scribe" },
+			{"Tailor", "Tailor" },
+			{"Leatherworker", "Leatherworker" },
+			{"Weaponsmith", "Weaponsmith" },
+			{"Armorsmith", "Armorsmith" },
+			{"Artificer", "Artificer" },
+			{"Chef", "Chef" },
+			{"Jeweler", "Jeweler" },
+			{"Huntsman", "Huntsman" },
+			{"Unknown", "Unknown" },
+			#endregion
+			
+			#region miscAdvice
+			{"Transform Quartz Crystals into a Charged Quartz Crystal at a place of power.", "Transform Quartz Crystals into a Charged Quartz Crystal at a place of power." },
+			{"Sift through silky sand.", "Sift through silky sand." },
+			{"Craft 'Completed Aetherkey'.", "Craft 'Completed Aetherkey'." },
+			{"Consume to get War Supplies", "Consume to get War Supplies" },
+			{"Consume to get Mordrem parts which can be exchanged for map currency", "Consume to get Mordrem parts which can be exchanged for map currency" },
+			{"Convert to Bauble Bubble", "Convert to Bauble Bubble" },
+			{"Convert to Candy Corn Cob", "Convert to Candy Corn Cob" },
+			{"Convert to Jorbreaker", "Convert to Jorbreaker" },
+			#endregion
+			
+			#region gameplay advice
+			{ "Trade to get bounty for bandit leader.", "Trade to get bounty for bandit leader."},
+			{ "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner", "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner"},
+			{ "Use during a treasure hunt meta in Desert Highlands to spawn chests", "Use during a treasure hunt meta in Desert Highlands to spawn chests"},
+			{ "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys.", "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys."},
+			{ "Open a greater nightmare pod in the Silverwastes after completing meta.", "Open a greater nightmare pod in the Silverwastes after completing meta."},
+			{ "Use during breach event in Silverwastes.", "Use during breach event in Silverwastes."},
+			{ "Open Tarnished chest in Silverwastes.", "Open Tarnished chest in Silverwastes."},
+			{ "Open krait Sunken Chests to progress a Master Diver achievement.", "Open krait Sunken Chests to progress a Master Diver achievement."},
+			{ "Open chests in the Aetherpath of the Twilight Arbor dungeon.", "Open chests in the Aetherpath of the Twilight Arbor dungeon."},
+			{ "Complete this bounty.", "Complete this bounty."},
+			{ "Complete events in the Verdant Brink.", "Complete events in the Verdant Brink."},
+			{ "Complete events in the Auric Basin.", "Complete events in the Auric Basin."},
+			{ "Complete events in the Tangled Depths.", "Complete events in the Tangled Depths."},
+			{ "Contribute Spare Parts to kick off meta event in the Domain of Kourna.", "Contribute Spare Parts to kick off meta event in the Domain of Kourna."},
+			{ "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys.", "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys."},
+			{ "Use to unlock achievements (and play in Drizzlewood Coast)", "Use to unlock achievements (and play in Drizzlewood Coast)"},
+			{ "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done.", "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done."},
+			#endregion
+			
+			#region luck names
+			{"Essence of Luck (fine)", "Essence of Luck (fine)" },
+			{"Essence of Luck (masterwork)", "Essence of Luck (masterwork)" },
+			{"Essence of Luck (rare)", "Essence of Luck (rare)" },
+			{"Essence of Luck (exotic)", "Essence of Luck (exotic)" },
+			{"Essence of Luck (legendary)", "Essence of Luck (legendary)" },
+			#endregion
+
+			#region Model strings
+			{"Material Storage", "Material Storage" },
+			{"Bank Storage", "Bank Storage"},
+			{"Shared Storage", "Shared Storage" },
+			{"This item only has value as part of a collection.", "This item only has value as part of a collection." },//TODO check API response
+			{"Combine these items into stacks", "Combine these items into stacks" },
+			{"Sell these items to a vendor", "Sell these items to a vendor" },
+			{"Salvage these items", "Salvage these items" },
+			{"Sell these items on the TP", "Sell these items on the TP" },
+			{"Craft these items into higher luck tiers", "Craft these items into higher luck tiers" },
+			{"Delete these items", "Delete these items" },
+			{"Salvage Item","Salvage Item" }, //TODO check api response
+			{"Feed these items to gobblers", "Feed these items to gobblers" },
+			{"Consume these items for karma", "Consume these items for karma" },
+			{"Consume these items for unbound magic", "Consume these items for unbound magic" },
+			{"Consume these items for volatile magic", "Consume these items for volatile magic" },
+			{"Convert these items to LWS4 currency", "Convert these items to LWS4 currency" },
+			{"Craft these items", "Craft these items" },
+			#endregion
+
+			#region advice names
+			{"stack advice", "stack advice" },
+			{"vendor advice", "vendor advice" },
+			{"rare salvage advice", "rare salvage advice" },
+			{"craftable luck advice", "craftable luck advice" },
+			{"deletable advice", "deletable advice" },
+			{"salvagable  advice", "salvagable  advice" },
+			{"consumable  advice", "consumable  advice" },
+			{"gobbler  advice", "gobbler  advice" },
+			{"karma consumable  advice", "karma consumable  advice" },
+			{"crafting advice", "crafting advice" },
+			{"living world advice", "living world advice" },
+			{"miscellaneous  advice", "miscellaneous  advice" }
+			#endregion
+		};
+	}
+
 	class Magic
 	{
 		#region variables
@@ -23,6 +585,7 @@ namespace gw2stacks_blish.data
 		public static LUT jsonLut = null;
 		public static localeLut localeItemNamesLut = null;
 		public static Logger log = null;
+		public static Translation translation= new Translation();
 		public static ItemInfo unknown = new ItemInfo()
 		{
 			Id = 0,
@@ -136,551 +699,7 @@ namespace gw2stacks_blish.data
 			{38050, new CraftingMiscAdvice( new Dictionary<int, int>{{ 20016, 1 }, { 20010, 1 }, { 20015, 1 }, { 20013, 1 } }, "Craft: ", 38050 ) }//Enchanted Combat Boost
 		};
 
-		public static Dictionary<string, string> englishToEnglish = new Dictionary<string, string>
-		{
-			
-			#region discipline names
-			{"Scribe", "Scribe" },
-			{"Tailor", "Tailor" },
-			{"Leatherworker", "Leatherworker" },
-			{"Weaponsmith", "Weaponsmith" },
-			{"Armorsmith", "Armorsmith" },
-			{"Artificer", "Artificer" },
-			{"Chef", "Chef" },
-			{"Jeweler", "Jeweler" },
-			{"Huntsman", "Huntsman" },
-			{"Unknown", "Unknown" },
-			#endregion
-			
-			#region miscAdvice
-			{"Transform Quartz Crystals into a Charged Quartz Crystal at a place of power.", "Transform Quartz Crystals into a Charged Quartz Crystal at a place of power." },
-			{"Sift through silky sand.", "Sift through silky sand." },
-			{"Craft 'Completed Aetherkey'.", "Craft 'Completed Aetherkey'." },
-			{"Consume to get War Supplies", "Consume to get War Supplies" },
-			{"Consume to get Mordrem parts which can be exchanged for map currency", "Consume to get Mordrem parts which can be exchanged for map currency" },
-			{"Convert to Bauble Bubble", "Convert to Bauble Bubble" },
-			{"Convert to Candy Corn Cob", "Convert to Candy Corn Cob" },
-			{"Convert to Jorbreaker", "Convert to Jorbreaker" },
-			#endregion
-			
-			#region gameplay advice
-			{ "Trade to get bounty for bandit leader.", "Trade to get bounty for bandit leader."},
-			{ "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner", "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner"},
-			{ "Use during a treasure hunt meta in Desert Highlands to spawn chests", "Use during a treasure hunt meta in Desert Highlands to spawn chests"},
-			{ "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys.", "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys."},
-			{ "Open a greater nightmare pod in the Silverwastes after completing meta.", "Open a greater nightmare pod in the Silverwastes after completing meta."},
-			{ "Use during breach event in Silverwastes.", "Use during breach event in Silverwastes."},
-			{ "Open Tarnished chest in Silverwastes.", "Open Tarnished chest in Silverwastes."},
-			{ "Open krait Sunken Chests to progress a Master Diver achievement.", "Open krait Sunken Chests to progress a Master Diver achievement."},
-			{ "Open chests in the Aetherpath of the Twilight Arbor dungeon.", "Open chests in the Aetherpath of the Twilight Arbor dungeon."},
-			{ "Complete this bounty.", "Complete this bounty."},
-			{ "Complete events in the Verdant Brink.", "Complete events in the Verdant Brink."},
-			{ "Complete events in the Auric Basin.", "Complete events in the Auric Basin."},
-			{ "Complete events in the Tangled Depths.", "Complete events in the Tangled Depths."},
-			{ "Contribute Spare Parts to kick off meta event in the Domain of Kourna.", "Contribute Spare Parts to kick off meta event in the Domain of Kourna."},
-			{ "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys.", "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys."},
-			{ "Use to unlock achievements (and play in Drizzlewood Coast)", "Use to unlock achievements (and play in Drizzlewood Coast)"},
-			{ "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done.", "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done."},
-			#endregion
-			
-			#region luck names
-			{"Essence of Luck (fine)", "Essence of Luck (fine)" },
-			{"Essence of Luck (masterwork)", "Essence of Luck (masterwork)" },
-			{"Essence of Luck (rare)", "Essence of Luck (rare)" },
-			{"Essence of Luck (exotic)", "Essence of Luck (exotic)" },
-			{"Essence of Luck (legendary)", "Essence of Luck (legendary)" },
-			#endregion
-
-			#region Model strings
-			{"Material Storage", "Material Storage" },
-			{"Bank Storage", "Bank Storage"},
-			{"Shared Storage", "Shared Storage" },
-			{"This item only has value as part of a collection.", "This item only has value as part of a collection." },//TODO check API response
-			{"Combine these items into stacks", "Combine these items into stacks" },
-			{"Sell these items to a vendor", "Sell these items to a vendor" },
-			{"Salvage these items", "Salvage these items" },
-			{"Sell these items on the TP", "Sell these items on the TP" },
-			{"Craft these items into higher luck tiers", "Craft these items into higher luck tiers" },
-			{"Delete these items", "Delete these items" },
-			{"Salvage Item","Salvage Item" }, //TODO check api response
-			{"Feed these items to gobblers", "Feed these items to gobblers" },
-			{"Consume these items for karma", "Consume these items for karma" },
-			{"Consume these items for unbound magic", "Consume these items for unbound magic" },
-			{"Consume these items for volatile magic", "Consume these items for volatile magic" },
-			{"Convert these items to LWS4 currency", "Convert these items to LWS4 currency" },
-			{"Craft these items", "Craft these items" },
-			#endregion
-
-			#region advice names
-			{"stack advice", "stack advice" },
-			{"vendor advice", "vendor advice" },
-			{"rare salvage advice", "rare salvage advice" },
-			{"craftable luck advice", "craftable luck advice" },
-			{"deletable advice", "deletable advice" },
-			{"salvagable  advice", "salvagable  advice" },
-			{"consumable  advice", "consumable  advice" },
-			{"gobbler  advice", "gobbler  advice" },
-			{"karma consumable  advice", "karma consumable  advice" },
-			{"crafting advice", "crafting advice" },
-			{"living world advice", "living world advice" },
-			{"miscellaneous  advice", "miscellaneous  advice" }
-			#endregion
-		};
-
-		public static Dictionary<string, string> englishToSpanish = new Dictionary<string, string>
-		{
-			
-			#region discipline names
-			{"Scribe", "Scribe" },
-			{"Tailor", "Tailor" },
-			{"Leatherworker", "Leatherworker" },
-			{"Weaponsmith", "Weaponsmith" },
-			{"Armorsmith", "Armorsmith" },
-			{"Artificer", "Artificer" },
-			{"Chef", "Chef" },
-			{"Jeweler", "Jeweler" },
-			{"Huntsman", "Huntsman" },
-			{"Unknown", "Unknown" },
-			#endregion
-			
-			#region miscAdvice
-			{"Transform Quartz Crystals into a Charged Quartz Crystal at a place of power.", "Transform Quartz Crystals into a Charged Quartz Crystal at a place of power." },
-			{"Sift through silky sand.", "Sift through silky sand." },
-			{"Craft 'Completed Aetherkey'.", "Craft 'Completed Aetherkey'." },
-			{"Consume to get War Supplies", "Consume to get War Supplies" },
-			{"Consume to get Mordrem parts which can be exchanged for map currency", "Consume to get Mordrem parts which can be exchanged for map currency" },
-			{"Convert to Bauble Bubble", "Convert to Bauble Bubble" },
-			{"Convert to Candy Corn Cob", "Convert to Candy Corn Cob" },
-			{"Convert to Jorbreaker", "Convert to Jorbreaker" },
-			#endregion
-			
-			#region gameplay advice
-			{ "Trade to get bounty for bandit leader.", "Trade to get bounty for bandit leader."},
-			{ "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner", "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner"},
-			{ "Use during a treasure hunt meta in Desert Highlands to spawn chests", "Use during a treasure hunt meta in Desert Highlands to spawn chests"},
-			{ "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys.", "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys."},
-			{ "Open a greater nightmare pod in the Silverwastes after completing meta.", "Open a greater nightmare pod in the Silverwastes after completing meta."},
-			{ "Use during breach event in Silverwastes.", "Use during breach event in Silverwastes."},
-			{ "Open Tarnished chest in Silverwastes.", "Open Tarnished chest in Silverwastes."},
-			{ "Open krait Sunken Chests to progress a Master Diver achievement.", "Open krait Sunken Chests to progress a Master Diver achievement."},
-			{ "Open chests in the Aetherpath of the Twilight Arbor dungeon.", "Open chests in the Aetherpath of the Twilight Arbor dungeon."},
-			{ "Complete this bounty.", "Complete this bounty."},
-			{ "Complete events in the Verdant Brink.", "Complete events in the Verdant Brink."},
-			{ "Complete events in the Auric Basin.", "Complete events in the Auric Basin."},
-			{ "Complete events in the Tangled Depths.", "Complete events in the Tangled Depths."},
-			{ "Contribute Spare Parts to kick off meta event in the Domain of Kourna.", "Contribute Spare Parts to kick off meta event in the Domain of Kourna."},
-			{ "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys.", "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys."},
-			{ "Use to unlock achievements (and play in Drizzlewood Coast)", "Use to unlock achievements (and play in Drizzlewood Coast)"},
-			{ "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done.", "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done."},
-			#endregion
-			
-			#region luck names
-			{"Essence of Luck (fine)", "Essence of Luck (fine)" },
-			{"Essence of Luck (masterwork)", "Essence of Luck (masterwork)" },
-			{"Essence of Luck (rare)", "Essence of Luck (rare)" },
-			{"Essence of Luck (exotic)", "Essence of Luck (exotic)" },
-			{"Essence of Luck (legendary)", "Essence of Luck (legendary)" },
-			#endregion
-
-			#region Model strings
-			{"Material Storage", "Material Storage" },
-			{"Bank Storage", "Bank Storage"},
-			{"Shared Storage", "Shared Storage" },
-			{"This item only has value as part of a collection.", "This item only has value as part of a collection." },//TODO check API response
-			{"Combine these items into stacks", "Combine these items into stacks" },
-			{"Sell these items to a vendor", "Sell these items to a vendor" },
-			{"Salvage these items", "Salvage these items" },
-			{"Sell these items on the TP", "Sell these items on the TP" },
-			{"Craft these items into higher luck tiers", "Craft these items into higher luck tiers" },
-			{"Delete these items", "Delete these items" },
-			{"Salvage Item","Salvage Item" }, //TODO check api response
-			{"Feed these items to gobblers", "Feed these items to gobblers" },
-			{"Consume these items for karma", "Consume these items for karma" },
-			{"Consume these items for unbound magic", "Consume these items for unbound magic" },
-			{"Consume these items for volatile magic", "Consume these items for volatile magic" },
-			{"Convert these items to LWS4 currency", "Convert these items to LWS4 currency" },
-			{"Craft these items", "Craft these items" },
-			#endregion
-
-			#region advice names
-			{"stack advice", "stack advice" },
-			{"vendor advice", "vendor advice" },
-			{"rare salvage advice", "rare salvage advice" },
-			{"craftable luck advice", "craftable luck advice" },
-			{"deletable advice", "deletable advice" },
-			{"salvagable  advice", "salvagable  advice" },
-			{"consumable  advice", "consumable  advice" },
-			{"gobbler  advice", "gobbler  advice" },
-			{"karma consumable  advice", "karma consumable  advice" },
-			{"crafting advice", "crafting advice" },
-			{"living world advice", "living world advice" },
-			{"miscellaneous  advice", "miscellaneous  advice" }
-			#endregion
-		};
-
-		public static Dictionary<string, string> englishToGerman = new Dictionary<string, string>
-		{
-			
-			#region discipline names
-			{"Scribe", "Schreiber" },
-			{"Tailor", "Schneider" },
-			{"Leatherworker", "Lederer" },
-			{"Weaponsmith", "Waffenschmied" },
-			{"Armorsmith", "Rüstungsschmied" },
-			{"Artificer", "Konstrukteur" },
-			{"Chef", "Chefkoch" },
-			{"Jeweler", "Juwelier" },
-			{"Huntsman", "Waidmann" },
-			{"Unknown", "Unknown" },
-			#endregion
-			
-			#region miscAdvice
-			{"Transform Quartz Crystals into a Charged Quartz Crystal at a place of power.", "Verwandelt 25 Quarzkristalle an einem Ort der Macht in einen aufgeladenen Quarzkristall." },
-			{"Sift through silky sand.", "Siebt 10 Haufen Sand für die Chance, etwas Wertvolles zu finden." },
-			{"Craft 'Completed Aetherkey'.", "Kombiniere zu 'Kompletter Ätherschlüssel'" },
-			{"Consume to get War Supplies", "Verwende für Kriegs-Vorräte" },
-			{"Consume to get Mordrem parts which can be exchanged for map currency", "Verwende für Mordrem Teile und tausche diese geben Banditen-Wappen ein" },
-			{"Convert to Bauble Bubble", "Kombiniere zu Sphären-Blase" },
-			{"Convert to Candy Corn Cob", "Kombiniere zu Candy-Corn-Kolben" },
-			{"Convert to Jorbreaker", "Kombiniere zu Stück Jorzipan" },
-			#endregion
-			
-			#region gameplay advice
-			{ "Trade to get bounty for bandit leader.", "Tausche für Banditeanführer Kopfgeldaufträge ein."},
-			{ "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner", "Habe es beim besiegen eines Banditenanführers im Inventar um einen Lengendären Banditen-Henker zu beschwören"},
-			{ "Use during a treasure hunt meta in Desert Highlands to spawn chests", "Verwende im Wüsten-Hochland in der Schatzsuche"},
-			{ "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys.", "Verwende in der Silberwüste um Kisten auszugraben. Das Öffnen benötigt einen Schlüssel."},
-			{ "Open a greater nightmare pod in the Silverwastes after completing meta.", "Verwende in der Silberwüste um die Größere Albtraum-Kapsel zu öffnen"},
-			{ "Use during breach event in Silverwastes.", "Verwende während dem Bresche Event in der Silberwüste"},
-			{ "Open Tarnished chest in Silverwastes.", "Öffne Angelaufene Kisten in der Silberwüste."},
-			{ "Open krait Sunken Chests to progress a Master Diver achievement.", "Öffne Versunkene Krait Kisten."},
-			{ "Open chests in the Aetherpath of the Twilight Arbor dungeon.", "Öffne Kisten im Ätherpfad des Zwielichtgartens"},
-			{ "Complete this bounty.", "Absolviere diese Kopfgeldjagd."},
-			{ "Complete events in the Verdant Brink.", "Absolviere Events in der Grasgrünen Schwelle"},
-			{ "Complete events in the Auric Basin.", "Absolviere Events in dem Güldenen Talkessel."},
-			{ "Complete events in the Tangled Depths.", "Absolviere Events in den Verschlungenen Tiefen"},
-			{ "Contribute Spare Parts to kick off meta event in the Domain of Kourna.", "Verwende um das Meta Event in Kourna zu starten"},
-			{ "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys.", "Verwende in der Nieselwald-Küste um Kisten zu finden. Das Öffnen benötigt einen Schlüssel."},
-			{ "Use to unlock achievements (and play in Drizzlewood Coast)", "Verwende um Erfolge zu erlangen( oder spiele in der Nieselwald-Küste)"},
-			{ "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done.", "Verwende um Erfolge zu erlangen( oder spiele in der Nieselwald-Küste)}, oder lösche sie."},
-			#endregion
-			
-			#region luck names
-			{"Essence of Luck (fine)", "Essenz des Glücks (Edel)" },
-			{"Essence of Luck (masterwork)", "Essenz des Glücks (Meisterwerk)" },
-			{"Essence of Luck (rare)", "Essenz des Glücks (Selten)" },
-			{"Essence of Luck (exotic)", "Essenz des Glücks (Exotisch)" },
-			{"Essence of Luck (legendary)", "Essenz des Glücks (Legendär)" },
-			#endregion
-
-			#region Model strings
-			{"Material Storage", "Materialienlager" },
-			{"Bank Storage", "Bank"},
-			{"Shared Storage", "Gemeinsamer Inventarplatz" },
-			{"This item only has value as part of a collection.", "Dieser Gegenstand ist nur als Teil einer Sammlung wertvoll." },//TODO check API response
-			{"Combine these items into stacks", "Stapel diese Items" },
-			{"Sell these items to a vendor", "Verkaufe diese Items an einen NPC Händler" },
-			{"Salvage these items", "Verwerte diese Items wieder" },
-			{"Sell these items on the TP", "Verkaufe diese Items auf dem Handelsposten" },
-			{"Craft these items into higher luck tiers", "Bau höhere Glücksessenzen " },
-			{"Delete these items", "Zerstöre diese Items" },
-			{"Salvage Item","Wiederverwertbarer Gegenstand" }, //TODO check api response
-			{"Feed these items to gobblers", "Füttere diese Items an einen Konvertierer" },
-			{"Consume these items for karma", "Verwende diese Items für Karma" },
-			{"Consume these items for unbound magic", "Verwende diese Items für Entfesselte Magie" },
-			{"Consume these items for volatile magic", "Verwende diese Items für Flüchtige Magie" },
-			{"Convert these items to LWS4 currency", "Tausche diese Items into LW4 Währungen" },
-			{"Craft these items", "Baue diese Items" },
-			#endregion
-
-			#region advice names
-			{"stack advice", "stapel vorschlag" },
-			{"vendor advice", "verkäufer vorschlag" },
-			{"rare salvage advice", "seltener wiedervertbarer vorschlag" },
-			{"craftable luck advice", "baubare glückessenz vorschlag" },
-			{"deletable advice", "zerstörbarer vorschlag" },
-			{"salvagable  advice", "wiedervertbarer vorschlag" },
-			{"consumable  advice", "verwendbarer vorschlag" },
-			{"gobbler  advice", "konvertierer vorschlag" },
-			{"karma consumable  advice", "karma verwendbarer vorschlag" },
-			{"crafting advice", "bau vorschlag" },
-			{"living world advice", "lebendige welt vorschlag" },
-			{"miscellaneous  advice", "diverser vorschlag" }
-			#endregion
-		};
-
-		public static Dictionary<string, string> englishToFrench = new Dictionary<string, string>
-		{
-			
-			#region discipline names
-			{"Scribe", "Scribe" },
-			{"Tailor", "Tailor" },
-			{"Leatherworker", "Leatherworker" },
-			{"Weaponsmith", "Weaponsmith" },
-			{"Armorsmith", "Armorsmith" },
-			{"Artificer", "Artificer" },
-			{"Chef", "Chef" },
-			{"Jeweler", "Jeweler" },
-			{"Huntsman", "Huntsman" },
-			{"Unknown", "Unknown" },
-			#endregion
-			
-			#region miscAdvice
-			{"Transform Quartz Crystals into a Charged Quartz Crystal at a place of power.", "Transform Quartz Crystals into a Charged Quartz Crystal at a place of power." },
-			{"Sift through silky sand.", "Sift through silky sand." },
-			{"Craft 'Completed Aetherkey'.", "Craft 'Completed Aetherkey'." },
-			{"Consume to get War Supplies", "Consume to get War Supplies" },
-			{"Consume to get Mordrem parts which can be exchanged for map currency", "Consume to get Mordrem parts which can be exchanged for map currency" },
-			{"Convert to Bauble Bubble", "Convert to Bauble Bubble" },
-			{"Convert to Candy Corn Cob", "Convert to Candy Corn Cob" },
-			{"Convert to Jorbreaker", "Convert to Jorbreaker" },
-			#endregion
-			
-			#region gameplay advice
-			{ "Trade to get bounty for bandit leader.", "Trade to get bounty for bandit leader."},
-			{ "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner", "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner"},
-			{ "Use during a treasure hunt meta in Desert Highlands to spawn chests", "Use during a treasure hunt meta in Desert Highlands to spawn chests"},
-			{ "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys.", "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys."},
-			{ "Open a greater nightmare pod in the Silverwastes after completing meta.", "Open a greater nightmare pod in the Silverwastes after completing meta."},
-			{ "Use during breach event in Silverwastes.", "Use during breach event in Silverwastes."},
-			{ "Open Tarnished chest in Silverwastes.", "Open Tarnished chest in Silverwastes."},
-			{ "Open krait Sunken Chests to progress a Master Diver achievement.", "Open krait Sunken Chests to progress a Master Diver achievement."},
-			{ "Open chests in the Aetherpath of the Twilight Arbor dungeon.", "Open chests in the Aetherpath of the Twilight Arbor dungeon."},
-			{ "Complete this bounty.", "Complete this bounty."},
-			{ "Complete events in the Verdant Brink.", "Complete events in the Verdant Brink."},
-			{ "Complete events in the Auric Basin.", "Complete events in the Auric Basin."},
-			{ "Complete events in the Tangled Depths.", "Complete events in the Tangled Depths."},
-			{ "Contribute Spare Parts to kick off meta event in the Domain of Kourna.", "Contribute Spare Parts to kick off meta event in the Domain of Kourna."},
-			{ "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys.", "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys."},
-			{ "Use to unlock achievements (and play in Drizzlewood Coast)", "Use to unlock achievements (and play in Drizzlewood Coast)"},
-			{ "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done.", "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done."},
-			#endregion
-			
-			#region luck names
-			{"Essence of Luck (fine)", "Essence of Luck (fine)" },
-			{"Essence of Luck (masterwork)", "Essence of Luck (masterwork)" },
-			{"Essence of Luck (rare)", "Essence of Luck (rare)" },
-			{"Essence of Luck (exotic)", "Essence of Luck (exotic)" },
-			{"Essence of Luck (legendary)", "Essence of Luck (legendary)" },
-			#endregion
-
-			#region Model strings
-			{"Material Storage", "Material Storage" },
-			{"Bank Storage", "Bank Storage"},
-			{"Shared Storage", "Shared Storage" },
-			{"This item only has value as part of a collection.", "This item only has value as part of a collection." },//TODO check API response
-			{"Combine these items into stacks", "Combine these items into stacks" },
-			{"Sell these items to a vendor", "Sell these items to a vendor" },
-			{"Salvage these items", "Salvage these items" },
-			{"Sell these items on the TP", "Sell these items on the TP" },
-			{"Craft these items into higher luck tiers", "Craft these items into higher luck tiers" },
-			{"Delete these items", "Delete these items" },
-			{"Salvage Item","Salvage Item" }, //TODO check api response
-			{"Feed these items to gobblers", "Feed these items to gobblers" },
-			{"Consume these items for karma", "Consume these items for karma" },
-			{"Consume these items for unbound magic", "Consume these items for unbound magic" },
-			{"Consume these items for volatile magic", "Consume these items for volatile magic" },
-			{"Convert these items to LWS4 currency", "Convert these items to LWS4 currency" },
-			{"Craft these items", "Craft these items" },
-			#endregion
-
-			#region advice names
-			{"stack advice", "stack advice" },
-			{"vendor advice", "vendor advice" },
-			{"rare salvage advice", "rare salvage advice" },
-			{"craftable luck advice", "craftable luck advice" },
-			{"deletable advice", "deletable advice" },
-			{"salvagable  advice", "salvagable  advice" },
-			{"consumable  advice", "consumable  advice" },
-			{"gobbler  advice", "gobbler  advice" },
-			{"karma consumable  advice", "karma consumable  advice" },
-			{"crafting advice", "crafting advice" },
-			{"living world advice", "living world advice" },
-			{"miscellaneous  advice", "miscellaneous  advice" }
-			#endregion
-		};
-
-		public static Dictionary<string, string> englishToKorean = new Dictionary<string, string>
-		{
-			
-			#region discipline names
-			{"Scribe", "Scribe" },
-			{"Tailor", "Tailor" },
-			{"Leatherworker", "Leatherworker" },
-			{"Weaponsmith", "Weaponsmith" },
-			{"Armorsmith", "Armorsmith" },
-			{"Artificer", "Artificer" },
-			{"Chef", "Chef" },
-			{"Jeweler", "Jeweler" },
-			{"Huntsman", "Huntsman" },
-			{"Unknown", "Unknown" },
-			#endregion
-			
-			#region miscAdvice
-			{"Transform Quartz Crystals into a Charged Quartz Crystal at a place of power.", "Transform Quartz Crystals into a Charged Quartz Crystal at a place of power." },
-			{"Sift through silky sand.", "Sift through silky sand." },
-			{"Craft 'Completed Aetherkey'.", "Craft 'Completed Aetherkey'." },
-			{"Consume to get War Supplies", "Consume to get War Supplies" },
-			{"Consume to get Mordrem parts which can be exchanged for map currency", "Consume to get Mordrem parts which can be exchanged for map currency" },
-			{"Convert to Bauble Bubble", "Convert to Bauble Bubble" },
-			{"Convert to Candy Corn Cob", "Convert to Candy Corn Cob" },
-			{"Convert to Jorbreaker", "Convert to Jorbreaker" },
-			#endregion
-			
-			#region gameplay advice
-			{ "Trade to get bounty for bandit leader.", "Trade to get bounty for bandit leader."},
-			{ "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner", "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner"},
-			{ "Use during a treasure hunt meta in Desert Highlands to spawn chests", "Use during a treasure hunt meta in Desert Highlands to spawn chests"},
-			{ "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys.", "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys."},
-			{ "Open a greater nightmare pod in the Silverwastes after completing meta.", "Open a greater nightmare pod in the Silverwastes after completing meta."},
-			{ "Use during breach event in Silverwastes.", "Use during breach event in Silverwastes."},
-			{ "Open Tarnished chest in Silverwastes.", "Open Tarnished chest in Silverwastes."},
-			{ "Open krait Sunken Chests to progress a Master Diver achievement.", "Open krait Sunken Chests to progress a Master Diver achievement."},
-			{ "Open chests in the Aetherpath of the Twilight Arbor dungeon.", "Open chests in the Aetherpath of the Twilight Arbor dungeon."},
-			{ "Complete this bounty.", "Complete this bounty."},
-			{ "Complete events in the Verdant Brink.", "Complete events in the Verdant Brink."},
-			{ "Complete events in the Auric Basin.", "Complete events in the Auric Basin."},
-			{ "Complete events in the Tangled Depths.", "Complete events in the Tangled Depths."},
-			{ "Contribute Spare Parts to kick off meta event in the Domain of Kourna.", "Contribute Spare Parts to kick off meta event in the Domain of Kourna."},
-			{ "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys.", "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys."},
-			{ "Use to unlock achievements (and play in Drizzlewood Coast)", "Use to unlock achievements (and play in Drizzlewood Coast)"},
-			{ "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done.", "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done."},
-			#endregion
-			
-			#region luck names
-			{"Essence of Luck (fine)", "Essence of Luck (fine)" },
-			{"Essence of Luck (masterwork)", "Essence of Luck (masterwork)" },
-			{"Essence of Luck (rare)", "Essence of Luck (rare)" },
-			{"Essence of Luck (exotic)", "Essence of Luck (exotic)" },
-			{"Essence of Luck (legendary)", "Essence of Luck (legendary)" },
-			#endregion
-
-			#region Model strings
-			{"Material Storage", "Material Storage" },
-			{"Bank Storage", "Bank Storage"},
-			{"Shared Storage", "Shared Storage" },
-			{"This item only has value as part of a collection.", "This item only has value as part of a collection." },//TODO check API response
-			{"Combine these items into stacks", "Combine these items into stacks" },
-			{"Sell these items to a vendor", "Sell these items to a vendor" },
-			{"Salvage these items", "Salvage these items" },
-			{"Sell these items on the TP", "Sell these items on the TP" },
-			{"Craft these items into higher luck tiers", "Craft these items into higher luck tiers" },
-			{"Delete these items", "Delete these items" },
-			{"Salvage Item","Salvage Item" }, //TODO check api response
-			{"Feed these items to gobblers", "Feed these items to gobblers" },
-			{"Consume these items for karma", "Consume these items for karma" },
-			{"Consume these items for unbound magic", "Consume these items for unbound magic" },
-			{"Consume these items for volatile magic", "Consume these items for volatile magic" },
-			{"Convert these items to LWS4 currency", "Convert these items to LWS4 currency" },
-			{"Craft these items", "Craft these items" },
-			#endregion
-
-			#region advice names
-			{"stack advice", "stack advice" },
-			{"vendor advice", "vendor advice" },
-			{"rare salvage advice", "rare salvage advice" },
-			{"craftable luck advice", "craftable luck advice" },
-			{"deletable advice", "deletable advice" },
-			{"salvagable  advice", "salvagable  advice" },
-			{"consumable  advice", "consumable  advice" },
-			{"gobbler  advice", "gobbler  advice" },
-			{"karma consumable  advice", "karma consumable  advice" },
-			{"crafting advice", "crafting advice" },
-			{"living world advice", "living world advice" },
-			{"miscellaneous  advice", "miscellaneous  advice" }
-			#endregion
-		};
-
-		public static Dictionary<string, string> englishToChinese = new Dictionary<string, string>
-		{
-			
-			#region discipline names
-			{"Scribe", "Scribe" },
-			{"Tailor", "Tailor" },
-			{"Leatherworker", "Leatherworker" },
-			{"Weaponsmith", "Weaponsmith" },
-			{"Armorsmith", "Armorsmith" },
-			{"Artificer", "Artificer" },
-			{"Chef", "Chef" },
-			{"Jeweler", "Jeweler" },
-			{"Huntsman", "Huntsman" },
-			{"Unknown", "Unknown" },
-			#endregion
-			
-			#region miscAdvice
-			{"Transform Quartz Crystals into a Charged Quartz Crystal at a place of power.", "Transform Quartz Crystals into a Charged Quartz Crystal at a place of power." },
-			{"Sift through silky sand.", "Sift through silky sand." },
-			{"Craft 'Completed Aetherkey'.", "Craft 'Completed Aetherkey'." },
-			{"Consume to get War Supplies", "Consume to get War Supplies" },
-			{"Consume to get Mordrem parts which can be exchanged for map currency", "Consume to get Mordrem parts which can be exchanged for map currency" },
-			{"Convert to Bauble Bubble", "Convert to Bauble Bubble" },
-			{"Convert to Candy Corn Cob", "Convert to Candy Corn Cob" },
-			{"Convert to Jorbreaker", "Convert to Jorbreaker" },
-			#endregion
-			
-			#region gameplay advice
-			{ "Trade to get bounty for bandit leader.", "Trade to get bounty for bandit leader."},
-			{ "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner", "Have in inventory while defeating a bandit leader to spawn the Legendary Bandit Executioner"},
-			{ "Use during a treasure hunt meta in Desert Highlands to spawn chests", "Use during a treasure hunt meta in Desert Highlands to spawn chests"},
-			{ "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys.", "Use in the Silverwastes after a meta completes to spawn chests. Make sure you have required keys."},
-			{ "Open a greater nightmare pod in the Silverwastes after completing meta.", "Open a greater nightmare pod in the Silverwastes after completing meta."},
-			{ "Use during breach event in Silverwastes.", "Use during breach event in Silverwastes."},
-			{ "Open Tarnished chest in Silverwastes.", "Open Tarnished chest in Silverwastes."},
-			{ "Open krait Sunken Chests to progress a Master Diver achievement.", "Open krait Sunken Chests to progress a Master Diver achievement."},
-			{ "Open chests in the Aetherpath of the Twilight Arbor dungeon.", "Open chests in the Aetherpath of the Twilight Arbor dungeon."},
-			{ "Complete this bounty.", "Complete this bounty."},
-			{ "Complete events in the Verdant Brink.", "Complete events in the Verdant Brink."},
-			{ "Complete events in the Auric Basin.", "Complete events in the Auric Basin."},
-			{ "Complete events in the Tangled Depths.", "Complete events in the Tangled Depths."},
-			{ "Contribute Spare Parts to kick off meta event in the Domain of Kourna.", "Contribute Spare Parts to kick off meta event in the Domain of Kourna."},
-			{ "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys.", "Use in the Drizzlewood Coast to spawn chests. Make sure you have required keys."},
-			{ "Use to unlock achievements (and play in Drizzlewood Coast)", "Use to unlock achievements (and play in Drizzlewood Coast)"},
-			{ "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done.", "Use to unlock achievements (and play  Drizzlewood Coast)}, or just delete/tp when you are done."},
-			#endregion
-			
-			#region luck names
-			{"Essence of Luck (fine)", "Essence of Luck (fine)" },
-			{"Essence of Luck (masterwork)", "Essence of Luck (masterwork)" },
-			{"Essence of Luck (rare)", "Essence of Luck (rare)" },
-			{"Essence of Luck (exotic)", "Essence of Luck (exotic)" },
-			{"Essence of Luck (legendary)", "Essence of Luck (legendary)" },
-			#endregion
-
-			#region Model strings
-			{"Material Storage", "Material Storage" },
-			{"Bank Storage", "Bank Storage"},
-			{"Shared Storage", "Shared Storage" },
-			{"This item only has value as part of a collection.", "This item only has value as part of a collection." },//TODO check API response
-			{"Combine these items into stacks", "Combine these items into stacks" },
-			{"Sell these items to a vendor", "Sell these items to a vendor" },
-			{"Salvage these items", "Salvage these items" },
-			{"Sell these items on the TP", "Sell these items on the TP" },
-			{"Craft these items into higher luck tiers", "Craft these items into higher luck tiers" },
-			{"Delete these items", "Delete these items" },
-			{"Salvage Item","Salvage Item" }, //TODO check api response
-			{"Feed these items to gobblers", "Feed these items to gobblers" },
-			{"Consume these items for karma", "Consume these items for karma" },
-			{"Consume these items for unbound magic", "Consume these items for unbound magic" },
-			{"Consume these items for volatile magic", "Consume these items for volatile magic" },
-			{"Convert these items to LWS4 currency", "Convert these items to LWS4 currency" },
-			{"Craft these items", "Craft these items" },
-			#endregion
-
-			#region advice names
-			{"stack advice", "stack advice" },
-			{"vendor advice", "vendor advice" },
-			{"rare salvage advice", "rare salvage advice" },
-			{"craftable luck advice", "craftable luck advice" },
-			{"deletable advice", "deletable advice" },
-			{"salvagable  advice", "salvagable  advice" },
-			{"consumable  advice", "consumable  advice" },
-			{"gobbler  advice", "gobbler  advice" },
-			{"karma consumable  advice", "karma consumable  advice" },
-			{"crafting advice", "crafting advice" },
-			{"living world advice", "living world advice" },
-			{"miscellaneous  advice", "miscellaneous  advice" }
-			#endregion
-		};
+		
 
 
 
@@ -790,6 +809,32 @@ namespace gw2stacks_blish.data
 			100277, 100735
 		};
 
+		public static List<int> gaetingSalvage = new List<int>()
+		{
+			103800, 103999, 104049, 103970, 103908, 103888, 103844, 104052, 103819, 103954, 103835, 104006, 103895,
+			104046, 103866, 103955, 103818,  104025, 103780, 104015, 103897, 103944
+		};
+
+		public static List<int> magnetiteSalvage = new List<int>()
+		{
+		  63420,63434,63435,63441,63442,77271,77272,77273,77280,77281,77284,77286,77288,77293,77294,77295,77300,77304,77306,77308,77309,77312,77313,77319,77320,77322,77323,77325,77327,77331,77337,77338,77340,77341,77342,77344,77346,77347,77358,77361,77363,77371,77376,77377,77380,77382,77383,77387,77390,77391,77395,77396,77406,77408,77409,77410,77412,77413,77420,77422,77425,77426,77427,77429,77430,77434,77436,77438,77440,77444,77448,77453,77454,77459,77461,77464,77466,77813,77827,77829,77830,77831,77836,77837,77839,77841,77842,77844,77847,77849,77851,77852,77853,77854,77855,77864,77867,77868,77873,
+		  77874,77875,77876,77882,77885,77887,77889,77891,77894,77895,77896,77903,77904,77905,77907,77909,77910,77917,77918,77920,77922,77924,77933,77936,77939,77942,77943,77944,77946,77949,77950,77952,77954,77958,77959,77963,77964,77965,77966,77970,77972,77974,77977,77979,77986,77987,77988,77990,77992,77993,77999,78001,78002,78795,78796,78799,78800,78802,78805,78808,78809,78817,78818,78819,78820,78822,78823,78829,78834,78835,78843,78844,78847,78848,78852,78853,78855,78856,78858,78860,78862,78863,78865,78869,78874,78875,78876,78877,78878,78880,78881,78885,78888,78892,78895,78896,78901,78903,78907,
+		  78911,78915,78916,78919,78923,78925,78927,78931,78934,78940,78941,78943,78945,78948,78949,78953,78955,78963,78964,78966,78967,78969,78971,78974,78977,78980,78981,78984,78985,78986,78987,78991,78992,78995,78997,79000,80099,80123,80180,80186,80188,80193,80194,80197,80199,80206,80235,80243,80249,80273,80278,80310,80330,80331,80333,80337,80341,80414,80461,80476,80482,80493,80499,80510,80527,80531,80537,80559,80568,80581,80605,80606,80611,80647,80659,80678,85629,85635,85636,85638,85641,85645,85651,85652,85654,85655,85657,85660,85661,85664,85669,85673,85674,85676,85677,85680,85683,85688,85691,85692,
+		  85693,85696,85697,85698,85702,85703,85704,85705,85712,85714,85716,85722,85729,85732,85735,85736,85739,85741,85749,85753,85761,85763,85764,85766,85768,85770,85774,85777,85778,85782,85789,85791,85792,85795,85803,85807,85808,85814,85816,85819,85822,85823,85825,85827,85829,85831,85832,85835,85837,85840,85843,85846,85847,85853,85858,85859,85861,85867,85871,85876,85879,85883,85888,85889,85891,85892,85899,85903,85904,85914,85916,85931,85932,85935,85938,85940,85941,85944,85949,85951,85952,85954,85956,85957,85962,85963,85966,85969,85972,85976,85980,85982,85984,85986,85988,85992,86000,86004,86005,
+		  86011,86013,86017,86021,86024,86029,86032,86035,86037,86038,86042,86044,86045,86049,86052,86056,86073,86079,86080,86084,86090,86100,86102,86103,86110,86112,86121,86123,86124,86128,86129,86135,86136,86138,86139,86141,86143,86147,86152,86158,86161,86164,86165,86176,86179,86185,86186,86187,86194,86195,86197,86198,86206,86209,86213,86215,86220,86224,86227,86234,86237,86240,86244,86246,86253,86255,86256,86259,86262,86263,86264,86268,86270,86273,86278,86288,86289,86295,86301,86307,86308,86311,86324,86325,86326,86333,86335,86340,86344,86345,86352,86361,86362,86363,86364,86365,86368,86370,86373,86380,86382,
+		  88473,88478,88487,88562,88564,88582,88652,88677,88750,88795,88799,88804,88822,88839,88849,88854,88858,88862,88881,88888,88915,88916,88944,88966,91142,91144,91150,91156,91163,91167,91168,91179,91190,91198,91199,91201,91219,91223,91229,91230,91238,91239,91249,91263,91264,91265,91269,91271,103999
+		};
+
+		public static List<int> wizardGobblers = new List<int>()
+		{66999,69887,68369,67270,72606,81512,79995,77093,73718,79197,79558,80144,81120,81780,83305,88660,80672,86360,49501,84440,78177,101771};
+
+		public static List<int> wizardScrolls = new List<int>()
+		{76630,71577,76827,73024,76293,70968,76065,95026,98007,79073,79456,79905,80238,81060,81673,79744,83305,85884,86981,87624,88934,88765,89621,90336,92694,91975,92411,93343,97009,100939,20030,78657,103998,92108 };
+
+		public static List<ItemWeaponType> singularWeaponTypes = new List<ItemWeaponType>()
+		{ItemWeaponType.Rifle, ItemWeaponType.Greatsword, ItemWeaponType.Hammer, ItemWeaponType.LongBow, ItemWeaponType.ShortBow, ItemWeaponType.Speargun, ItemWeaponType.Staff, ItemWeaponType.Trident, ItemWeaponType.Harpoon, ItemWeaponType.Focus, ItemWeaponType.Scepter, ItemWeaponType.Torch, ItemWeaponType.Shield, ItemWeaponType.Warhorn };
+
+		
 		#endregion
 
 		#region function
@@ -1032,25 +1077,25 @@ namespace gw2stacks_blish.data
 			switch(currentLocale)
 			{
 				case Locale.English:
-					return englishToEnglish.ContainsKey(tooltip_)? englishToEnglish[tooltip_]: handle_missing_translation(tooltip_, "no english local");
+					return translation.englishToEnglish.ContainsKey(tooltip_)? translation.englishToEnglish[tooltip_]: handle_missing_translation(tooltip_, "no english local");
 
 				case Locale.Spanish:
-					return englishToSpanish.ContainsKey(tooltip_)? englishToSpanish[tooltip_]: handle_missing_translation(tooltip_, "no spanish local");
+					return translation.englishToSpanish.ContainsKey(tooltip_) ? translation.englishToSpanish[tooltip_] : handle_missing_translation(tooltip_, "no spanish local");
 
 				case Locale.German:
-					return englishToGerman.ContainsKey(tooltip_)? englishToGerman[tooltip_]: handle_missing_translation(tooltip_, "no german local");
+					return translation.englishToGerman.ContainsKey(tooltip_) ? translation.englishToGerman[tooltip_] : handle_missing_translation(tooltip_, "no german local");
 
 				case Locale.French:
-					return englishToFrench.ContainsKey(tooltip_)? englishToFrench[tooltip_]: handle_missing_translation(tooltip_, "no french local");
+					return translation.englishToFrench.ContainsKey(tooltip_) ? translation.englishToFrench[tooltip_] : handle_missing_translation(tooltip_, "no french local");
 
 				case Locale.Korean:
-					return englishToKorean.ContainsKey(tooltip_)? englishToKorean[tooltip_]: handle_missing_translation(tooltip_, "no korean local");
+					return translation.englishToKorean.ContainsKey(tooltip_) ? translation.englishToKorean[tooltip_] : handle_missing_translation(tooltip_, "no korean local");
 
 				case Locale.Chinese:
-					return englishToChinese.ContainsKey(tooltip_)? englishToChinese[tooltip_]: handle_missing_translation(tooltip_, "no chinese local");
+					return translation.englishToChinese.ContainsKey(tooltip_) ? translation.englishToChinese[tooltip_] : handle_missing_translation(tooltip_, "no chinese local");
 
 				default:
-					return englishToEnglish.ContainsKey(tooltip_) ? englishToEnglish[tooltip_] : handle_missing_translation(tooltip_, "no english local");
+					return translation.englishToEnglish.ContainsKey(tooltip_) ? translation.englishToEnglish[tooltip_] : handle_missing_translation(tooltip_, "no english local");
 			}
 		}
 		

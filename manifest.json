@@ -17,6 +17,10 @@
     "characters": {
       "optional": false,
       "details": "Needed for core functionality"
+    },
+    "unlocks": {
+      "optional": false,
+      "details": "Needed for core functionality"
     }
   },
 

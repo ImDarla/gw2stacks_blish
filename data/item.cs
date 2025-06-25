@@ -31,6 +31,11 @@ namespace gw2stacks_blish.data
 		public bool isSellable;
 		public bool isSalvagable;
 		public string chatLink;
+		public ItemType type;
+		public ItemWeightType armorWeight;
+		public ItemArmorSlotType armorType;
+		public ItemWeaponType weaponType;
+		public ItemTrinketType trinketType;
 
 		public Item(int id_, bool isCharacterBound_, bool isAccountBound_, bool delayedCreate=false)
         {
@@ -52,6 +57,11 @@ namespace gw2stacks_blish.data
 			this.isSellable=true;
 			this.isSalvagable=true;
 			this.chatLink = "";
+			this.type = ItemType.Unknown;
+			this.armorWeight = ItemWeightType.Unknown;
+			this.armorType = ItemArmorSlotType.Unknown;
+			this.weaponType = ItemWeaponType.Unknown;
+			this.trinketType = ItemTrinketType.Unknown;
 			if(delayedCreate==false)
 			{
 				this.build_basic_item_info();
@@ -91,7 +101,7 @@ namespace gw2stacks_blish.data
 			this.VendorValue = info_.VendorValue;
 			var urlName = this.name.Replace(" ", "_");
 			this.wikiLink = $"wiki.guildwars2.com/wiki/{urlName}";
-
+			this.type = (ItemType)info_.Type;
 			bool salvagable = true;
 
 
@@ -142,8 +152,10 @@ namespace gw2stacks_blish.data
 
 
 			}
-
-
+			this.armorWeight = info_.armorWeight;
+			this.armorType = info_.armorType;
+			this.weaponType = info_.weaponType;
+			this.trinketType = info_.trinketType;
 
 			this.hasInformation = true;
 		}
@@ -569,7 +581,8 @@ namespace gw2stacks_blish.data
 
 		public override int get_iconId()
 		{
-			return 1414044;
+			//return 1414044;
+			return 156900;
 		}
 
 		public override string print(string name = null)
@@ -627,7 +640,7 @@ namespace gw2stacks_blish.data
 		{
 			if (this.id == null)
 			{
-				return "Empty";//TODO add translation
+				return "Empty";
 			}
 			else
 			{
@@ -758,6 +771,10 @@ namespace gw2stacks_blish.data
 		public int Level;
 		public int VendorValue;
 		public string chatLink;
+		public ItemWeightType armorWeight;
+		public ItemArmorSlotType armorType;
+		public ItemWeaponType weaponType;
+		public ItemTrinketType trinketType;
 		public ItemInfo()
 		{
 			this.Id = 0;
@@ -771,6 +788,10 @@ namespace gw2stacks_blish.data
 			this.Level = 0;
 			this.VendorValue = 0;
 			this.chatLink = "";
+			this.armorWeight = ItemWeightType.Unknown;
+			this.armorType = ItemArmorSlotType.Unknown;
+			this.weaponType = ItemWeaponType.Unknown;
+			this.trinketType = ItemTrinketType.Unknown;
 		}
 
 
@@ -795,6 +816,58 @@ namespace gw2stacks_blish.data
 			this.Disciplines = new List<int>();
 			this.chatLink = "";
 
+		}
+	}
+
+	public class Armory
+	{
+		public Dictionary<ItemArmorSlotType, bool> heavyArmor;
+		public Dictionary<ItemArmorSlotType, bool> mediumArmor;
+		public Dictionary<ItemArmorSlotType, bool> lightArmor;
+		public bool backpack;
+		public int rings;
+		public int trinkets;
+		public bool amulet;
+		public int runes;
+		public int sigils;
+		public bool relic;
+		public Dictionary<ItemWeaponType, int> weapons;
+		
+		public Armory()
+		{
+			this.heavyArmor = new Dictionary<ItemArmorSlotType, bool>()
+			{{ItemArmorSlotType.Helm, false }, {ItemArmorSlotType.Shoulders, false }, {ItemArmorSlotType.Coat, false }, {ItemArmorSlotType.Gloves, false }, {ItemArmorSlotType.Leggings, false }, {ItemArmorSlotType.Boots, false } };
+			this.mediumArmor = new Dictionary<ItemArmorSlotType, bool>()
+			{{ItemArmorSlotType.Helm, false }, {ItemArmorSlotType.Shoulders, false }, {ItemArmorSlotType.Coat, false }, {ItemArmorSlotType.Gloves, false }, {ItemArmorSlotType.Leggings, false }, {ItemArmorSlotType.Boots, false } };
+			this.lightArmor = new Dictionary<ItemArmorSlotType, bool>()
+			{ { ItemArmorSlotType.Helm, false }, { ItemArmorSlotType.Shoulders, false }, { ItemArmorSlotType.Coat, false }, { ItemArmorSlotType.Gloves, false }, { ItemArmorSlotType.Leggings, false }, { ItemArmorSlotType.Boots, false } };
+			
+
+			this.backpack = false;
+			this.rings = 0;
+			this.trinkets = 0;
+			this.amulet = false;
+			this.weapons = new Dictionary<ItemWeaponType, int>()
+			{ {ItemWeaponType.Axe, 0},
+			{ItemWeaponType.Dagger, 0},
+			{ItemWeaponType.Mace, 0},
+			{ItemWeaponType.Pistol, 0},
+			{ItemWeaponType.Sword, 0},
+			{ItemWeaponType.Scepter, 0 },
+			{ItemWeaponType.Focus, 0},
+			{ItemWeaponType.Shield, 0 },
+			{ItemWeaponType.Torch, 0 },
+			{ItemWeaponType.Warhorn, 0 },
+			{ItemWeaponType.Greatsword, 0 },
+			{ItemWeaponType.Hammer, 0 },
+			{ItemWeaponType.LongBow, 0 },
+			{ItemWeaponType.Rifle, 0 },
+			{ItemWeaponType.ShortBow, 0 },
+			{ItemWeaponType.Staff, 0 },
+			{ItemWeaponType.Harpoon, 0 },
+			{ItemWeaponType.Speargun, 0 },
+			{ItemWeaponType.Trident, 0 }  };
+			
 		}
 	}
 }
