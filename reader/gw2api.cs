@@ -36,6 +36,24 @@ namespace gw2stacks_blish.reader
 			return response;
 		}
 
+		public async Task<List<int>> get_unlocked_skins()
+		{
+			var response = await this.manager.Gw2ApiClient.V2.Account.Skins.GetAsync();
+			return response.ToList();
+		}
+
+		public async Task<List<int>> get_unlocked_minis()
+		{
+			var response = await this.manager.Gw2ApiClient.V2.Account.Minis.GetAsync();
+			return response.ToList();
+		}
+
+		public async Task<List<int>> get_unlocked_recipes()
+		{
+			var response = await this.manager.Gw2ApiClient.V2.Account.Recipes.GetAsync();
+			return response.ToList();
+		}
+
 		public async Task<IApiV2ObjectList<AccountItem>> shared_inventory()
 		{
 			var response = await this.manager.Gw2ApiClient.V2.Account.Inventory.GetAsync();//shared inventory

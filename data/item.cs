@@ -36,6 +36,10 @@ namespace gw2stacks_blish.data
 		public ItemArmorSlotType armorType;
 		public ItemWeaponType weaponType;
 		public ItemTrinketType trinketType;
+		public int defaultSkin;
+		public IReadOnlyList<int> skinId;
+		public int miniId;
+		public int recipeId;
 
 		public Item(int id_, bool isCharacterBound_, bool isAccountBound_, bool delayedCreate=false)
         {
@@ -62,11 +66,14 @@ namespace gw2stacks_blish.data
 			this.armorType = ItemArmorSlotType.Unknown;
 			this.weaponType = ItemWeaponType.Unknown;
 			this.trinketType = ItemTrinketType.Unknown;
+			this.defaultSkin = -1;
+			this.skinId = new List<int>() { -1 };
+			this.miniId = -1;
+			this.recipeId= -1;
 			if(delayedCreate==false)
 			{
 				this.build_basic_item_info();
 			}
-			
 		}
 
 		public void build_basic_item_info()
@@ -632,7 +639,15 @@ namespace gw2stacks_blish.data
 			}
 			else
 			{
-				return Magic.jsonLut.itemLut[this.id.Value].IconId;
+				if(Magic.jsonLut.itemLut.ContainsKey(this.id.Value))
+				{
+					return Magic.jsonLut.itemLut[this.id.Value].IconId;
+				}
+				else
+				{
+					return 63369; //when in doubt cabbage
+				}
+				
 			}
 		}
 
@@ -740,8 +755,8 @@ namespace gw2stacks_blish.data
 
 	class InventoryBagSlot
 	{
-		private int id;
-		private int size;
+		public int id;
+		public int size;
 		public InventoryBagSlot(int id_, int size_=0)
 		{
 			this.id = id_;
@@ -775,6 +790,10 @@ namespace gw2stacks_blish.data
 		public ItemArmorSlotType armorType;
 		public ItemWeaponType weaponType;
 		public ItemTrinketType trinketType;
+		public int defaultSkin;
+		public IReadOnlyList<int> skinId;
+		public int miniId;
+		public int recipeId;
 		public ItemInfo()
 		{
 			this.Id = 0;
@@ -792,6 +811,10 @@ namespace gw2stacks_blish.data
 			this.armorType = ItemArmorSlotType.Unknown;
 			this.weaponType = ItemWeaponType.Unknown;
 			this.trinketType = ItemTrinketType.Unknown;
+			this.defaultSkin = -1;
+			this.skinId = new List<int>() { -1 };
+			this.miniId = -1;
+			this.recipeId = -1;
 		}
 
 

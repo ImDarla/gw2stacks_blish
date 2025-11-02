@@ -1,38 +1,40 @@
 ﻿//#define FALLBACK
-using System;
-using System.ComponentModel.Composition;
-using System.Threading.Tasks;
 using Blish_HUD;
+using Blish_HUD.Content;
 using Blish_HUD.Controls;
-using Blish_HUD.Modules;
-using Blish_HUD.Modules.Managers;
-using Blish_HUD.Settings;
-using Microsoft.Xna.Framework;
+using Blish_HUD.Controls.Extern;
+using Blish_HUD.Controls.Intern;
 using Blish_HUD.GameServices;
 using Blish_HUD.Gw2WebApi;
-using Blish_HUD.Overlay.UI.Views;
-using System.Runtime.Remoting.Lifetime;
-using System.Collections.Generic;
 using Blish_HUD.Input;
-using Blish_HUD.Content;
-using views;
-using System.Diagnostics;
+using Blish_HUD.Modules;
+using Blish_HUD.Modules.Managers;
+using Blish_HUD.Overlay.UI.Views;
+using Blish_HUD.Settings;
+using Flurl.Http;
+using Flurl.Http.Testing;
+using Gw2Sharp.WebApi;
+using Gw2Sharp.WebApi.V2.Clients;
 using Gw2Sharp.WebApi.V2.Models;
-using System.Collections;
 using gw2stacks_blish.data;
 using gw2stacks_blish.reader;
-using Gw2Sharp.WebApi.V2.Clients;
-using Newtonsoft.Json;
-using Flurl.Http.Testing;
-using Flurl.Http;
-using System.Linq;
-using Blish_HUD.Controls.Intern;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using NAudio.SoundFont;
+using Newtonsoft.Json;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
+using System.Runtime.Remoting.Lifetime;
+using System.Threading.Tasks;
+using views;
 using Key = Blish_HUD.Controls.Extern.VirtualKeyShort;
 using Keyboard = Blish_HUD.Controls.Intern.Keyboard;
 using Mouse = Blish_HUD.Controls.Intern.Mouse;
-using Blish_HUD.Controls.Extern;
 using Texture2D= Microsoft.Xna.Framework.Graphics.Texture2D;
 
 
@@ -76,6 +78,8 @@ namespace gw2stacks_blish {
 		private bool running = false;
 
 		private bool fatalError = false;
+
+		private bool isApiAvailable = true;
 
 		private bool hasLut = false;
 
@@ -154,6 +158,57 @@ namespace gw2stacks_blish {
 			};
 
 
+		}
+
+		private async Task load_model()
+		{
+			this.running = false;
+			if (this.running == false && this.hasLut == true)
+			{
+				this.icon.Enabled = false;
+				this.validData = false;
+				this.hide_windows();
+				loadingSpinner.Location = icon.Location;
+				Logger.Debug("starting setup");
+				model.includeConsumables = this.includeConsumableSetting.Value;
+				this.loadingSpinner.Show();
+
+
+
+
+				var path = this.DirectoriesManager.GetFullDirectoryPath("gw2stacks");
+				if (path == null)
+				{
+					path = DirectoryUtil.RegisterDirectory("gw2stacks");
+				}
+
+				DirectoryReader directory = new DirectoryReader(path);
+				if (directory.FileExists("modelBackup.json") == true)
+				{
+					var input = System.IO.File.ReadAllText(path + "/modelBackup.json");
+					this.model = JsonConvert.DeserializeObject<Model>(input);
+				}
+				else
+				{
+					this.fatalError = true;
+					this.hasLut = false;
+					this.handle_error("API error and error reading local model backup");
+					Logger.Warn("Unexpected exception: " + "Error reading local model backup" + " @" + "load_model");
+				}
+				this.running = true;
+			}
+			
+		}
+
+		private async Task save_model()
+		{
+			var path = this.DirectoriesManager.GetFullDirectoryPath("gw2stacks");
+			if (path == null)
+			{
+				path = DirectoryUtil.RegisterDirectory("gw2stacks");
+			}
+			var output = JsonConvert.SerializeObject(this.model);
+			System.IO.File.WriteAllText(path + "/modelBackup.json", output);
 		}
 
 		private async Task load_LUT()
@@ -408,7 +463,7 @@ namespace gw2stacks_blish {
 
 		private void create_values()
 		{
-
+			
 
 			icon = new CornerIcon(AsyncTexture2D.FromAssetId(155052), "gw2stacks");
 
@@ -433,7 +488,11 @@ namespace gw2stacks_blish {
 		{
 			if(this.icon!=null)
 			{
-				this.icon.Enabled = false;
+				if(this.fatalError==true)
+				{
+					this.icon.Enabled = false;
+				}
+				
 				this.icon.BasicTooltipText += "\n"+error_;
 			}
 			
@@ -444,12 +503,14 @@ namespace gw2stacks_blish {
 
 		private void update_tab_locale()
 		{
+			Logger.Debug("started tab locale update");
 			Magic.set_locale(GameService.Overlay.UserLocale.Value);
 			foreach (var tab in gw2stacksWindow.Tabs)
 			{
 				tab.Name = Magic.get_current_translated_string(this.tabNameMapping[tab]);
 			}
 			this.ignoredItemsTab.Name = Magic.get_current_translated_string("Ignored Items");
+			Logger.Debug("ended tab locale update");
 		}
 
 		private void refresh_views(int id_, bool mainWindow_)
@@ -475,6 +536,7 @@ namespace gw2stacks_blish {
 
 		private void update_advice()
 		{
+			Logger.Debug("started advice update");
 			//Magic.set_locale(GameService.Overlay.UserLocale.Value);
 			this.adviceDictionary.Clear();//= new Dictionary<string, List<ItemForDisplay>>();
 			this.adviceDictionary.Add(Magic.get_local_advice(Magic.AdviceType.stackAdvice), model.get_stacks_advice());
@@ -546,7 +608,8 @@ namespace gw2stacks_blish {
 				List<BagForDisplay> bagsForDisplay = new List<BagForDisplay>();
 				foreach (var bag in entry.Value)
 				{
-					if(bag.get_id()==0)
+					Logger.Debug("Found bag of id " + bag.get_id() + " on character " + entry.Key);
+					if (bag.get_id()==0)
 					{
 						bagsForDisplay.Add(new BagForDisplay(null, 0));
 					}
@@ -559,7 +622,7 @@ namespace gw2stacks_blish {
 				this.characterBags.Add(entry.Key, bagsForDisplay);
 				Logger.Debug("Character: " + entry.Key + " has " + bagsForDisplay.Count.ToString() + " bag slots");
 			}
-
+			Logger.Debug("ended advice update");
 		}
 
 		public void show_windows()
@@ -632,6 +695,7 @@ namespace gw2stacks_blish {
 					if (Gw2ApiManager.HasPermissions(new List<TokenPermission> { TokenPermission.Account, TokenPermission.Characters, TokenPermission.Inventories, TokenPermission.Unlocks }))
 					{
 						this.fatalError = false;
+						this.isApiAvailable = true;
 						this.icon.Enabled = true;
 						this.icon.BasicTooltipText = null;
 						Logger.Debug("Api validated successfully");
@@ -639,14 +703,16 @@ namespace gw2stacks_blish {
 					}
 					else
 					{
-						this.fatalError = true;
+						//this.fatalError = true;
+						this.isApiAvailable = false;
 						this.handle_error("Missing API permissions");
 						Logger.Warn("Missing Permissions");
 					}
 				}
 				else
 				{
-					this.fatalError = true;
+					//this.fatalError = true;
+					this.isApiAvailable = false;
 					this.handle_error("No subtoken supplied");
 					Logger.Warn("No subtoken supplied");
 				}
@@ -655,27 +721,47 @@ namespace gw2stacks_blish {
 			}
 			catch (Gw2Sharp.WebApi.Exceptions.InvalidAccessTokenException e_)
 			{
-				this.fatalError = true;
+				//this.fatalError = true;
+				this.isApiAvailable = false;
 				this.handle_error("Invalid access token");
 				Logger.Warn("Invalid access token: " + e_.Message);
 			}
 			catch (Gw2Sharp.WebApi.Exceptions.MissingScopesException e_)
 			{
-				this.fatalError = true;
+				//this.fatalError = true;
+				this.isApiAvailable = false;
 				this.handle_error("Missing API scopes");
 				Logger.Warn("Missing scopes: " + e_.Message);
 			}
 			catch (Gw2Sharp.WebApi.Exceptions.RequestException e_)
 			{
-				this.fatalError = true;
+				//this.fatalError = true;
+				this.isApiAvailable = false;
 				this.handle_error("API request exception");
 				Logger.Warn("Request exception: " + e_.Message);
 			}
 			catch(Exception e_)
 			{
-				this.fatalError = true;
+				//this.fatalError = true;
+				this.isApiAvailable = false;
 				this.handle_error("Unexpected API exception");
 				Logger.Warn("Unexpected exception: " + e_.Message+ " @"+ e_.StackTrace);
+			}
+			if (this.isApiAvailable == false)
+			{
+				var path = this.DirectoriesManager.GetFullDirectoryPath("gw2stacks");
+				if (path == null)
+				{
+					path = DirectoryUtil.RegisterDirectory("gw2stacks");
+				}
+
+				DirectoryReader directory = new DirectoryReader(path);
+				if (directory.FileExists("modelBackup.json") == false)
+				{
+					this.fatalError= true;
+					Logger.Warn("model backup not found");
+				}
+				
 			}
 		}
 
@@ -707,35 +793,72 @@ namespace gw2stacks_blish {
 
 		private async Task on_click()
 		{
+			Logger.Debug("Started on_click");
 			this.validate_api();
-			if (fatalError == false)
+			if (fatalError == false)//TODO fix still attempting startup even if no subtoken is supplied
 			{
 				try
 				{
 					await this.start_api_update();
+					//throw new Exception("test"); //TODO REMOVE
+					await this.save_model();
+				}
+				catch(Gw2Sharp.WebApi.Exceptions.RequestException requestE_)
+				{
+					Logger.Warn("Unexpected exception: " + "GW2 API request exception" + " @" + requestE_.StackTrace);
+					Logger.Warn("Attempting to load local API backup");
+					this.isApiAvailable = false;
 				}
 				catch (Exception e_)
 				{
-					this.fatalError = true;
+					if(e_.Source != "Gw2Sharp")
+					{
+						this.fatalError = true;
+					}
+					else
+					{
+						this.isApiAvailable = false;
+					}
+
 					this.handle_error("Unexpected backend exception");
 					Logger.Warn("Unexpected exception: " + e_.Message + " @" + e_.StackTrace);
+				}
+				
+			}
+			if (this.isApiAvailable == false && this.fatalError == false)
+			{
+
+				try
+				{
+					await this.load_model();
+				}
+
+				catch (Exception e_)
+				{
+					this.fatalError = true;
+					this.hasLut = false;
+					this.handle_error("API error and error reading local model backup");
+					Logger.Warn("Unexpected exception: " + "Error reading local model backup" + " @" + e_.StackTrace);
 				}
 			}
 		}
 
 		private void update_views(string tabName_)
 		{
+			Logger.Debug("started view update");
 			this.gw2stacksWindow.Title = tabName_;
 			this.adviceView.update(this.adviceDictionary[tabName_], tabName_, this.ignoreItemsFlag);//, this.sourceWindow
 			this.ignoredItemsWindow.Title = Magic.get_current_translated_string("Ignored Items");
 			this.ignoredView.update(Magic.get_current_translated_string("Ignored Items"));
 			this.itemView.update();
 			Logger.Debug("update views name found " + GameService.Gw2Mumble.PlayerCharacter.Name);
-			if(this.fullCharacterInventories.ContainsKey(GameService.Gw2Mumble.PlayerCharacter.Name)==true)
-			//this.characterBasedView.update(this.itemTextures, this.combinedAdvice, GameService.Gw2Mumble.PlayerCharacter.Name);
-			this.fullCharacterView.update(this.fullCharacterInventories[GameService.Gw2Mumble.PlayerCharacter.Name], GameService.Gw2Mumble.PlayerCharacter.Name, this.characterBags[GameService.Gw2Mumble.PlayerCharacter.Name]);
-			this.fullCharacterBagView.update(this.fullCharacterInventories[GameService.Gw2Mumble.PlayerCharacter.Name], GameService.Gw2Mumble.PlayerCharacter.Name, this.characterBags[GameService.Gw2Mumble.PlayerCharacter.Name]);
-
+			if (this.fullCharacterInventories.ContainsKey(GameService.Gw2Mumble.PlayerCharacter.Name) == true)///what a goofy mistake to do 
+			{
+				//this.characterBasedView.update(this.itemTextures, this.combinedAdvice, GameService.Gw2Mumble.PlayerCharacter.Name);
+				this.fullCharacterView.update(this.fullCharacterInventories[GameService.Gw2Mumble.PlayerCharacter.Name], GameService.Gw2Mumble.PlayerCharacter.Name, this.characterBags[GameService.Gw2Mumble.PlayerCharacter.Name]);
+				this.fullCharacterBagView.update(this.fullCharacterInventories[GameService.Gw2Mumble.PlayerCharacter.Name], GameService.Gw2Mumble.PlayerCharacter.Name, this.characterBags[GameService.Gw2Mumble.PlayerCharacter.Name]);
+				Logger.Debug("ended view update");
+			}
 		}
 
 		

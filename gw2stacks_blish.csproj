@@ -155,6 +155,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="data\Unlocks.cs" />
     <Compile Include="data\item.cs" />
     <Compile Include="data\Magic.cs" />
     <Compile Include="data\Model.cs" />

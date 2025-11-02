@@ -34,6 +34,7 @@ namespace gw2stacks_blish.data
 		public List<string> characterNames = new List<string>();
 		public Dictionary<string, List<InventoryBagSlot>> inventoryBags = new Dictionary<string, List<InventoryBagSlot>>();
 		public Armory legendaryArmory;
+		public Unlocks unlocks;
 		public void reset_state()
 		{
 			foreach (var item in this.items)
@@ -51,6 +52,7 @@ namespace gw2stacks_blish.data
 			this.sharedInventory = new List<int?>();
 			this.inventoryBags = new Dictionary<string, List<InventoryBagSlot>>();
 			this.legendaryArmory = new Armory();
+			this.unlocks = new Unlocks();
 			this.validData = false;
 		}
 
@@ -76,6 +78,7 @@ namespace gw2stacks_blish.data
 			Magic.silkBag.build_basic_item_info();
 			Magic.borealTrunk.build_basic_item_info();
 			await this.build_legendary_armory(api_);
+			await this.get_unlocks(api_);
 			this.validData = true;
 		}
 
@@ -435,6 +438,13 @@ namespace gw2stacks_blish.data
 				}
 			}
 		}
+
+		public async Task get_unlocks(Gw2Api api_)
+		{
+			this.unlocks.skins = await api_.get_unlocked_skins();
+			this.unlocks.minis = await api_.get_unlocked_minis();
+			this.unlocks.recipes = await api_.get_unlocked_recipes();
+		}
 		#endregion
 
 		#region advice
@@ -510,10 +520,15 @@ namespace gw2stacks_blish.data
 		{
 			List<ItemForDisplay> result = new List<ItemForDisplay>();
 			var filter = this.items.Values.Where(list_item => list_item.isDeletable&&list_item.isSellable==false&&list_item.isSalvagable==false);
+			var unlocks = this.items.Values.Where(list_item => list_item.isDeletable && (list_item.isAccountBound || list_item.isCharacterBound)
+			&& (this.unlocks.recipes.Contains(list_item.recipeId) || this.unlocks.minis.Contains(list_item.miniId) || list_item.skinId.All(unlocked_skin => this.unlocks.skins.Any(potentialSkin => unlocked_skin == potentialSkin))));
+			filter = filter.Union(unlocks);
 			foreach (var item in filter)
 			{
 				result.Add(new ItemForDisplay(item, null, ("Delete these items")));
 			}
+
+			
 			return result;
 		}
 
@@ -785,6 +800,13 @@ namespace gw2stacks_blish.data
 				}
 			}
 
+
+			var unlocks = this.items.Values.Where(list_item => list_item.isDeletable && (list_item.isAccountBound ==false)&&( list_item.isCharacterBound==false)
+			&& (this.unlocks.recipes.Contains(list_item.recipeId) || this.unlocks.minis.Contains(list_item.miniId) || list_item.skinId.All(unlocked_skin => this.unlocks.skins.Any(potentialSkin => unlocked_skin == potentialSkin))));
+			foreach (var id in unlocks)
+			{
+				result.Add(new ItemForDisplay(id, null, ("Sell these items on the TP")));
+			}
 			return result;
 		}
 
