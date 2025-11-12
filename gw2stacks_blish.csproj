@@ -146,6 +146,7 @@
     <None Include="Content\bin\Windows\Content\fonts\newkrytan\newkrytan-12-regular_0.xnb" />
     <None Include="Content\bin\Windows\Content\fonts\newkrytan\newkrytan-12-regular_1.xnb" />
     <None Include="item_storage\chineseLocal.json" />
+    <None Include="item_storage\ClassTranslationLUT.json" />
     <None Include="item_storage\decorationLUT.json" />
     <None Include="item_storage\englishLocal.json" />
     <None Include="item_storage\frenchLocal.json" />
