@@ -91,8 +91,9 @@ namespace gw2stacks_blish.data
                 this.items.Add(id_, new Item(id_, isCharacterBound_, isAccountBound_));
 			}
 			this.items[id_].add_source(source_);
-
-			if (this.items[id_].isRareForSalvage==true)
+			//TODO maybe remove
+			//if (this.items[id_].isRareForSalvage==true)
+			if(this.items[id_].isAccountBound==false)
 			{
 				this.appraisedItemIds.Add(id_);
 			}
@@ -451,7 +452,7 @@ namespace gw2stacks_blish.data
 		public List<ItemForDisplay> get_stacks_advice()
         {
             List<ItemForDisplay> result = new List<ItemForDisplay>();
-            var filter = this.items.Values.Where(list_item => list_item.get_advice_stacks(this.materialStorageSize).Count > 0);
+            var filter = this.items.Values.Where(list_item => (list_item.get_advice_stacks(this.materialStorageSize).Count > 0));
 			foreach (var item in filter)
 			{
 				
@@ -465,7 +466,7 @@ namespace gw2stacks_blish.data
 		public List<ItemForDisplay> get_vendor_advice()
 		{
 			List<ItemForDisplay> result = new List<ItemForDisplay>();
-			var filter = this.items.Values.Where(list_item => list_item.rarity==ItemRarity.Junk || (list_item.isSellable == true && list_item.isSalvagable == false && list_item.isDeletable==true));
+			var filter = this.items.Values.Where(list_item => (list_item.rarity==ItemRarity.Junk || (list_item.isSellable == true && list_item.isSalvagable == false && list_item.isDeletable==true)));
 			//var filter = this.items.Values.Where(list_item => list_item.rarity==ItemRarity.Junk || (list_item.isSellable == true && list_item.isSalvagable == false && list_item.VendorValue > 0&& list_item.isAccountBound==true&&list_item.rarity!=ItemRarity.Ascended&&list_item.rarity!=ItemRarity.Legendary));
 			foreach (var item in filter)
 			{
@@ -519,9 +520,9 @@ namespace gw2stacks_blish.data
 		public List<ItemForDisplay> get_just_delete_advice()
 		{
 			List<ItemForDisplay> result = new List<ItemForDisplay>();
-			var filter = this.items.Values.Where(list_item => list_item.isDeletable&&list_item.isSellable==false&&list_item.isSalvagable==false);
-			var unlocks = this.items.Values.Where(list_item => list_item.isDeletable && (list_item.isAccountBound || list_item.isCharacterBound)
-			&& (this.unlocks.recipes.Contains(list_item.recipeId) || this.unlocks.minis.Contains(list_item.miniId) || list_item.skinId.All(unlocked_skin => this.unlocks.skins.Any(potentialSkin => unlocked_skin == potentialSkin))));
+			var filter = this.items.Values.Where(list_item => (list_item.isDeletable&&list_item.isSellable==false&&list_item.isSalvagable==false));
+			var unlocks = this.items.Values.Where(list_item => (list_item.isDeletable && (list_item.isAccountBound || list_item.isCharacterBound)
+			&& (this.unlocks.recipes.Contains(list_item.recipeId) || this.unlocks.minis.Contains(list_item.miniId) || list_item.skinId.All(unlocked_skin => this.unlocks.skins.Any(potentialSkin => unlocked_skin == potentialSkin)))));
 			filter = filter.Union(unlocks);
 			foreach (var item in filter)
 			{
@@ -535,13 +536,13 @@ namespace gw2stacks_blish.data
 		public List<ItemForDisplay> get_just_salvage_advice()
 		{
 			List<ItemForDisplay> result = new List<ItemForDisplay>();
-			var filter = this.items.Values.Where(list_item => Magic.salvageIds.Contains(list_item.itemId)&&list_item.itemId!=Magic.ectoId||(list_item.isDeletable==true&&list_item.isSalvagable==true));
+			var filter = this.items.Values.Where(list_item => (Magic.salvageIds.Contains(list_item.itemId)&&list_item.itemId!=Magic.ectoId||(list_item.isDeletable==true&&list_item.isSalvagable==true)));
 			foreach (var item in filter)
 			{
 				result.Add(new ItemForDisplay(item, null, ("Salvage these items")));
 			}
 			
-			var ascendedFilter = this.items.Values.Where(entry => entry.rarity == ItemRarity.Ascended && (entry.type == ItemType.Armor || entry.type == ItemType.Weapon || entry.type == ItemType.Back || entry.type == ItemType.Trinket));
+			var ascendedFilter = this.items.Values.Where(entry => (entry.rarity == ItemRarity.Ascended && (entry.type == ItemType.Armor || entry.type == ItemType.Weapon || entry.type == ItemType.Back || entry.type == ItemType.Trinket)));
 			foreach (var item in ascendedFilter)
 			{
 				if(Magic.gaetingSalvage.Contains(item.itemId))

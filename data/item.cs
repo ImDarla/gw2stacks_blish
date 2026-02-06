@@ -243,7 +243,22 @@ namespace gw2stacks_blish.data
 			return total;
         }
 
-    
+		public string print_prices()
+		{
+			string payload = "";
+			if(this.isSellable==true)
+			{
+				string vendorPrice = "Vendor price: "+((int)this.VendorValue/10000).ToString()+"g"+ (((int)this.VendorValue / 100)%100).ToString()+"s"+( (int)this.VendorValue % 100).ToString()+"\n";
+				payload += vendorPrice;
+			}
+			if(this.isAccountBound==false)
+			{
+				string tpPrice = "TP price: " + ((int)this.price / 10000).ToString() + "g" + (((int)this.price / 100) % 100).ToString() + "s" + ((int)this.price % 100).ToString() + "\n";
+				payload += tpPrice;
+			}
+			return payload;
+		}
+
 		public override string ToString()
         {
             return this.itemId.ToString() + " " + this.name + " " + string.Join(", ", this.sources);
@@ -317,7 +332,7 @@ namespace gw2stacks_blish.data
 
 		public virtual string print(string name= null)
 		{
-			return Magic.get_local_name(this.get_id()) + "\n" + this.item.total_count() + "x\n" + Magic.get_current_translated_string(this.advice) + "\n" + this.get_source_string();
+			return Magic.get_local_name(this.get_id()) + "\n" + this.item.total_count() + "x\n" + Magic.get_current_translated_string(this.advice) + "\n" +this.item.print_prices()+ this.get_source_string();
 		}
 
 		public override string ToString()
@@ -359,7 +374,7 @@ namespace gw2stacks_blish.data
 
 		public override string print(string name = null)
 		{
-			return Magic.get_local_name(this.get_id()) + "\n" + Magic.get_current_translated_string(this.advice) + " (" + Magic.get_local_name(this.gobblerId) + ")" + "\n" + this.get_source_string();
+			return Magic.get_local_name(this.get_id()) + "\n" + Magic.get_current_translated_string(this.advice) + " (" + Magic.get_local_name(this.gobblerId) + ")" + "\n" + this.item.print_prices() + this.get_source_string();
 		}
 
 		public override string ToString()
@@ -463,7 +478,7 @@ namespace gw2stacks_blish.data
 
 		public override string print(string name = null)
 		{
-			return Magic.get_local_name(this.get_id()) + "\n" + this.item.total_count() + "x\n" + Magic.get_current_translated_string(this.advice)+ ": " + Magic.get_local_name(outputId) +"\n" + this.get_ingredient_string(name);
+			return Magic.get_local_name(this.get_id()) + "\n" + this.item.total_count() + "x\n" + Magic.get_current_translated_string(this.advice)+ ": " + Magic.get_local_name(outputId) +"\n" + this.item.print_prices() + this.get_ingredient_string(name);
 		}
 
 		public override string ToString()
@@ -494,7 +509,7 @@ namespace gw2stacks_blish.data
 		public override string print(string name = null)
 		{
 			//TODO add character based filtering
-			return Magic.get_local_name(this.get_id()) + "\n" + Magic.get_current_translated_string(this.advice) + " (" + Magic.get_local_name(this.output.itemId) + ")" + "\n"  + this.get_source_string();
+			return Magic.get_local_name(this.get_id()) + "\n" + Magic.get_current_translated_string(this.advice) + " (" + Magic.get_local_name(this.output.itemId) + ")" + "\n"  + this.item.print_prices() + this.get_source_string();
 		}
 
 		public override string ToString()
@@ -544,7 +559,7 @@ namespace gw2stacks_blish.data
 		{
 			if(this.itemList.Any()==false)
 			{
-				return Magic.get_local_name(this.get_id()) + "\n" + Magic.get_current_translated_string("No current advice") + "\n" + this.get_source_string();
+				return Magic.get_local_name(this.get_id()) + "\n" + Magic.get_current_translated_string("No current advice") + "\n" + this.item.print_prices() + this.get_source_string();
 			}
 
 			string combinedAdvice = "";
@@ -554,7 +569,7 @@ namespace gw2stacks_blish.data
 				//
 			}
 
-			return Magic.get_local_name(this.get_id()) + "\n" + combinedAdvice+ "\n" + this.get_source_string();
+			return Magic.get_local_name(this.get_id()) + "\n" + combinedAdvice + this.item.print_prices() + this.get_source_string();
 		}
 
 		public override string ToString()
