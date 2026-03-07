@@ -155,8 +155,10 @@
     <None Include="item_storage\koreanLocal.json" />
     <None Include="item_storage\localeItemLUT.json" />
     <None Include="item_storage\LUT.json" />
+    <None Include="item_storage\MagicLists.json" />
     <None Include="item_storage\spanishLocal.json" />
     <None Include="item_storage\translation.json" />
+    <None Include="item_storage\translationV2.json" />
     <None Include="item_storage\version.json" />
     <None Include="manifest.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
