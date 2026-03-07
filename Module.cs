@@ -97,6 +97,8 @@ namespace gw2stacks_blish {
 
 		SettingEntry<bool> itemShortcut;
 
+		SettingEntry<string> materialStorageSize;
+
 		Dictionary<int, AsyncTexture2D> itemTextures = new Dictionary<int, AsyncTexture2D>();
 
 		Model model;
@@ -134,6 +136,8 @@ namespace gw2stacks_blish {
 		Texture2D emptyTexture;
 
 		Texture2D border;
+
+		Texture2D emblem;
 
 		#endregion
 
@@ -227,7 +231,8 @@ namespace gw2stacks_blish {
 
 				if (dir.FileExists("LUT.json") == false ||
 				dir.FileExists("localeItemLUT.json") == false ||
-				dir.FileExists("translation.json")==false)
+				dir.FileExists("magicLists.json")==false ||
+				dir.FileExists("translationV2.json") ==false)
 				/*
 				dir.FileExists("chineseLocal.json") == false ||
 				dir.FileExists("englishLocal.json") == false ||
@@ -271,9 +276,10 @@ namespace gw2stacks_blish {
 					Magic.jsonLut = JsonConvert.DeserializeObject<LUT>(input);
 					var localeInput = System.IO.File.ReadAllText(path + "/localeItemLUT.json");
 					Magic.localeItemNamesLut = JsonConvert.DeserializeObject<localeLut>(localeInput);
-					var translationInput = System.IO.File.ReadAllText(path + "/translation.json");
-					Magic.translation = JsonConvert.DeserializeObject<Translation>(input);
-
+					var translationInput = System.IO.File.ReadAllText(path + "/translationV2.json");
+					Magic.translation = JsonConvert.DeserializeObject<Translation>(translationInput);
+					var listInput = System.IO.File.ReadAllText(path + "/magicLists.json");
+					Magic.magicLists = JsonConvert.DeserializeObject<MagicLists>(listInput);
 					/*
 					var chineseLocal = System.IO.File.ReadAllText(path + "/chineseLocal.json");
 					Magic.englishToChinese = JsonConvert.DeserializeObject<Dictionary<string, string>>(chineseLocal);
@@ -301,13 +307,15 @@ namespace gw2stacks_blish {
 					Magic.englishToSpanish = await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/spanishLocal.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<Dictionary<string, string>>();
 					Magic.englishToFrench = await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/frenchLocal.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<Dictionary<string, string>>();
 					*/
-					Magic.translation = await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/translation.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<Translation>();
+					Magic.translation = await "https://bhm.blishhud.com/gw2stacks_blish/item_storage/translationV2.json".WithHeader("User-Agent", "Blish-HUD").GetJsonAsync<Translation>();
 					var output = JsonConvert.SerializeObject(Magic.jsonLut);
 					System.IO.File.WriteAllText(path + "/LUT.json", output);
 					output = JsonConvert.SerializeObject(Magic.localeItemNamesLut);
 					System.IO.File.WriteAllText(path + "/localeItemLUT.json", output);
 					output = JsonConvert.SerializeObject(Magic.translation);
-					System.IO.File.WriteAllText(path + "/translation.json", output);
+					System.IO.File.WriteAllText(path + "/translationV2.json", output);
+					output= JsonConvert.SerializeObject(Magic.magicLists);
+					System.IO.File.WriteAllText(path + "/magicLists.json", output);
 					
 					/*
 					output = JsonConvert.SerializeObject(Magic.englishToChinese);
@@ -341,16 +349,21 @@ namespace gw2stacks_blish {
 		private async Task load_textures()
 		{
 			this.border = ContentsManager.GetTexture(@"Textures\MasterworkBorder.png");
+			this.emblem = ContentsManager.GetTexture(@"blishstacks-emblem.png");
+			
 		}
 
 		protected override void DefineSettings(SettingCollection settings)
 		{
-			this.includeConsumableSetting = settings.DefineSetting("includeConsumables", true, () => " include consumables", () => "toggle to include food and utility");
-			this.localJson = settings.DefineSetting("localLut", false, () => "use a local item json", () => "will only have an effect if a LUT exists inside the gw2stacks folder");
-			this.ignoreItemsFeature = settings.DefineSetting("ignoreItems", false, () => "blacklist", () => "enable the blacklist feature for item advice");
-			this.displayType = settings.DefineSetting("UI version", "0", () => "", () => "Choose the UI version\n0 for classic gw2stacks\n1 for character based advice\n2 for item specific advice");//\n3 for full inventory recreation\n4 for item advice shortcut functionality ");
-			this.showBag = settings.DefineSetting("Show bags", false, () => "", () => "Toggle showing bags in the inventory recreation");
-			this.itemShortcut = settings.DefineSetting("Enable advice shortcuts", false, () => "", () => "Enable a shift+lclick shortcut for item advice (only works in mode 2)");
+			this.includeConsumableSetting = settings.DefineSetting("includeConsumables", true, () => Magic.get_current_translated_string("include consumables"), () => Magic.get_current_translated_string("toggle to include food and utility"));
+			this.localJson = settings.DefineSetting("localLut", false, () => Magic.get_current_translated_string("use a local item json"), () => Magic.get_current_translated_string("will only have an effect if a LUT exists inside the gw2stacks folder"));
+			this.ignoreItemsFeature = settings.DefineSetting("ignoreItems", false, () => Magic.get_current_translated_string("blacklist"), () => Magic.get_current_translated_string("enable the blacklist feature for item advice"));
+			this.displayType = settings.DefineSetting("UI version", "0", () => Magic.get_current_translated_string(""), () => Magic.get_current_translated_string("Choose the UI version\n0 for classic gw2stacks\n1 for character based advice\n2 for item specific advice"));//\n3 for full inventory recreation\n4 for item advice shortcut functionality ");
+			this.showBag = settings.DefineSetting("Show bags", false, () => Magic.get_current_translated_string(""), () => Magic.get_current_translated_string("Toggle showing bags in the inventory recreation"));
+			this.itemShortcut = settings.DefineSetting("Enable advice shortcuts", false, () => Magic.get_current_translated_string(""), () => Magic.get_current_translated_string("Enable a shift+lclick shortcut for item advice (only works in mode 2)"));
+			this.materialStorageSize = settings.DefineSetting("material storage size", "0", () => Magic.get_current_translated_string("Override material storage size"), () => Magic.get_current_translated_string("Only has an effect if supplied size is larger than determined size and valid"));
+
+
 			this.displayType.SettingChanged += (s, e) => { if (this.validData == true) { this.hide_windows(); }; };
 			
 			this.itemShortcut.SettingChanged += (s, e) => { if (e.NewValue == false) { GameService.Input.Mouse.LeftMouseButtonPressed -= on_mouse_alt_click; }; };
@@ -363,7 +376,7 @@ namespace gw2stacks_blish {
 				new Microsoft.Xna.Framework.Rectangle(24, 30, 565, 630),              // The windowRegion
 				new Microsoft.Xna.Framework.Rectangle(82, 30, 467, 600)               // The contentRegion
 			);
-
+			this.gw2stacksWindow.Emblem = this.emblem;
 			this.gw2stacksWindow.Location = new Point((GameService.Graphics.SpriteScreen.Width / 4) * 1, GameService.Graphics.SpriteScreen.Height*1 / 4);
 			this.gw2stacksWindow.Hidden += (s, e) => this.ignoredItemsWindow?.Hide();
 
@@ -373,8 +386,8 @@ namespace gw2stacks_blish {
 				new Microsoft.Xna.Framework.Rectangle(82, 30, 467, 600)               // The contentRegion
 			);
 
-			
 
+			this.ignoredItemsWindow.Emblem = this.emblem;
 			this.ignoredItemsWindow.Location = new Point((GameService.Graphics.SpriteScreen.Width / 4) * 2, GameService.Graphics.SpriteScreen.Height *1/ 4);
 			this.ignoredView = new IgnoredView();
 			this.ignoredItemsTab = new Tab(ContentService.Content.GetTexture("155052"), () => this.ignoredView, Magic.adviceTypeNameMapping[Magic.AdviceType.stackAdvice]);
@@ -400,6 +413,7 @@ namespace gw2stacks_blish {
 				new Microsoft.Xna.Framework.Rectangle(40, 26, 913, 691),              // The windowRegion
 				new Microsoft.Xna.Framework.Rectangle(70, 71, 839, 605)               // The contentRegion
 			);
+			this.characterBasedWindow.Emblem = this.emblem;
 			this.characterBasedWindow.Hide();
 			//this.characterBasedView = new CharacterView();
 			this.characterBasedWindow.Parent= GameService.Graphics.SpriteScreen;
@@ -463,10 +477,10 @@ namespace gw2stacks_blish {
 
 		private void create_values()
 		{
-			
 
-			icon = new CornerIcon(AsyncTexture2D.FromAssetId(155052), "gw2stacks");
 
+			//icon = new CornerIcon(AsyncTexture2D.FromAssetId(155052), "gw2stacks");
+			icon = new CornerIcon(this.emblem, "gw2stacks");
 			icon.Parent = GameService.Graphics.SpriteScreen;
 			icon.Click += async (s, e) => await on_click();
 
@@ -778,7 +792,12 @@ namespace gw2stacks_blish {
 				this.loadingSpinner.Show();
 				if (this.isOnCooldown==false)
 				{
-					this.model?.reset_state();
+					int providedMaterialStorageSize = Convert.ToInt32(this.materialStorageSize.Value);
+					if(providedMaterialStorageSize<0||providedMaterialStorageSize%250!=0)
+					{
+						providedMaterialStorageSize = 0;
+					}
+					this.model?.reset_state(providedMaterialStorageSize);
 					await this.model?.setup(this.api);
 				}
 				else
@@ -795,12 +814,12 @@ namespace gw2stacks_blish {
 		{
 			Logger.Debug("Started on_click");
 			this.validate_api();
-			if (fatalError == false)//TODO fix still attempting startup even if no subtoken is supplied
+			if (fatalError == false)
 			{
 				try
 				{
 					await this.start_api_update();
-					//throw new Exception("test"); //TODO REMOVE
+					
 					await this.save_model();
 				}
 				catch(Gw2Sharp.WebApi.Exceptions.RequestException requestE_)

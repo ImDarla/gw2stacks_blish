@@ -363,6 +363,7 @@
     <Content Include="mgfxc.exe" />
     <Content Include="mgfxc.pdb" />
     <Content Include="ref\155997.png" />
+    <Content Include="ref\blishstacks-emblem.png" />
     <Content Include="SharpDX.D3DCompiler.dll" />
     <Content Include="SharpDX.D3DCompiler.xml" />
     <Content Include="SharpDX.dll" />

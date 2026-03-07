@@ -147,7 +147,7 @@ namespace gw2stacks_blish.data
 			}
 
 
-			if (Magic.collectionOnlyIds.Contains(info_.Id))
+			if (Magic.magicLists.collectionOnlyIds.Contains(info_.Id))
 			{
 				this.isDeletable = true;
 			}
@@ -342,6 +342,47 @@ namespace gw2stacks_blish.data
 		}
     }
 
+	class SalvageItemForDisplay : ItemForDisplay
+	{
+		public int salvageKitId;
+		public SalvageItemForDisplay(Item item_, List<Source> sources_, string advice_, int salvageKitId_) : base(item_, sources_, advice_)
+		{
+			this.salvageKitId = salvageKitId_;
+		}
+
+
+
+		protected override string get_source_string()
+		{
+			return "Sources:\n" + string.Join("\n", this.sources);
+		}
+
+		public override int get_id()
+		{
+			return base.get_id();
+		}
+
+		public override int get_iconId()
+		{
+			return base.get_iconId();
+		}
+
+		public override string get_advice(string name = null)
+		{
+			return Magic.get_current_translated_string(this.advice) + " (" + Magic.get_local_name(this.salvageKitId) + ")";
+		}
+
+		public override string print(string name = null)
+		{
+			return Magic.get_local_name(this.get_id()) + "\n" + Magic.get_current_translated_string(this.advice) + " (" + Magic.get_local_name(this.salvageKitId) + ")" + "\n" + this.item.print_prices() + this.get_source_string();
+		}
+
+		public override string ToString()
+		{
+			return this.print();
+		}
+	}
+
 	class GobblerItemForDisplay : ItemForDisplay
 	{
 		public int gobblerId;
@@ -508,7 +549,7 @@ namespace gw2stacks_blish.data
 
 		public override string print(string name = null)
 		{
-			//TODO add character based filtering
+			
 			return Magic.get_local_name(this.get_id()) + "\n" + Magic.get_current_translated_string(this.advice) + " (" + Magic.get_local_name(this.output.itemId) + ")" + "\n"  + this.item.print_prices() + this.get_source_string();
 		}
 

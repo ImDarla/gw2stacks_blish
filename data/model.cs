@@ -35,13 +35,13 @@ namespace gw2stacks_blish.data
 		public Dictionary<string, List<InventoryBagSlot>> inventoryBags = new Dictionary<string, List<InventoryBagSlot>>();
 		public Armory legendaryArmory;
 		public Unlocks unlocks;
-		public void reset_state()
+		public void reset_state(int materialStorageSize_)
 		{
 			foreach (var item in this.items)
 			{
 				item.Value.sources.Clear();
 			}
-			this.materialStorageSize = 0;
+			this.materialStorageSize = materialStorageSize_;
 			this.craftableRecipes = new List<RecipeInfo>();
 			this.recipeResults = new Dictionary<int, Item>();
 			this.appraisedItemIds = new List<int>();
@@ -61,7 +61,7 @@ namespace gw2stacks_blish.data
 			this.log = log_;
 			this.items = new Dictionary<int, Item>();
 			
-			this.reset_state();
+			this.reset_state(0);
 		}
 
 		public async Task setup(Gw2Api api_)
@@ -91,7 +91,6 @@ namespace gw2stacks_blish.data
                 this.items.Add(id_, new Item(id_, isCharacterBound_, isAccountBound_));
 			}
 			this.items[id_].add_source(source_);
-			//TODO maybe remove
 			//if (this.items[id_].isRareForSalvage==true)
 			if(this.items[id_].isAccountBound==false)
 			{
@@ -211,7 +210,7 @@ namespace gw2stacks_blish.data
 				this.add_item(item.Id, accountBound, characterBound, new Source(Convert.ToUInt64(item.Count), ("Material Storage")));
 				maxCount = Math.Max(maxCount, (UInt64)item.Count);
 			}
-			this.materialStorageSize = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(maxCount / 250)) * 250);
+			this.materialStorageSize = Math.Max(Convert.ToInt32(Math.Ceiling(Convert.ToDouble(maxCount / 250)) * 250), materialStorageSize);
 			foreach (var item in await api_.bank())
 			{
                 if(item==null)
@@ -484,8 +483,23 @@ namespace gw2stacks_blish.data
 				
 				if (item.price < this.ectoSalvagePrice)
 				{
+					if(this.has_item(((int)Magic.SalvageKit.SilverSalvageKit)))
+					{
+						result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items"), ((int)Magic.SalvageKit.SilverSalvageKit)));
+					}
+					else
+					{
+						if(this.has_item(((int)Magic.SalvageKit.MysticSalvageKit))||(this.has_item(19983)&&this.items[19983].total_count()>3))
+						{
+							result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items"), ((int)Magic.SalvageKit.MysticSalvageKit)));
+						}
+						else
+						{
+							result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items"), ((int)Magic.SalvageKit.MasterSalvageKit)));
+						}
+						
+					}
 					
-					result.Add(new ItemForDisplay(item, null, ("Salvage these items")));
 				}
 				else
 				{
@@ -536,26 +550,49 @@ namespace gw2stacks_blish.data
 		public List<ItemForDisplay> get_just_salvage_advice()
 		{
 			List<ItemForDisplay> result = new List<ItemForDisplay>();
-			var filter = this.items.Values.Where(list_item => (Magic.salvageIds.Contains(list_item.itemId)&&list_item.itemId!=Magic.ectoId||(list_item.isDeletable==true&&list_item.isSalvagable==true)));
+			var filter = this.items.Values.Where(list_item => (Magic.magicLists.salvageIds.Contains(list_item.itemId)&&list_item.itemId!=Magic.ectoId||(list_item.isDeletable==true&&list_item.isSalvagable==true)));
 			foreach (var item in filter)
 			{
-				result.Add(new ItemForDisplay(item, null, ("Salvage these items")));
+				if(item.rarity==ItemRarity.Basic||item.rarity==ItemRarity.Fine||(item.rarity == ItemRarity.Rare && item.isRareForSalvage == false))
+				{
+					if(this.has_item((int)Magic.SalvageKit.CopperSalvageKit))
+					{
+						result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items"), ((int)Magic.SalvageKit.CopperSalvageKit)));
+					}
+					else
+					{
+						result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items"), ((int)Magic.SalvageKit.BasicSalvageKit)));
+					}
+				}
+				else
+				{
+					if ((item.rarity == ItemRarity.Masterwork||item.rarity==ItemRarity.Exotic)&& this.has_item((int)Magic.SalvageKit.RuneSalvageKit))
+					{
+						result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items"), ((int)Magic.SalvageKit.RuneSalvageKit)));
+					}
+					else
+					{
+						result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items"), ((int)Magic.SalvageKit.SilverSalvageKit)));
+					}
+				}
+				
+					//result.Add(new ItemForDisplay(item, null, ("Salvage these items")));
 			}
 			
 			var ascendedFilter = this.items.Values.Where(entry => (entry.rarity == ItemRarity.Ascended && (entry.type == ItemType.Armor || entry.type == ItemType.Weapon || entry.type == ItemType.Back || entry.type == ItemType.Trinket)));
 			foreach (var item in ascendedFilter)
 			{
-				if(Magic.gaetingSalvage.Contains(item.itemId))
+				if(Magic.magicLists.gaetingSalvage.Contains(item.itemId))
 				{
 				
-					result.Add(new ItemForDisplay(item, null, ("Salvage these items for gaeting crystals")));
+					result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items for gaeting crystals"), ((int)Magic.SalvageKit.AscendedSalvageKit)));
 				}
 				else
 				{
-					if(Magic.magnetiteSalvage.Contains(item.itemId))
+					if(Magic.magicLists.magnetiteSalvage.Contains(item.itemId))
 					{
 						
-						result.Add(new ItemForDisplay(item, null, ("Salvage these items for magnetite shards")));
+						result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items for magnetite shards"), ((int)Magic.SalvageKit.AscendedSalvageKit)));
 					}
 					else
 					{
@@ -572,21 +609,21 @@ namespace gw2stacks_blish.data
 											if (this.legendaryArmory.heavyArmor[item.armorType] == true)
 											{
 												
-												result.Add(new ItemForDisplay(item, null, ("Salvage these items for research notes")));
+												result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items"), ((int)Magic.SalvageKit.AscendedSalvageKit)));
 											}
 											break;
 										case ItemWeightType.Medium:
 											if (this.legendaryArmory.mediumArmor[item.armorType] == true)
 											{
 												
-												result.Add(new ItemForDisplay(item, null, ("Salvage these items for research notes")));
+												result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items"), ((int)Magic.SalvageKit.AscendedSalvageKit)));
 											}
 											break;
 										case ItemWeightType.Light:
 											if (this.legendaryArmory.lightArmor[item.armorType] == true)
 											{
 												
-												result.Add(new ItemForDisplay(item, null, ("Salvage these items for research notes")));
+												result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items"), ((int)Magic.SalvageKit.AscendedSalvageKit)));
 											}
 											break;
 										default:
@@ -608,7 +645,7 @@ namespace gw2stacks_blish.data
 										if (this.legendaryArmory.weapons[item.weaponType] >= 1)
 										{
 											
-											result.Add(new ItemForDisplay(item, null, ("Salvage these items for research notes")));
+											result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items"), ((int)Magic.SalvageKit.AscendedSalvageKit)));
 										}
 									}
 									else
@@ -616,7 +653,7 @@ namespace gw2stacks_blish.data
 										if (this.legendaryArmory.weapons[item.weaponType] >= 2)
 										{
 											
-											result.Add(new ItemForDisplay(item, null, ("Salvage these items for research notes")));
+											result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items"), ((int)Magic.SalvageKit.AscendedSalvageKit)));
 										}
 									}
 									
@@ -636,21 +673,21 @@ namespace gw2stacks_blish.data
 										if(this.legendaryArmory.trinkets>=2)
 										{
 											
-											result.Add(new ItemForDisplay(item, null, ("Salvage these items")));
+											result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items"), ((int)Magic.SalvageKit.AscendedSalvageKit)));
 										}
 										break;
 									case ItemTrinketType.Ring:
 										if(this.legendaryArmory.rings>=2)
 										{
 											
-											result.Add(new ItemForDisplay(item, null, ("Salvage these items")));
+											result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items"), ((int)Magic.SalvageKit.AscendedSalvageKit)));
 										}
 										break;
 									case ItemTrinketType.Amulet:
 										if(this.legendaryArmory.amulet==true)
 										{
 											
-											result.Add(new ItemForDisplay(item, null, ("Salvage these items")));
+											result.Add(new SalvageItemForDisplay(item, null, ("Salvage these items"), ((int)Magic.SalvageKit.AscendedSalvageKit)));
 										}
 										break;
 									default:
@@ -808,13 +845,43 @@ namespace gw2stacks_blish.data
 			{
 				result.Add(new ItemForDisplay(id, null, ("Sell these items on the TP")));
 			}
+
+			foreach (var item in this.items.Values)
+			{
+				if(item.type ==ItemType.Container)
+				{
+					if(item.isAccountBound == false)
+					{
+						result.Add(new ItemForDisplay(item, null, "Open or sell these containers on the TP"));
+					}
+					else
+					{
+						result.Add(new ItemForDisplay(item, null, "Open these containers"));
+					}
+					
+				}
+
+			}
+			var vendorMaterial = this.items.Values.Where(list_item => (list_item.type == ItemType.CraftingMaterial&& list_item.total_count() > (ulong)this.materialStorageSize));
+			foreach (var item in vendorMaterial) 
+			{
+				if(item.isAccountBound==true)
+				{
+					result.Add(new ItemForDisplay(item, null, "Sell excess materials to a vendor"));
+				}
+				else
+				{
+					result.Add(new ItemForDisplay(item, null, "Sell excess materials on the TP"));
+				}
+			}
+
 			return result;
 		}
 
 		public List<ItemForDisplay> get_karma_consumables_advice()
 		{
 			List<ItemForDisplay> result = new List<ItemForDisplay>();
-			foreach (var item in Magic.karmaIds)
+			foreach (var item in Magic.magicLists.karmaIds)
 			{
 				if(this.has_item(item)&&this.items[item].total_count()>0)
                 {
