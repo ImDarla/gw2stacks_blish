@@ -393,19 +393,18 @@ namespace views
 				var icon = 0;
 				if (string.IsNullOrEmpty(this.hunt) || Magic.get_local_name(item).ToLower().Contains(this.hunt.ToLower()))
 				{
-					if (this.itemTextures.ContainsKey(item) == false)
+					if (Magic.jsonLut.itemLut.ContainsKey(item) == true)
 					{
-						if (Magic.jsonLut.itemLut.ContainsKey(item) == true)
-						{
-							icon = Magic.jsonLut.itemLut[item].IconId;
-							this.itemTextures.Add(icon, AsyncTexture2D.FromAssetId(icon));
-						}
-						else
-						{
-							icon = Magic.unknown.IconId;
-							this.itemTextures.Add(icon, AsyncTexture2D.FromAssetId(icon));
-						}
+						icon = Magic.jsonLut.itemLut[item].IconId;
+					}
+					else
+					{
+						icon = Magic.unknown.IconId;
+					}
 
+					if (this.itemTextures.ContainsKey(icon) == false)
+					{
+						this.itemTextures.Add(icon, AsyncTexture2D.FromAssetId(icon));
 					}
 					var container = GetStandardPanel(rootPanel, Magic.get_local_name(item), icon);
 
