@@ -1,24 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Blish_HUD.Content;
 using Blish_HUD;
 using Blish_HUD.Controls;
 using Blish_HUD.Graphics.UI;
-using Blish_HUD.Overlay.UI.Presenters;
-using Blish_HUD.Overlay.UI.Views;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Blish_HUD.GameServices;
-using Blish_HUD.Settings.UI.Views;
 using gw2stacks_blish.data;
-using Blish_HUD.Input;
-using Gw2Sharp.WebApi.V2.Models;
-using SharpDX.DirectWrite;
-using System.Text.RegularExpressions;
 
 namespace views
 {

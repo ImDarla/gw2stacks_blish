@@ -1,20 +1,12 @@
 ﻿//using Blish_HUD.PersistentStore;
 using Gw2Sharp.WebApi.V2.Models;
 using gw2stacks_blish.reader;
-using SharpDX.Direct3D11;
-using SharpDX.Direct3D9;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
-using System.Reflection;
-using System.Security.Principal;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework.Graphics;
 using Blish_HUD;
-using System.IdentityModel;
-using static System.Reflection.Metadata.BlobBuilder;
+
 
 namespace gw2stacks_blish.data
 {

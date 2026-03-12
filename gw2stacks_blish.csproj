@@ -58,7 +58,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="Content\bin\Windows\Content\atlas\ui-atlas.xnb" />
     <None Include="Content\bin\Windows\Content\atlas\ui.xnb" />
     <None Include="Content\bin\Windows\Content\common\button-states.xnb" />
@@ -149,9 +148,6 @@
     <None Include="manifest.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="mgfxc.deps.json" />
-    <None Include="mgfxc.runtimeconfig.dev.json" />
-    <None Include="mgfxc.runtimeconfig.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -347,7 +343,6 @@
     <None Include="ref\_instructions.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CppNet.dll" />
     <Content Include="Docs\characterFeature.png" />
     <Content Include="Docs\detailsView.png" />
     <Content Include="Docs\diverseTabs.gif" />
@@ -358,16 +353,8 @@
     <Content Include="Docs\KeyInterface.png" />
     <Content Include="Docs\searchBar.png" />
     <Content Include="Docs\waitingForApi.gif" />
-    <Content Include="libmojoshader_64.dll" />
-    <Content Include="mgfxc.dll" />
-    <Content Include="mgfxc.exe" />
-    <Content Include="mgfxc.pdb" />
     <Content Include="ref\155997.png" />
     <Content Include="ref\blishstacks-emblem.png" />
-    <Content Include="SharpDX.D3DCompiler.dll" />
-    <Content Include="SharpDX.D3DCompiler.xml" />
-    <Content Include="SharpDX.dll" />
-    <Content Include="SharpDX.xml" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

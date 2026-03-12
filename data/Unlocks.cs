@@ -1,12 +1,4 @@
-﻿using Blish_HUD.Modules.Managers;
-using Gw2Sharp.WebApi.Http;
-using Gw2Sharp.WebApi.V2;
-using Gw2Sharp.WebApi.V2.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace gw2stacks_blish.data
 {
